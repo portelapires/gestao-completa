@@ -285,8 +285,8 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO SUPABASE
-        var SUPABASE_URL = "https://hyvusmxbddzksia.supabase.co";
+        // CONFIGURAÇÃO DO SUPABASE (Corrigida sem o sufixo rest/v1/)
+        var SUPABASE_URL = "https://zjacjwmyvusmxbdzksia.supabase.co";
         var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWNqd215dnVzbXhiZHprc2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzAyMDUsImV4cCI6MjEwNTMwNjIwNX0.MtfJh8cbslxDLivVFI1Fldfiaka6BXmzaLbmdO6y3IE";
         
         var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -333,9 +333,19 @@
             loadUserData();
         }
 
+        // Login por Provedor ajustado com redirecionamento explícito
         async function loginProvider(provider) {
             showLoader();
-            await _supabase.auth.signInWithOAuth({ provider: provider });
+            const { data, error } = await _supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) {
+                hideLoader();
+                alert("Erro no login: " + error.message);
+            }
         }
 
         async function loginEmail() {
@@ -454,11 +464,11 @@
                 else pending += val;
             });
 
-            document.getElementById('lblSummary1').innerText = "TOTAL MÊS";
+            document.getElementById('lblSummary1').innerText = "TOTAL DO MÊS";
             document.getElementById('valSummary1').innerText = formatCurrency(total);
-            document.getElementById('lblSummary2').innerText = "A PAGAR";
+            document.getElementById('lblSummary2').innerText = "FALTA PAGAR";
             document.getElementById('valSummary2').innerText = formatCurrency(pending);
-            document.getElementById('lblSummary3').innerText = "JÁ PAGO";
+            document.getElementById('lblSummary3').innerText = "JÁ PAGOU";
             document.getElementById('valSummary3').innerText = formatCurrency(paid);
 
             currentBills.sort(function(a, b) {
