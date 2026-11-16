@@ -60,9 +60,9 @@
         body { margin: 0; background-color: var(--bg); color: var(--text-main); padding-bottom: 100px; transition: background-color 0.35s ease, color 0.35s ease; overflow-x: hidden; }
         
         .center-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .auth-card { background: var(--card-bg); border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 410px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); border: 1px solid var(--border-color); text-align: center; }
-        .auth-card h1 { color: var(--text-main); margin-bottom: 6px; font-size: 1.5rem; letter-spacing: 1px; font-weight: 800; }
-        .auth-card p { color: var(--text-sub); font-size: 0.88rem; margin-bottom: 18px; line-height: 1.4; }
+        .auth-card { background: var(--card-bg); border-radius: 16px; padding: 28px 22px; width: 100%; max-width: 430px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); border: 1px solid var(--border-color); text-align: center; }
+        .auth-card h1 { color: var(--text-main); margin-bottom: 6px; font-size: 1.45rem; letter-spacing: 1px; font-weight: 800; }
+        .auth-card p { color: var(--text-sub); font-size: 0.88rem; margin-bottom: 16px; line-height: 1.4; }
         
         .btn-social { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: #FFF; color: #333; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; transition: all 0.2s; }
         .btn-social:hover { background: #F8FAFC; }
@@ -72,7 +72,7 @@
         .divider:not(:empty)::before { margin-right: .5em; }
         .divider:not(:empty)::after { margin-left: .5em; }
 
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg); color: var(--text-main); font-size: 0.95rem; }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg); color: var(--text-main); font-size: 0.95rem; }
         .auth-options-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-sub); }
         .auth-options-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
         .btn-link { background: none; border: none; color: var(--accent-color); font-weight: 700; font-size: 0.82rem; cursor: pointer; padding: 0; text-decoration: underline; }
@@ -80,9 +80,29 @@
         .btn-primary:active { transform: scale(0.98); }
         .auth-notice { font-size: 0.76rem; color: var(--text-sub); margin-top: 16px; line-height: 1.35; }
 
-        .plan-box { background: var(--bg); border: 1.5px solid var(--btn-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-        .plan-price { font-size: 1.8rem; font-weight: 900; color: var(--text-main); margin: 4px 0; }
-        .plan-features { text-align: left; font-size: 0.83rem; color: var(--text-sub); padding-left: 18px; margin: 10px 0 0 0; line-height: 1.6; }
+        /* Seletor de Planos com Desconto */
+        .plans-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left; }
+        .plan-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border-color);
+            background: var(--bg);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .plan-option.selected {
+            border-color: var(--btn-bg);
+            background: rgba(253, 224, 71, 0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .plan-left strong { display: block; font-size: 0.92rem; color: var(--text-main); }
+        .plan-left span { font-size: 0.76rem; color: var(--text-sub); }
+        .plan-right { text-align: right; }
+        .plan-right strong { display: block; font-size: 1rem; color: var(--text-main); font-weight: 800; }
+        .plan-badge { display: inline-block; background: #10B981; color: #FFF; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 5px; text-transform: uppercase; }
 
         .alert-banner { max-width: 600px; margin: 12px auto 0 auto; padding: 10px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; text-align: center; display: none; }
         .alert-warning { background: rgba(245, 158, 11, 0.16); border: 1px solid #F59E0B; color: var(--text-main); }
@@ -232,24 +252,68 @@
         </div>
     </div>
 
-    <!-- 2. TELA DE ASSINATURA / REATIVAÇÃO (PAYWALL AUTÔNOMO ASAAS) -->
+    <!-- 2. TELA DE ESCOLHA DE PLANOS (PAYWALL AUTÔNOMO ASAAS) -->
     <div id="paywallContainer" class="center-screen" style="display: none;">
         <div class="auth-card">
-            <h1>ASSINATURA MENSAL</h1>
+            <h1>ESCOLHA SEU PLANO</h1>
             <p id="paywallUserEmail" style="font-weight: 700; margin-bottom: 12px;"></p>
 
-            <!-- Aviso dinâmico caso esteja suspenso com prazo de retenção de 90 dias -->
             <div id="suspendedRetentionBanner" class="alert-banner alert-danger"></div>
 
-            <div class="plan-box">
-                <span style="font-size:0.75rem; text-transform:uppercase; font-weight:800; color:var(--text-sub);">Plano Pré-Pago Mensal</span>
-                <div class="plan-price">R$ 29,90<span style="font-size:0.85rem; font-weight:600;">/mês</span></div>
-                <ul class="plan-features">
-                    <li>Controle Financeiro e Veicular ilimitado</li>
-                    <li>Relatórios em PDF e nuvem sincronizada</li>
-                    <li>Tolerância de 3 dias após o vencimento</li>
-                    <li>Cancele quando quiser (acesso segue até o vencimento)</li>
-                </ul>
+            <div class="plans-grid" id="plansGrid">
+                <div class="plan-option selected" data-months="1" onclick="selectPlan(1, this)">
+                    <div class="plan-left">
+                        <strong>Mensal (1 mês)</strong>
+                        <span>Renovação mensal • Cancele quando quiser</span>
+                    </div>
+                    <div class="plan-right">
+                        <strong>R$ 6,99</strong>
+                    </div>
+                </div>
+
+                <div class="plan-option" data-months="3" onclick="selectPlan(3, this)">
+                    <div class="plan-left">
+                        <strong>Trimestral (3 meses)</strong>
+                        <span>Equivale a R$ 6,30/mês</span>
+                    </div>
+                    <div class="plan-right">
+                        <span class="plan-badge">10% OFF</span>
+                        <strong>R$ 18,90</strong>
+                    </div>
+                </div>
+
+                <div class="plan-option" data-months="6" onclick="selectPlan(6, this)">
+                    <div class="plan-left">
+                        <strong>Semestral (6 meses)</strong>
+                        <span>Equivale a R$ 5,82/mês</span>
+                    </div>
+                    <div class="plan-right">
+                        <span class="plan-badge">17% OFF</span>
+                        <strong>R$ 34,90</strong>
+                    </div>
+                </div>
+
+                <div class="plan-option" data-months="9" onclick="selectPlan(9, this)">
+                    <div class="plan-left">
+                        <strong>Plano 9 Meses</strong>
+                        <span>Equivale a R$ 5,32/mês</span>
+                    </div>
+                    <div class="plan-right">
+                        <span class="plan-badge">24% OFF</span>
+                        <strong>R$ 47,90</strong>
+                    </div>
+                </div>
+
+                <div class="plan-option" data-months="12" onclick="selectPlan(12, this)">
+                    <div class="plan-left">
+                        <strong>Anual (12 meses)</strong>
+                        <span>Equivale a R$ 4,99/mês (Mais vantajoso)</span>
+                    </div>
+                    <div class="plan-right">
+                        <span class="plan-badge">29% OFF</span>
+                        <strong>R$ 59,90</strong>
+                    </div>
+                </div>
             </div>
 
             <input type="text" id="subName" class="auth-input" placeholder="Seu Nome Completo">
@@ -257,7 +321,7 @@
 
             <button type="button" class="btn-primary" onclick="startAsaasSubscription()">Assinar / Renovar Agora</button>
             <button type="button" class="btn-cancel" style="width:100%; margin-top:10px;" onclick="checkSubscriptionStatus()">Já paguei, liberar meu acesso</button>
-            <button type="button" class="btn-link" style="margin-top:16px;" onclick="logout()">Sair da conta</button>
+            <button type="button" class="btn-link" style="margin-top:14px;" onclick="logout()">Sair da conta</button>
         </div>
     </div>
 
@@ -293,7 +357,7 @@
         </div>
     </div>
 
-    <!-- MODAL: GERENCIAR MINHA ASSINATURA (CANCELAMENTO PRÉ-PAGO) -->
+    <!-- MODAL: GERENCIAR MINHA ASSINATURA -->
     <div class="modal" id="modalMySub" onclick="if(event.target === this) closeModalById('modalMySub')">
         <div class="modal-content">
             <h3>Minha Assinatura</h3>
@@ -331,7 +395,6 @@
             </div>
         </div>
 
-        <!-- Banner de Aviso de Tolerância (3 dias) ou Cancelamento Agendado -->
         <div style="padding: 0 12px;">
             <div id="graceBanner" class="alert-banner alert-warning"></div>
         </div>
@@ -435,6 +498,7 @@
     </div>
 
     <script>
+        var ADMIN_EMAIL = "portelapires@gmail.com";
         var SUPABASE_URL = "https://zjacjwmyvusmxbdzksia.supabase.co";
         var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWNqd215dnVzbXhiZHprc2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzAyMDUsImV4cCI6MjEwNTMwNjIwNX0.MtfJh8cbslxDLivVFI1Fldfiaka6BXmzaLbmdO6y3IE";
         
@@ -444,12 +508,23 @@
 
         var currentUser = null;
         var currentSub = null;
+        var selectedPlanMonths = 1;
         var currentMode = 'financeiro';
         var currentDate = new Date();
         var viewMonth = currentDate.getMonth(); 
         var viewYear = currentDate.getFullYear();
         var monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
         var globalData = { bills: [], veiculos: [], pagamentosMensais: [] };
+
+        function isMasterAdmin() {
+            return currentUser && currentUser.email && currentUser.email.toLowerCase().trim() === ADMIN_EMAIL;
+        }
+
+        function selectPlan(months, el) {
+            selectedPlanMonths = months;
+            document.querySelectorAll('.plan-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+        }
 
         function applySystemOrSavedTheme() {
             var savedTheme = localStorage.getItem('theme');
@@ -492,10 +567,24 @@
             return p[2] + '/' + p[1] + '/' + p[0];
         }
 
-        // Valida acesso pré-pago, vencimento e tolerância de 3 dias
         async function checkSubscriptionStatus() {
             showLoader();
-            // Executa verificação do ciclo de vida (suspensão após +3 dias e expurgo de 90 dias)
+
+            // Admin Master (portelapires@gmail.com) sempre entra direto com privilégios totais
+            if (isMasterAdmin()) {
+                const { data } = await _supabase
+                    .from('assinaturas')
+                    .select('*')
+                    .eq('email', ADMIN_EMAIL)
+                    .maybeSingle();
+
+                currentSub = data || { email: ADMIN_EMAIL, status: 'courtesy', is_admin: true };
+                currentSub.is_admin = true;
+                hideLoader();
+                showApp();
+                return;
+            }
+
             await _supabase.rpc('process_subscription_lifecycle');
 
             const { data } = await _supabase
@@ -512,13 +601,11 @@
                 return;
             }
 
-            // Admin ou Cortesia tem acesso livre sempre
             if (currentSub.is_admin || currentSub.status === 'courtesy') {
                 showApp();
                 return;
             }
 
-            // Verifica se está ativo ou cancelado dentro do período pago + 3 dias de tolerância
             if ((currentSub.status === 'active' || currentSub.status === 'canceled') && currentSub.current_period_end) {
                 var today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -577,8 +664,7 @@
             document.getElementById('appContent').style.display = 'block';
             document.getElementById('bottomBarActions').style.display = 'flex';
 
-            // Botão Admin exclusivo para portelapires@gmail.com
-            document.getElementById('btnAdminPanel').style.display = (currentSub && currentSub.is_admin) ? 'flex' : 'none';
+            document.getElementById('btnAdminPanel').style.display = (isMasterAdmin() || (currentSub && currentSub.is_admin)) ? 'flex' : 'none';
 
             updateDisplay();
             loadUserData();
@@ -593,7 +679,7 @@
             }
             showLoader();
             const { data, error } = await _supabase.functions.invoke('asaas-checkout', {
-                body: { action: 'subscribe', name: name, cpfCnpj: cpfCnpj }
+                body: { action: 'subscribe', name: name, cpfCnpj: cpfCnpj, planMonths: selectedPlanMonths }
             });
             hideLoader();
 
@@ -610,15 +696,16 @@
         function openMySubModal() {
             var txt = document.getElementById('mySubStatusText');
             var cancelArea = document.getElementById('cancelSubArea');
-            if (currentSub?.status === 'courtesy' || currentSub?.is_admin) {
-                txt.innerHTML = "Status: <strong>Acesso Cortesia / Vitalício</strong><br>Você não possui cobranças ativas.";
+            if (isMasterAdmin() || currentSub?.status === 'courtesy' || currentSub?.is_admin) {
+                txt.innerHTML = "Status: <strong>Acesso Cortesia / Administrador</strong><br>Você não possui cobranças ativas.";
                 cancelArea.style.display = 'none';
             } else if (currentSub?.status === 'canceled') {
                 txt.innerHTML = `Status: <strong>Cancelamento Agendado</strong><br>Como o plano é pré-pago, seu acesso continua normal até o vencimento em <strong>${formatDateBR(currentSub.current_period_end)}</strong> (+ 3 dias de tolerância).<br><br>Após a suspensão, seus dados ficam guardados por 90 dias antes de serem excluídos.`;
                 cancelArea.style.display = 'none';
             } else {
-                txt.innerHTML = `Status: <strong>Assinatura Mensal Ativa (Pré-Pago)</strong><br>Próximo vencimento: <strong>${formatDateBR(currentSub?.current_period_end)}</strong><br><br>Se você cancelar agora, continuará usando o sistema normalmente até a data de vencimento.`;
-                cancelArea.style.display = 'block';
+                var meses = currentSub?.plan_months || 1;
+                txt.innerHTML = `Status: <strong>Plano Ativo (${meses} ${meses === 1 ? 'mês' : 'meses'})</strong><br>Próximo vencimento: <strong>${formatDateBR(currentSub?.current_period_end)}</strong><br><br>Se você cancelar agora, continuará usando o sistema normalmente até a data de vencimento.`;
+                cancelArea.style.display = meses === 9 ? 'none' : 'block';
             }
             openModalById('modalMySub');
         }
@@ -641,7 +728,7 @@
 
         // PAINEL ADMIN EXCLUSIVO (portelapires@gmail.com)
         async function openAdminModal() {
-            if (!currentSub?.is_admin) return;
+            if (!isMasterAdmin() && !currentSub?.is_admin) return;
             openModalById('modalAdmin');
             await loadAdminUsers();
         }
@@ -652,8 +739,8 @@
             list.innerHTML = '';
             (data || []).forEach(u => {
                 var badgeClass = u.status === 'courtesy' ? 'badge-courtesy' : (u.status === 'active' ? 'badge-active' : (u.status === 'canceled' ? 'badge-canceled' : 'badge-inactive'));
-                var label = u.status === 'courtesy' ? 'Cortesia' : (u.status === 'active' ? 'Ativo' : (u.status === 'canceled' ? 'Cancelado' : 'Suspenso/Inativo'));
-                var actionBtn = u.is_admin ? '<span style="font-size:0.72rem;font-weight:700;">ADMIN</span>' : (
+                var label = u.status === 'courtesy' ? 'Cortesia' : (u.status === 'active' ? `Ativo (${u.plan_months || 1}m)` : (u.status === 'canceled' ? 'Cancelado' : 'Suspenso/Inativo'));
+                var actionBtn = (u.is_admin || u.email === ADMIN_EMAIL) ? '<span style="font-size:0.72rem;font-weight:700;">ADMIN</span>' : (
                     u.status === 'courtesy'
                     ? `<button class="btn-link" style="color:#EF4444;" onclick="revokeCourtesy('${u.email}')">Remover</button>`
                     : `<button class="btn-link" onclick="grantCourtesy('${u.email}')">Dar Cortesia</button>`
