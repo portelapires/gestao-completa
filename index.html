@@ -260,10 +260,10 @@
         /* Botão Inferior Centralizado com Efeito Água/Gota */
         .bottom-bar-actions {
             position: fixed;
-            bottom: max(env(safe-area-inset-bottom), 18px);
+            bottom: max(env(safe-area-inset-bottom), 24px);
             left: 0;
             right: 0;
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             pointer-events: none;
@@ -436,14 +436,14 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Botão Centralizado embaixo -->
-        <div class="bottom-bar-actions">
-            <button class="btn-add-center" id="btnAddCenter" onclick="openModal()">
-                <span class="btn-add-plus">+</span>
-                <span>Adicionar</span>
-            </button>
-        </div>
+    <!-- Botão Centralizado fixo no rodapé da tela -->
+    <div class="bottom-bar-actions" id="bottomBarActions">
+        <button class="btn-add-center" id="btnAddCenter" onclick="openModal()">
+            <span class="btn-add-plus">+</span>
+            <span>Adicionar</span>
+        </button>
     </div>
 
     <!-- Modal Financeiro (Criar / Editar) -->
@@ -542,7 +542,6 @@
 
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                // Sempre acompanha o dispositivo automaticamente e limpa override manual antigo
                 localStorage.removeItem('theme');
                 if (e.matches) document.body.classList.add('dark-mode');
                 else document.body.classList.remove('dark-mode');
@@ -574,11 +573,13 @@
         function showAuth() {
             document.getElementById('authContainer').style.display = 'flex';
             document.getElementById('appContent').style.display = 'none';
+            document.getElementById('bottomBarActions').style.display = 'none';
         }
 
         function showApp() {
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
+            document.getElementById('bottomBarActions').style.display = 'flex';
             updateDisplay();
             loadUserData();
         }
