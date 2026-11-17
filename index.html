@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     
     <style>
         :root {
@@ -232,18 +233,19 @@
         .btn-hamburger { background: rgba(255,255,255,0.08); color: var(--header-text); border: 1px solid rgba(255,255,255,0.16); border-radius: 9px; width: 34px; height: 32px; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s ease, background-color 0.2s ease; }
         .btn-hamburger:active { transform: scale(0.9); }
         .module-switcher { display: inline-flex; background: rgba(255, 255, 255, 0.08); border-radius: 11px; padding: 3px; border: 1px solid rgba(255, 255, 255, 0.14); }
-        .module-btn { background: transparent; color: rgba(255, 255, 255, 0.72); border: none; padding: 6px 11px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; text-transform: uppercase; transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease; }
+        .module-btn { background: transparent; color: rgba(255, 255, 255, 0.72); border: none; padding: 6px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; text-transform: uppercase; transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease; }
         .module-btn:active { transform: scale(0.95); }
         .module-btn.active { background: var(--btn-bg); color: var(--btn-color); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
 
-        .btn-head { background: rgba(255,255,255,0.06); color: var(--header-text); border: 1px solid rgba(255,255,255,0.22); padding: 4px 9px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.72rem; height: 32px; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-head { background: rgba(255,255,255,0.06); color: var(--header-text); border: 1px solid rgba(255,255,255,0.22); padding: 4px 8px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.7rem; height: 32px; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
         .btn-head:active { transform: scale(0.92); }
-        .btn-admin { background: #10B981; color: #FFF; border: none; padding: 4px 8px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.7rem; height: 32px; display: none; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-admin { background: #10B981; color: #FFF; border: none; padding: 4px 7px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.68rem; height: 32px; display: none; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
         .btn-admin:active { transform: scale(0.92); }
-        .btn-streak { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; border: none; padding: 4px 7px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.7rem; height: 32px; display: none; align-items: center; gap: 3px; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-streak { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; border: none; padding: 4px 7px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.68rem; height: 32px; display: none; align-items: center; gap: 3px; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
         .btn-streak:active { transform: scale(0.92); }
-        .btn-theme { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; font-size: 0.95rem; cursor: pointer; padding: 0; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .btn-theme:active { transform: rotate(35deg) scale(0.88); }
+        .btn-theme { position: relative; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; font-size: 0.92rem; cursor: pointer; padding: 0; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.25s ease; }
+        .btn-theme:active { transform: scale(0.88); }
+        .bell-badge { position: absolute; top: -4px; right: -4px; background: #EF4444; color: #FFF; font-size: 0.6rem; font-weight: 900; min-width: 15px; height: 15px; border-radius: 999px; display: none; align-items: center; justify-content: center; padding: 0 3px; border: 1.5px solid var(--header-bg); }
 
         /* MENU LATERAL */
         .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 150; backdrop-filter: blur(3px); transition: opacity 0.25s ease; }
@@ -547,7 +549,7 @@
             animation: liquidBounce 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* CAMPO DE LANÇAMENTO RÁPIDO POR LINGUAGEM NATURAL */
+        /* CAMPO DE LANÇAMENTO RÁPIDO POR LINGUAGEM NATURAL + LEITOR CÂMERA */
         .quick-parse-box {
             background: rgba(59, 130, 246, 0.08);
             border: 1px dashed var(--blue);
@@ -555,10 +557,37 @@
             padding: 10px 12px;
             margin-bottom: 12px;
         }
-        .quick-parse-box label { margin-top: 0 !important; font-size: 0.74rem !important; color: var(--blue) !important; font-weight: 800 !important; }
-        .quick-parse-row { display: flex; gap: 6px; margin-top: 5px; }
+        .quick-parse-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .quick-parse-header label { margin-top: 0 !important; font-size: 0.74rem !important; color: var(--blue) !important; font-weight: 800 !important; }
+        .btn-scan-barcode {
+            background: var(--header-bg);
+            color: var(--header-text);
+            border: none;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.12s ease;
+        }
+        .btn-scan-barcode:active { transform: scale(0.94); }
+        .quick-parse-row { display: flex; gap: 6px; margin-top: 6px; }
         .quick-parse-row input { margin-top: 0 !important; font-size: 0.84rem !important; padding: 8px 10px !important; }
         .quick-parse-row button { background: var(--blue); color: #FFF; border: none; border-radius: 9px; padding: 0 12px; font-weight: 800; font-size: 0.78rem; cursor: pointer; white-space: nowrap; }
+
+        /* VISOR DO SCANNER DE CÂMERA */
+        #scannerReaderBox {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            min-height: 220px;
+            margin: 10px 0;
+            border: 1px solid var(--border-color);
+        }
 
         /* MODAIS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 17, 40, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 200; }
@@ -610,6 +639,11 @@
                 <strong style="font-size:1rem;">🛠️ Ferramentas</strong>
                 <button class="btn-cancel" style="padding:4px 10px;" onclick="closeDrawer()">✕</button>
             </div>
+
+            <button class="drawer-item" onclick="closeDrawer(); openAlertsModal();">
+                <span>🔔 Alertas & Notificações</span>
+                <span class="badge-count" id="drawerAlertsCount" style="display:none;">0</span>
+            </button>
 
             <button class="drawer-item" onclick="closeDrawer(); openPixConfigModal();">
                 <span>🔑 Minha Chave Pix (Recebimentos)</span>
@@ -696,9 +730,9 @@
 
             <div class="benefits-box">
                 <div><span>✅</span><span><strong>Lançamentos ilimitados</strong> (A Pagar, A Receber e Veículo)</span></div>
+                <div><span>✅</span><span><strong>Leitor de Boleto e QR Code</strong> pela câmera do celular</span></div>
                 <div><span>✅</span><span><strong>Cobrança Pix Direta</strong> com QR Code + envio no WhatsApp</span></div>
-                <div><span>✅</span><span><strong>Contas Fixas Mensais e Parceladas</strong> automáticas</span></div>
-                <div><span>✅</span><span><strong>Relatórios PDF, Agendas e IA</strong> + novidades inclusas durante o plano</span></div>
+                <div><span>✅</span><span><strong>Contas Fixas Mensais e Parceladas</strong> + PDF + IA</span></div>
             </div>
 
             <div class="plans-grid" id="plansGrid">
@@ -759,6 +793,10 @@
                 </div>
 
                 <div class="header-right">
+                    <button class="btn-theme" id="btnAlertsHeader" onclick="openAlertsModal()" title="Alertas de Vencimento">
+                        🔔
+                        <span class="bell-badge" id="headerBellBadge">0</span>
+                    </button>
                     <button class="btn-head" id="btnHeaderPlan" onclick="openMySubModal()">Plano</button>
                     <button class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema">💡</button>
                 </div>
@@ -769,7 +807,7 @@
             <div id="graceBanner" class="alert-banner alert-warning"></div>
         </div>
 
-        <!-- BARRA DISCRETA PARA USUÁRIOS DO PLANO ESSENCIAL (GRÁTIS) -->
+        <!-- BARRA DISCRETA PARA USUÁRIOS DO PLANO GRÁTIS (ESSENCIAL) -->
         <div class="free-tier-bar" id="freeTierBar">
             <div class="free-tier-pill">
                 <span id="freeTierUsageText">Plano Essencial (Grátis)</span>
@@ -848,7 +886,7 @@
         </div>
     </div>
 
-    <!-- MODAL FINANCEIRO (A PAGAR / A RECEBER / ATRASADA SEM DATA / LANÇAMENTO RÁPIDO) -->
+    <!-- MODAL FINANCEIRO (A PAGAR / A RECEBER / ATRASADA / LANÇAMENTO RÁPIDO / SCANNER) -->
     <div class="modal" id="modalFinanceiro" onclick="if(event.target === this) closeModal()">
         <div class="modal-content">
             <h3 id="modalFinTitle">Novo Lançamento</h3>
@@ -857,7 +895,10 @@
             <input type="hidden" id="editBillTipoOrig">
 
             <div class="quick-parse-box" id="quickParseBox">
-                <label>⚡ Preenchimento Rápido (Opcional)</label>
+                <div class="quick-parse-header">
+                    <label>⚡ Preenchimento Rápido</label>
+                    <button type="button" class="btn-scan-barcode" onclick="openBarcodeScannerModal()">📷 Ler Boleto / QR</button>
+                </div>
                 <div class="quick-parse-row">
                     <input type="text" id="quickParseInput" placeholder="Ex: Mercado 145,90 hoje" onkeydown="if(event.key==='Enter'){event.preventDefault(); applyQuickParse();}">
                     <button type="button" onclick="applyQuickParse()">Aplicar</button>
@@ -920,6 +961,57 @@
                     <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
                     <button class="btn-save" onclick="saveBill()">Salvar</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LEITOR DE CÓDIGO DE BARRAS / QR CODE -->
+    <div class="modal" id="modalBarcodeScanner" style="z-index: 250;" onclick="if(event.target === this) closeBarcodeScannerModal()">
+        <div class="modal-content">
+            <h3>📷 Ler Boleto ou QR Code</h3>
+            <p style="font-size:0.82rem; color:var(--text-sub); margin-top:0; line-height:1.4;">
+                Aponte a câmera para o <strong>código de barras do boleto</strong> ou <strong>QR Code da Nota Fiscal (NFC-e)</strong>.
+            </p>
+            <div id="scannerReaderBox"></div>
+            <p id="scannerStatusMsg" style="font-size:0.78rem; color:var(--text-sub); text-align:center; margin:6px 0;">Iniciando câmera...</p>
+
+            <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color);">
+                <label style="margin-top:0; font-size:0.78rem;">Ou cole a linha digitável / código do boleto:</label>
+                <div class="quick-parse-row">
+                    <input type="text" id="manualBarcodeInput" placeholder="Cole os 47 ou 48 dígitos aqui...">
+                    <button type="button" onclick="applyManualBarcode()">Ler</button>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeBarcodeScannerModal()">Fechar Câmera</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CENTRAL DE ALERTAS & NOTIFICAÇÕES DE VENCIMENTO -->
+    <div class="modal" id="modalAlertsCenter" style="z-index: 240;" onclick="if(event.target === this) closeModalById('modalAlertsCenter')">
+        <div class="modal-content">
+            <h3>🔔 Alertas de Vencimento</h3>
+            <div style="background:var(--bg); border:1px solid var(--border-color); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <span style="font-size:0.8rem; font-weight:700;">Notificações no Aparelho</span>
+                    <button type="button" class="btn-save" id="btnEnableBrowserNotif" style="padding:6px 10px; font-size:0.74rem;" onclick="enableDeviceNotifications()">Ativar Alertas</button>
+                </div>
+                <div style="margin-top:8px; display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:0.76rem; color:var(--text-sub);">
+                    <span>Avisar com antecedência:</span>
+                    <select id="notifLeadDaysSelect" style="width:auto; padding:5px 8px; margin-top:0; font-size:0.76rem;" onchange="saveNotifPreference()">
+                        <option value="0">No dia do vencimento</option>
+                        <option value="1">1 dia antes</option>
+                        <option value="3" selected>Até 3 dias antes</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="alertsListContainer"></div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeModalById('modalAlertsCenter')">Fechar</button>
             </div>
         </div>
     </div>
@@ -1202,6 +1294,33 @@
         var activePixChargeContext = null;
         var activeFilterChip = 'todos';
         var searchFilterQuery = '';
+        var html5QrScannerInstance = null;
+
+        // INJEÇÃO DE MANIFEST PWA DINÂMICO PARA ATALHO NATIVO NO CELULAR
+        function injectDynamicPwaManifest() {
+            try {
+                var manifest = {
+                    name: "Gestão Completa App",
+                    short_name: "Gestão Completa",
+                    start_url: window.location.origin + "/",
+                    display: "standalone",
+                    background_color: "#0A1128",
+                    theme_color: "#0A1128",
+                    icons: [
+                        {
+                            src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%230A1128'/%3E%3Ctext x='96' y='122' font-size='84' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23D4AF37'%3EGC%3C/text%3E%3C/svg%3E",
+                            sizes: "192x192",
+                            type: "image/svg+xml"
+                        }
+                    ]
+                };
+                var blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                var link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = URL.createObjectURL(blob);
+                document.head.appendChild(link);
+            } catch (e) {}
+        }
 
         // DETECÇÃO E SINCRONIZAÇÃO AUTOMÁTICA DE TEMA (CLARO / ESCURO)
         function applyThemeState(isDark) {
@@ -1393,6 +1512,7 @@
         }
 
         window.onload = async function() {
+            injectDynamicPwaManifest();
             initAutoTheme();
             var savedEmail = localStorage.getItem('saved_login_email');
             if (savedEmail) document.getElementById('authEmail').value = savedEmail;
@@ -1544,6 +1664,365 @@
         }
 
         // =========================================================================
+        // CENTRAL DE ALERTAS & NOTIFICAÇÕES DE VENCIMENTO (PASSO 3)
+        // =========================================================================
+        function getNotifLeadDays() {
+            var saved = localStorage.getItem('notif_lead_days');
+            return saved !== null ? parseInt(saved, 10) : 3;
+        }
+
+        function saveNotifPreference() {
+            var val = document.getElementById('notifLeadDaysSelect').value;
+            localStorage.setItem('notif_lead_days', val);
+            evaluateDueAlerts(false);
+            renderAlertsModalList();
+        }
+
+        function collectUrgentAlerts() {
+            var leadDays = getNotifLeadDays();
+            var today = new Date();
+            today.setHours(12, 0, 0, 0);
+
+            var curM = today.getMonth();
+            var curY = today.getFullYear();
+            var nextM = (curM + 1) % 12;
+            var nextY = curY + (curM === 11 ? 1 : 0);
+
+            var candidates = [
+                ...getBillsForMonthYear(curM, curY),
+                ...getBillsForMonthYear(nextM, nextY)
+            ];
+
+            var seen = new Set();
+            var alerts = [];
+
+            candidates.forEach(b => {
+                if (b.isPaidView || b.natureza === 'receber') return;
+                var key = b.id + '-' + b.displayData;
+                if (seen.has(key)) return;
+                seen.add(key);
+
+                var p = b.displayData.split('-');
+                var dueDate = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 12, 0, 0);
+                var diffDays = Math.round((dueDate - today) / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0) {
+                    alerts.push({ bill: b, diffDays: diffDays, category: 'overdue', label: `Vencida há ${Math.abs(diffDays)} dia(s)` });
+                } else if (diffDays === 0) {
+                    alerts.push({ bill: b, diffDays: 0, category: 'today', label: 'Vence HOJE' });
+                } else if (diffDays <= leadDays) {
+                    alerts.push({ bill: b, diffDays: diffDays, category: 'upcoming', label: `Vence em ${diffDays} dia(s)` });
+                }
+            });
+
+            alerts.sort((a, b) => a.diffDays - b.diffDays);
+            return alerts;
+        }
+
+        function evaluateDueAlerts(triggerPush) {
+            var alerts = collectUrgentAlerts();
+            var badge = document.getElementById('headerBellBadge');
+            var drawerBadge = document.getElementById('drawerAlertsCount');
+
+            if (alerts.length > 0) {
+                badge.innerText = alerts.length > 9 ? '9+' : alerts.length;
+                badge.style.display = 'flex';
+                drawerBadge.innerText = alerts.length;
+                drawerBadge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+                drawerBadge.style.display = 'none';
+            }
+
+            if (triggerPush && alerts.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
+                var todayKey = 'notif_sent_' + new Date().toISOString().split('T')[0];
+                if (!localStorage.getItem(todayKey)) {
+                    localStorage.setItem(todayKey, '1');
+                    var topAlert = alerts[0];
+                    try {
+                        new Notification("Gestão Completa — Lembrete", {
+                            body: `${topAlert.label}: ${topAlert.bill.nome} (${formatCurrency(topAlert.bill.valor)})${alerts.length > 1 ? ` + ${alerts.length - 1} alerta(s)` : ''}`
+                        });
+                    } catch (e) {}
+                }
+            }
+        }
+
+        async function enableDeviceNotifications() {
+            if (!('Notification' in window)) {
+                appAlert("Este navegador não suporta notificações nativas.", "Recurso Indisponível");
+                return;
+            }
+            var perm = await Notification.requestPermission();
+            if (perm === 'granted') {
+                showToast("🔔 Notificações ativadas com sucesso!");
+                updateNotifButtonState();
+                localStorage.removeItem('notif_sent_' + new Date().toISOString().split('T')[0]);
+                evaluateDueAlerts(true);
+            } else {
+                appAlert("Permissão negada no navegador. Libere nas configurações do site para receber alertas.", "Permissão Bloqueada");
+            }
+        }
+
+        function updateNotifButtonState() {
+            var btn = document.getElementById('btnEnableBrowserNotif');
+            if (!('Notification' in window)) {
+                btn.innerText = "Indisponível";
+                btn.disabled = true;
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                btn.innerText = "✓ Ativas";
+                btn.style.background = "#10B981";
+                btn.style.color = "#FFF";
+            } else {
+                btn.innerText = "Ativar Alertas";
+                btn.style.background = "var(--header-bg)";
+                btn.style.color = "var(--header-text)";
+            }
+        }
+
+        function renderAlertsModalList() {
+            var container = document.getElementById('alertsListContainer');
+            var alerts = collectUrgentAlerts();
+            container.innerHTML = '';
+
+            if (alerts.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); font-size:0.86rem; padding:12px 0;">🎉 Nenhuma conta vencida ou próxima do vencimento!</p>';
+                return;
+            }
+
+            alerts.forEach(item => {
+                var color = item.category === 'overdue' ? '#EF4444' : (item.category === 'today' ? '#F59E0B' : '#3B82F6');
+                container.innerHTML += `
+                    <div class="admin-list-item" style="border-left: 4px solid ${color}; flex-direction:column; align-items:stretch; gap:6px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:0.85rem;">${item.bill.nome}</strong>
+                            <strong style="color:${color};">${formatCurrency(item.bill.valor)}</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.75rem; color:${color}; font-weight:700;">${item.label} (${formatDateBR(item.bill.displayData)})</span>
+                            <button type="button" class="btn-save" style="padding:5px 10px; font-size:0.72rem; background:#10B981; color:#FFF;" onclick="payBillFromAlert('${item.bill.id}', '${item.bill.displayData}')">✓ Pagar</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function payBillFromAlert(id, displayData) {
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item) return;
+            showLoader();
+            if (item.tipo === 'Mensal') {
+                var mesAnoKey = displayData.slice(0, 7);
+                var existing = globalData.pagamentosMensais.find(p => p.conta_id === id && p.mes_ano === mesAnoKey);
+                if (existing) await _supabase.from('pagamentos_mensais').update({ pago: true }).eq('id', existing.id);
+                else await _supabase.from('pagamentos_mensais').insert([{ user_id: currentUser.id, conta_id: id, mes_ano: mesAnoKey, pago: true }]);
+            } else {
+                await _supabase.from('contas').update({ pago: true }).eq('id', id);
+            }
+            await loadUserData();
+            renderAlertsModalList();
+            showToast("Conta baixada com sucesso!");
+        }
+
+        function openAlertsModal() {
+            document.getElementById('notifLeadDaysSelect').value = String(getNotifLeadDays());
+            updateNotifButtonState();
+            renderAlertsModalList();
+            openModalById('modalAlertsCenter');
+        }
+
+        // =========================================================================
+        // LEITOR DE CÓDIGO DE BARRAS / QR CODE PELA CÂMERA (PASSO 3)
+        // =========================================================================
+        function identifyBankByCode(code3) {
+            var banks = {
+                '001': 'BANCO DO BRASIL',
+                '033': 'SANTANDER',
+                '077': 'BANCO INTER',
+                '104': 'CAIXA ECONÔMICA',
+                '212': 'BANCO ORIGINAL',
+                '237': 'BRADESCO',
+                '260': 'NUBANK',
+                '290': 'PAGBANK',
+                '323': 'MERCADO PAGO',
+                '336': 'C6 BANK',
+                '341': 'ITAÚ',
+                '422': 'SAFRA',
+                '748': 'SICREDI',
+                '756': 'SICOOB'
+            };
+            return banks[code3] || '';
+        }
+
+        function identifyUtilitySegment(segDigit) {
+            var segs = {
+                '1': 'PREFEITURA / IMPOSTO',
+                '2': 'CONTA DE ÁGUA / SANEAMENTO',
+                '3': 'CONTA DE ENERGIA / GÁS',
+                '4': 'INTERNET / TELECOM',
+                '5': 'ÓRGÃO GOVERNAMENTAL',
+                '6': 'CARNÊ / SERVIÇO',
+                '7': 'MULTA DE TRÂNSITO'
+            };
+            return segs[segDigit] || 'CONTA DE CONSUMO';
+        }
+
+        function parseFebrabanFactorDate(factor) {
+            if (!factor || factor < 1000) return null;
+            // Ciclo FEBRABAN pós-22/02/2025: fator 1000 = 22/02/2025
+            var base = new Date(2025, 1, 22, 12, 0, 0);
+            base.setDate(base.getDate() + (factor - 1000));
+            if (base.getFullYear() >= 2025 && base.getFullYear() <= 2040) {
+                return base.toISOString().split('T')[0];
+            }
+            return null;
+        }
+
+        function parseScannedCodePayload(rawText) {
+            var clean = (rawText || '').trim();
+            var digits = clean.replace(/\D/g, '');
+
+            // 1. Boleto Bancário (47 dígitos linha digitável ou 44 dígitos código de barras)
+            if ((digits.length === 47 || digits.length === 44) && !digits.startsWith('8')) {
+                var factor = 0, valCents = 0, bankCode = digits.slice(0, 3);
+                if (digits.length === 47) {
+                    factor = parseInt(digits.slice(33, 37), 10);
+                    valCents = parseInt(digits.slice(37, 47), 10);
+                } else {
+                    factor = parseInt(digits.slice(5, 9), 10);
+                    valCents = parseInt(digits.slice(9, 19), 10);
+                }
+                var bankName = identifyBankByCode(bankCode);
+                return {
+                    found: true,
+                    desc: bankName ? `BOLETO ${bankName}` : 'BOLETO BANCÁRIO',
+                    amount: valCents > 0 ? (valCents / 100).toFixed(2) : '',
+                    date: parseFebrabanFactorDate(factor)
+                };
+            }
+
+            // 2. Boleto de Concessionária / Arrecadação (48 dígitos linha digitável ou 44 dígitos)
+            if ((digits.length === 48 || digits.length === 44) && digits.startsWith('8')) {
+                var bar44 = digits;
+                if (digits.length === 48) {
+                    bar44 = digits.slice(0, 11) + digits.slice(12, 23) + digits.slice(24, 35) + digits.slice(36, 47);
+                }
+                var segment = bar44[1];
+                var idValor = bar44[2];
+                var amount = '';
+                if (idValor === '6' || idValor === '8') {
+                    var cents = parseInt(bar44.slice(4, 15), 10);
+                    if (cents > 0) amount = (cents / 100).toFixed(2);
+                }
+                var parsedDate = null;
+                var possibleDate = bar44.slice(19, 27);
+                if (/^20[2-3]\d(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/.test(possibleDate)) {
+                    parsedDate = `${possibleDate.slice(0, 4)}-${possibleDate.slice(4, 6)}-${possibleDate.slice(6, 8)}`;
+                }
+                return {
+                    found: true,
+                    desc: identifyUtilitySegment(segment),
+                    amount: amount,
+                    date: parsedDate
+                };
+            }
+
+            // 3. QR Code de Nota Fiscal (NFC-e URL com parâmetro vNF ou valor)
+            if (/^https?:\/\//i.test(clean)) {
+                var vnfMatch = clean.match(/[?&](?:vNF|valor|vPag)=([\d.,]+)/i);
+                var amountNf = '';
+                if (vnfMatch) {
+                    amountNf = parseFloat(vnfMatch[1].replace(',', '.')).toFixed(2);
+                }
+                return {
+                    found: true,
+                    desc: 'COMPRA NFC-E',
+                    amount: amountNf,
+                    date: new Date().toISOString().split('T')[0]
+                };
+            }
+
+            return { found: false };
+        }
+
+        function applyParsedBarcodeResult(parsed) {
+            setNature('pagar');
+            if (parsed.desc && !document.getElementById('billName').value.trim()) {
+                document.getElementById('billName').value = parsed.desc;
+            }
+            if (parsed.amount) {
+                document.getElementById('billValue').value = parsed.amount;
+            }
+            if (parsed.date) {
+                document.getElementById('billDate').value = parsed.date;
+            }
+            showToast("✓ Dados do boleto/QR preenchidos!");
+        }
+
+        function applyManualBarcode() {
+            var raw = document.getElementById('manualBarcodeInput').value.trim();
+            if (!raw) return;
+            var parsed = parseScannedCodePayload(raw);
+            if (!parsed.found) {
+                appAlert("Código não reconhecido. Confira se copiou os 47 ou 48 dígitos do boleto.", "Código Inválido");
+                return;
+            }
+            closeBarcodeScannerModal();
+            applyParsedBarcodeResult(parsed);
+        }
+
+        function openBarcodeScannerModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Leitor de Boleto e QR Code pela Câmera");
+                return;
+            }
+            document.getElementById('manualBarcodeInput').value = '';
+            document.getElementById('scannerStatusMsg').innerText = "Iniciando câmera...";
+            openModalById('modalBarcodeScanner');
+
+            setTimeout(() => {
+                if (typeof Html5Qrcode === 'undefined') {
+                    document.getElementById('scannerStatusMsg').innerText = "Biblioteca de câmera indisponível offline. Cole os dígitos abaixo.";
+                    return;
+                }
+                try {
+                    html5QrScannerInstance = new Html5Qrcode("scannerReaderBox");
+                    html5QrScannerInstance.start(
+                        { facingMode: "environment" },
+                        { fps: 10, qrbox: { width: 260, height: 150 } },
+                        (decodedText) => {
+                            var parsed = parseScannedCodePayload(decodedText);
+                            if (parsed.found) {
+                                if (navigator.vibrate) navigator.vibrate(25);
+                                closeBarcodeScannerModal();
+                                applyParsedBarcodeResult(parsed);
+                            } else {
+                                document.getElementById('scannerStatusMsg').innerText = "Código lido (" + decodedText.slice(0, 18) + "...). Aponte para o código de barras do boleto.";
+                            }
+                        },
+                        () => {}
+                    ).then(() => {
+                        document.getElementById('scannerStatusMsg').innerText = "Câmera ativa — enquadre o código de barras ou QR Code.";
+                    }).catch(() => {
+                        document.getElementById('scannerStatusMsg').innerText = "Não foi possível acessar a câmera. Verifique a permissão ou cole os dígitos abaixo.";
+                    });
+                } catch (e) {
+                    document.getElementById('scannerStatusMsg').innerText = "Câmera indisponível neste dispositivo. Cole os dígitos abaixo.";
+                }
+            }, 220);
+        }
+
+        function closeBarcodeScannerModal() {
+            if (html5QrScannerInstance) {
+                var inst = html5QrScannerInstance;
+                html5QrScannerInstance = null;
+                inst.stop().then(() => inst.clear()).catch(() => {});
+            }
+            closeModalById('modalBarcodeScanner');
+        }
+
+        // =========================================================================
         // BUSCA INSTANTÂNEA E CHIPS DE FILTRO RÁPIDO
         // =========================================================================
         function renderFilterChips() {
@@ -1606,7 +2085,6 @@
                 detectedNature = 'receber';
             }
 
-            // Detecta data: "hoje", "amanha/amanhã", "dia 15" ou "15/11"
             var targetDate = new Date(viewYear, viewMonth, currentDate.getDate(), 12, 0, 0);
             if (/\bhoje\b/i.test(text)) {
                 targetDate = new Date();
@@ -1633,7 +2111,6 @@
                 }
             }
 
-            // Detecta valor monetário (ex: 145,90 ou 145.90 ou 1200)
             var amountVal = '';
             var moneyMatch = text.match(/(?:r\$\s*)?(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})|\d+(?:[.,]\d{1,2})?)/i);
             if (moneyMatch) {
@@ -1644,7 +2121,6 @@
                 text = text.replace(moneyMatch[0], '');
             }
 
-            // Limpa conectivos residuais para extrair a descrição
             var cleanDesc = text
                 .replace(/\b(receber|pagar|gastei|paguei|de|do|da|no|na|em|r\$)\b/ig, ' ')
                 .replace(/\s+/g, ' ')
@@ -1700,7 +2176,6 @@
                     }
                     if (!isHorizontal) return;
 
-                    // Bloqueia swipe para a direita no módulo veículo (não possui baixa)
                     if (itemModule === 'veiculo' && dx > 0) dx = 0;
 
                     currentX = Math.max(-130, Math.min(130, dx));
@@ -1747,6 +2222,7 @@
                 globalData.pagamentosMensais = pagMensais || [];
                 updateOverdueCounters();
                 updateFreeTierBanner();
+                evaluateDueAlerts(true);
                 renderCurrentView();
             } catch (err) {
                 appAlert("Erro ao carregar dados: " + err.message, "Erro");
@@ -1834,7 +2310,6 @@
             container.innerHTML = '';
             var allMonthBills = getBillsForViewMonth();
 
-            // Calcula totais do mês (Previsto e Realizado)
             var totalReceber = 0, totalPagar = 0;
             var recebidoReal = 0, pagoReal = 0;
 
@@ -1864,7 +2339,6 @@
             subSum3.style.display = 'block';
             subSum3.innerText = "Realizado: " + formatCurrency(saldoRealizado);
 
-            // Aplica filtros de chip e busca textual
             var filteredBills = allMonthBills.filter(b => {
                 if (activeFilterChip === 'pendentes' && b.isPaidView) return false;
                 if (activeFilterChip === 'pagos' && !b.isPaidView) return false;
@@ -2860,7 +3334,7 @@
                 cancelArea.style.display = 'none';
                 upgradeArea.style.display = 'none';
             } else if (!hasProAccess) {
-                txt.innerHTML = `Plano Atual: <strong>Essencial (Grátis)</strong><br>• Até ${FREE_LIMIT_BILLS} lançamentos financeiros/mês<br>• Até ${FREE_LIMIT_VEHICLES} registros de veículo/mês<br><br>Faça upgrade para liberar recursos ilimitados e Cobrança Pix.`;
+                txt.innerHTML = `Plano Atual: <strong>Essencial (Grátis)</strong><br>• Até ${FREE_LIMIT_BILLS} lançamentos financeiros/mês<br>• Até ${FREE_LIMIT_VEHICLES} registros de veículo/mês<br><br>Faça upgrade para liberar recursos ilimitados, Leitor de Boleto e Cobrança Pix.`;
                 cancelArea.style.display = 'none';
                 upgradeArea.style.display = 'block';
             } else if (currentSub?.status === 'canceled') {
