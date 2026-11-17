@@ -151,7 +151,8 @@
 
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { max-width: 100%; overflow-x: hidden; }
-        body { margin: 0; background-color: var(--bg); color: var(--text-main); padding-bottom: 108px; transition: background-color 0.35s ease, color 0.35s ease; -webkit-font-smoothing: antialiased; }
+        body { margin: 0; background-color: var(--bg); color: var(--text-main); transition: background-color 0.35s ease, color 0.35s ease; -webkit-font-smoothing: antialiased; }
+        body.app-active { height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
         
         .center-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .auth-card { background: var(--card-bg); border-radius: 20px; padding: 28px 22px; width: 100%; max-width: 450px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); text-align: center; animation: fadeSlideUp 0.35s ease; }
@@ -192,23 +193,31 @@
         .terms-check-row { display: flex; align-items: flex-start; gap: 8px; text-align: left; font-size: 0.76rem; color: var(--text-sub); margin: 10px 0 14px 0; line-height: 1.4; }
         .terms-check-row input { width: auto; margin-top: 2px; flex-shrink: 0; }
 
-        .alert-banner { max-width: 600px; margin: 12px auto 0 auto; padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; text-align: center; display: none; animation: fadeSlideUp 0.3s ease; }
+        .alert-banner { max-width: 600px; margin: 8px auto 0 auto; padding: 8px 12px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; text-align: center; display: none; animation: fadeSlideUp 0.3s ease; }
         .alert-warning { background: rgba(245, 158, 11, 0.16); border: 1px solid #F59E0B; color: var(--text-main); }
         .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: var(--text-main); margin-bottom: 14px; text-align: left; }
 
         /* BARRA DE STATUS DO PLANO GRÁTIS (ESSENCIAL) */
-        .free-tier-bar { max-width: 600px; margin: 10px auto 0 auto; padding: 0 12px; display: none; }
-        .free-tier-pill { background: var(--card-bg); border: 1px solid var(--border-color); border-left: 4px solid var(--btn-bg); border-radius: 11px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.76rem; box-shadow: var(--shadow-sm); }
-        .free-tier-pill button { background: var(--btn-bg); color: var(--btn-color); border: none; border-radius: 7px; padding: 5px 10px; font-weight: 800; font-size: 0.72rem; cursor: pointer; white-space: nowrap; }
+        .free-tier-bar { max-width: 600px; margin: 8px auto 0 auto; padding: 0 12px; display: none; flex-shrink: 0; width: 100%; }
+        .free-tier-pill { background: var(--card-bg); border: 1px solid var(--border-color); border-left: 4px solid var(--btn-bg); border-radius: 10px; padding: 6px 11px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.74rem; box-shadow: var(--shadow-sm); }
+        .free-tier-pill button { background: var(--btn-bg); color: var(--btn-color); border: none; border-radius: 7px; padding: 4px 9px; font-weight: 800; font-size: 0.7rem; cursor: pointer; white-space: nowrap; }
 
-        #appContent { display: none; width: 100%; }
+        /* LAYOUT FLEX PARA ROLAGEM PRÓPRIA DA LISTA */
+        #appContent {
+            display: none;
+            width: 100%;
+            height: 100dvh;
+            flex-direction: column;
+            overflow: hidden;
+        }
         
         /* HEADER EXECUTIVO AJUSTADO PARA MOBILE */
         .header { 
             background-color: var(--header-bg); 
             color: var(--header-text); 
-            padding: max(env(safe-area-inset-top), 12px) 10px 12px 10px;
-            position: sticky; top: 0; z-index: 20; 
+            padding: max(env(safe-area-inset-top), 11px) 10px 11px 10px;
+            flex-shrink: 0;
+            z-index: 20; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.18);
             border-bottom: 1px solid rgba(255,255,255,0.08);
             transition: background-color 0.35s ease, color 0.35s ease;
@@ -273,39 +282,52 @@
         .drawer-item-logout:active { transform: scale(0.97); }
         .badge-count { background: #EF4444; color: #FFF; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; }
 
-        /* VIEWPORT DO PAINEL COM PALCO 3D */
+        /* VIEWPORT DO PAINEL COM PALCO 3D E FLEX INTERNO */
         #boardViewport {
             transform-style: preserve-3d;
             will-change: transform, opacity;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 100%;
         }
         .module-flip-out { animation: axisFlipOut 0.18s cubic-bezier(0.4, 0, 1, 1) forwards; }
         .module-flip-in { animation: axisFlipIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
         /* ROLETA DE MESES */
-        .month-roulette-wrapper { max-width: 600px; margin: 16px auto 14px auto; padding: 0 12px; text-align: center; }
+        .month-roulette-wrapper { max-width: 600px; width: 100%; margin: 11px auto 10px auto; padding: 0 12px; text-align: center; flex-shrink: 0; }
         .month-roulette { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; user-select: none; }
-        .month-side { font-size: 0.82rem; font-weight: 600; color: var(--text-sub); cursor: pointer; padding: 8px 4px; border-radius: 8px; opacity: 0.78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.2s ease, transform 0.15s ease; }
+        .month-side { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); cursor: pointer; padding: 7px 4px; border-radius: 8px; opacity: 0.78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.2s ease, transform 0.15s ease; }
         .month-side:hover { opacity: 1; }
         .month-side:active { transform: scale(0.94); }
         .month-side.left { text-align: right; }
         .month-side.right { text-align: left; }
-        .month-center { font-size: 1.04rem; font-weight: 800; letter-spacing: 0.2px; color: var(--text-main); padding: 7px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; white-space: nowrap; box-shadow: var(--shadow-sm); }
-        .btn-today { display: inline-block; margin-top: 8px; background: var(--btn-bg); color: var(--btn-color); border: none; padding: 4px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.72rem; animation: fadeSlideUp 0.25s ease; transition: transform 0.15s ease; }
+        .month-center { font-size: 1rem; font-weight: 800; letter-spacing: 0.2px; color: var(--text-main); padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; white-space: nowrap; box-shadow: var(--shadow-sm); }
+        .btn-today { display: inline-block; margin-top: 6px; background: var(--btn-bg); color: var(--btn-color); border: none; padding: 3px 11px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.7rem; animation: fadeSlideUp 0.25s ease; transition: transform 0.15s ease; }
         .btn-today:active { transform: scale(0.94); }
 
-        /* FOLHA DE LIVRO AO TROCAR MÊS */
+        /* FOLHA DE LIVRO AO TROCAR MÊS COM FLEX PARA LISTA ROLÁVEL */
         #pageSheetArea {
             transform-style: preserve-3d;
             will-change: transform, opacity;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 100%;
         }
         .book-page-next { animation: bookPageNext 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
         .book-page-prev { animation: bookPagePrev 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
 
         /* DASHBOARD: A RECEBER (VERDE), A PAGAR (VERMELHO), SALDO (AZUL) */
-        .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 600px; margin: 0 auto 14px auto; padding: 0 12px; }
-        .summary-card { background: var(--card-bg); padding: 12px 6px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); border-top: 4px solid var(--blue); box-shadow: var(--shadow-sm); transition: background-color 0.3s ease, transform 0.2s ease, border-top-color 0.3s ease; min-width: 0; }
-        .summary-card span { display: block; font-size: 0.62rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-bottom: 4px; }
-        .summary-card strong { display: block; font-size: 0.86rem; color: var(--text-main); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 600px; width: 100%; margin: 0 auto 10px auto; padding: 0 12px; flex-shrink: 0; }
+        .summary-card { background: var(--card-bg); padding: 10px 6px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); border-top: 4px solid var(--blue); box-shadow: var(--shadow-sm); transition: background-color 0.3s ease, transform 0.2s ease, border-top-color 0.3s ease; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+        .summary-card span { display: block; font-size: 0.6rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-bottom: 3px; }
+        .summary-card strong { display: block; font-size: 0.85rem; color: var(--text-main); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .summary-card small { display: block; font-size: 0.63rem; color: var(--text-sub); font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .summary-card.receivable-card { border-top-color: var(--green); }
         .summary-card.receivable-card strong { color: var(--green); }
@@ -316,15 +338,128 @@
         .summary-card.balance-card { border-top-color: var(--blue); }
         .summary-card.balance-card strong { color: var(--blue); }
 
-        .overdue-pill-bar { max-width: 600px; margin: 0 auto 12px auto; padding: 0 12px; display: none; animation: fadeSlideUp 0.3s ease; }
-        .overdue-pill-btn { width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px dashed #EF4444; color: var(--text-main); padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: transform 0.15s ease; }
+        /* BARRA DE BUSCA E CHIPS DE FILTRO RÁPIDO */
+        .filter-toolbar { max-width: 600px; width: 100%; margin: 0 auto 8px auto; padding: 0 12px; flex-shrink: 0; }
+        .search-input-wrap { position: relative; margin-bottom: 7px; }
+        .search-input-wrap input {
+            width: 100%;
+            padding: 8px 32px 8px 32px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 0.82rem;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.2s ease;
+        }
+        .search-input-wrap input:focus { outline: none; border-color: var(--accent-color); }
+        .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.82rem; opacity: 0.6; pointer-events: none; }
+        .search-clear-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-sub); font-size: 0.82rem; cursor: pointer; display: none; padding: 2px 5px; }
+
+        .filter-chips-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+        .filter-chips-row::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            background: var(--card-bg);
+            color: var(--text-sub);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 4px 11px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.18s ease;
+            flex-shrink: 0;
+        }
+        .filter-chip.active {
+            background: var(--header-bg);
+            color: var(--header-text);
+            border-color: var(--header-bg);
+        }
+
+        .overdue-pill-bar { max-width: 600px; width: 100%; margin: 0 auto 8px auto; padding: 0 12px; display: none; flex-shrink: 0; animation: fadeSlideUp 0.3s ease; }
+        .overdue-pill-btn { width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px dashed #EF4444; color: var(--text-main); padding: 8px 12px; border-radius: 11px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: transform 0.15s ease; }
         .overdue-pill-btn:active { transform: scale(0.98); }
 
-        /* CARDS DE LANÇAMENTO */
-        .container { padding: 0 12px; max-width: 600px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 14px; padding: 14px 16px; margin-bottom: 11px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-left: 5px solid var(--accent-color); position: relative; cursor: pointer; animation: fadeSlideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards; transition: transform 0.18s ease, box-shadow 0.2s ease, opacity 0.28s ease, background-color 0.3s ease; }
+        /* LISTA DE LANÇAMENTOS COM ROLAGEM PRÓPRIA */
+        .container {
+            padding: 2px 12px 104px 12px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+        .container::-webkit-scrollbar { width: 5px; }
+        .container::-webkit-scrollbar-track { background: transparent; }
+        .container::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.35); border-radius: 999px; }
+
+        /* INDICADOR DE MÉDIA DO VEÍCULO NO TOPO DA LISTA */
+        .veh-stats-banner {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--green);
+            border-radius: 12px;
+            padding: 9px 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 0.76rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .veh-stats-banner div { text-align: center; }
+        .veh-stats-banner span { display: block; color: var(--text-sub); font-size: 0.66rem; text-transform: uppercase; font-weight: 700; }
+        .veh-stats-banner strong { color: var(--text-main); font-size: 0.88rem; font-weight: 800; }
+
+        /* SWIPE WRAPPER & CARDS DE LANÇAMENTO */
+        .swipe-wrapper {
+            position: relative;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            animation: fadeSlideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        }
+        .swipe-bg {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            font-weight: 800;
+            font-size: 0.82rem;
+            color: #FFFFFF;
+            border-radius: 14px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            pointer-events: none;
+        }
+        .swipe-bg.right-action { background: var(--green); justify-content: flex-start; }
+        .swipe-bg.left-action { background: var(--red); justify-content: flex-end; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 13px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--accent-color);
+            position: relative;
+            cursor: pointer;
+            touch-action: pan-y;
+            will-change: transform;
+            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, opacity 0.28s ease, background-color 0.3s ease;
+        }
+        .card.swiping { transition: none; }
         .card:hover { box-shadow: var(--shadow-md); }
-        .card:active { transform: scale(0.985); }
 
         .btn-trash-classic {
             position: absolute;
@@ -352,23 +487,24 @@
         .card.warning { border-left-color: var(--yellow); }
         .card.overdue { border-left-color: var(--red); }
         .card.receivable { border-left-color: var(--green); }
-        .card.paid { border-left-color: var(--green); opacity: 0.62; }
+        .card.paid { border-left-color: var(--green); opacity: 0.64; }
         .card.paid .info strong { text-decoration: line-through; color: var(--gray); }
         
-        .card-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--green); margin-right: 13px; flex-shrink: 0; transition: transform 0.15s ease; }
+        .card-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--green); margin-right: 12px; flex-shrink: 0; transition: transform 0.15s ease; }
         .card-checkbox:checked { animation: checkPulse 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .info { flex-grow: 1; margin-right: 10px; padding-right: 28px; min-width: 0; }
-        .info strong { display: block; font-size: 0.94rem; color: var(--text-main); margin-bottom: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.2px; transition: color 0.25s ease; word-break: break-word; }
-        .info span { display: block; font-size: 0.78rem; color: var(--text-sub); }
+        .info { flex-grow: 1; margin-right: 10px; padding-right: 26px; min-width: 0; }
+        .info strong { display: block; font-size: 0.92rem; color: var(--text-main); margin-bottom: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.2px; transition: color 0.25s ease; word-break: break-word; }
+        .info span { display: block; font-size: 0.77rem; color: var(--text-sub); }
         .value-col { text-align: right; flex-shrink: 0; margin-top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-        .value { font-size: 0.96rem; font-weight: 800; color: var(--text-main); font-variant-numeric: tabular-nums; }
+        .value { font-size: 0.95rem; font-weight: 800; color: var(--text-main); font-variant-numeric: tabular-nums; }
         .value.income { color: var(--green); }
         .btn-pix-mini { background: rgba(16, 185, 129, 0.14); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 7px; padding: 3px 8px; font-size: 0.68rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.12s ease, background-color 0.2s ease; }
         .btn-pix-mini:active { transform: scale(0.92); }
-        .tag { font-size: 0.64rem; background: var(--bg); padding: 2px 7px; border-radius: 5px; color: var(--text-main); border: 1px solid var(--border-color); font-weight: 700; display: inline-block; margin-top: 4px; margin-right: 4px; }
+        .tag { font-size: 0.63rem; background: var(--bg); padding: 2px 7px; border-radius: 5px; color: var(--text-main); border: 1px solid var(--border-color); font-weight: 700; display: inline-block; margin-top: 4px; margin-right: 4px; }
+        .tag.efficiency { background: rgba(16, 185, 129, 0.12); color: #10B981; border-color: rgba(16, 185, 129, 0.4); }
         
         /* BOTÃO ADICIONAR COM EFEITO LÍQUIDO / FLUIDO ESTILO MACOS */
-        .bottom-bar-actions { position: fixed; bottom: max(env(safe-area-inset-bottom), 22px); left: 0; right: 0; display: none; justify-content: center; align-items: center; pointer-events: none; z-index: 100; }
+        .bottom-bar-actions { position: fixed; bottom: max(env(safe-area-inset-bottom), 18px); left: 0; right: 0; display: none; justify-content: center; align-items: center; pointer-events: none; z-index: 100; }
         .btn-add-center {
             pointer-events: auto;
             position: relative;
@@ -376,11 +512,11 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 55%), var(--btn-bg);
             color: var(--btn-color);
             border: 1px solid rgba(255, 255, 255, 0.35);
-            height: 54px;
-            padding: 0 30px;
+            height: 52px;
+            padding: 0 28px;
             border-radius: 999px;
             font-weight: 800;
-            font-size: 0.96rem;
+            font-size: 0.95rem;
             letter-spacing: 0.3px;
             cursor: pointer;
             backdrop-filter: blur(12px);
@@ -411,6 +547,19 @@
             animation: liquidBounce 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        /* CAMPO DE LANÇAMENTO RÁPIDO POR LINGUAGEM NATURAL */
+        .quick-parse-box {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px dashed var(--blue);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+        }
+        .quick-parse-box label { margin-top: 0 !important; font-size: 0.74rem !important; color: var(--blue) !important; font-weight: 800 !important; }
+        .quick-parse-row { display: flex; gap: 6px; margin-top: 5px; }
+        .quick-parse-row input { margin-top: 0 !important; font-size: 0.84rem !important; padding: 8px 10px !important; }
+        .quick-parse-row button { background: var(--blue); color: #FFF; border: none; border-radius: 9px; padding: 0 12px; font-weight: 800; font-size: 0.78rem; cursor: pointer; white-space: nowrap; }
+
         /* MODAIS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 17, 40, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 200; }
         .modal-content { background: var(--card-bg); padding: 24px; width: 92%; max-width: 430px; color: var(--text-main); max-height: 90vh; overflow-y: auto; border-radius: 18px; border: 1px solid var(--border-color); animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: var(--shadow-lg); }
@@ -439,11 +588,12 @@
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 17, 40, 0.72); color: white; align-items: center; justify-content: center; z-index: 999; font-size: 1.05rem; font-weight: 700; backdrop-filter: blur(3px); }
 
         .app-toast {
-            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+            position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%) translateY(20px);
             background: var(--header-bg); color: var(--header-text); border: 1px solid rgba(255,255,255,0.15);
             padding: 10px 18px; border-radius: 12px; font-size: 0.84rem; font-weight: 700;
             box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; z-index: 350;
             transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            white-space: nowrap;
         }
         .app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
@@ -591,7 +741,7 @@
         </div>
     </div>
 
-    <!-- 3. APP PRINCIPAL -->
+    <!-- 3. APP PRINCIPAL (CABEÇALHO FIXO + LISTA ROLÁVEL) -->
     <div id="appContent">
         <div class="header">
             <div class="header-grid">
@@ -615,7 +765,7 @@
             </div>
         </div>
 
-        <div style="padding: 0 12px;">
+        <div style="padding: 0 12px; flex-shrink: 0;">
             <div id="graceBanner" class="alert-banner alert-warning"></div>
         </div>
 
@@ -639,9 +789,29 @@
 
             <div id="pageSheetArea">
                 <div class="summary-container" id="summaryContainer">
-                    <div class="summary-card receivable-card" id="sumCard1"><span id="lblSummary1">A RECEBER</span><strong id="valSummary1">R$ 0,00</strong></div>
-                    <div class="summary-card payable-card" id="sumCard2"><span id="lblSummary2">A PAGAR</span><strong id="valSummary2">R$ 0,00</strong></div>
-                    <div class="summary-card balance-card" id="sumCard3"><span id="lblSummary3">SALDO</span><strong id="valSummary3">R$ 0,00</strong></div>
+                    <div class="summary-card receivable-card" id="sumCard1">
+                        <span id="lblSummary1">A RECEBER</span>
+                        <strong id="valSummary1">R$ 0,00</strong>
+                    </div>
+                    <div class="summary-card payable-card" id="sumCard2">
+                        <span id="lblSummary2">A PAGAR</span>
+                        <strong id="valSummary2">R$ 0,00</strong>
+                    </div>
+                    <div class="summary-card balance-card" id="sumCard3">
+                        <span id="lblSummary3">SALDO</span>
+                        <strong id="valSummary3">R$ 0,00</strong>
+                        <small id="subSummary3">Realizado: R$ 0,00</small>
+                    </div>
+                </div>
+
+                <!-- BUSCA INSTANTÂNEA + CHIPS DE FILTRO RÁPIDO -->
+                <div class="filter-toolbar" id="filterToolbar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchFilterInput" placeholder="Buscar lançamento ou pagador..." oninput="onSearchInput(this.value)">
+                        <button type="button" class="search-clear-btn" id="btnClearSearch" onclick="clearSearchFilter()">✕</button>
+                    </div>
+                    <div class="filter-chips-row" id="filterChipsRow"></div>
                 </div>
 
                 <div class="overdue-pill-bar" id="overduePillBar">
@@ -651,6 +821,7 @@
                     </button>
                 </div>
 
+                <!-- LISTA COM ROLAGEM PRÓPRIA -->
                 <div class="container" id="mainContainer">
                     <p style="text-align:center;">Carregando seus registros...</p>
                 </div>
@@ -677,13 +848,21 @@
         </div>
     </div>
 
-    <!-- MODAL FINANCEIRO (A PAGAR / A RECEBER / ATRASADA SEM DATA) -->
+    <!-- MODAL FINANCEIRO (A PAGAR / A RECEBER / ATRASADA SEM DATA / LANÇAMENTO RÁPIDO) -->
     <div class="modal" id="modalFinanceiro" onclick="if(event.target === this) closeModal()">
         <div class="modal-content">
             <h3 id="modalFinTitle">Novo Lançamento</h3>
             <input type="hidden" id="editBillId">
             <input type="hidden" id="editBillGrupo">
             <input type="hidden" id="editBillTipoOrig">
+
+            <div class="quick-parse-box" id="quickParseBox">
+                <label>⚡ Preenchimento Rápido (Opcional)</label>
+                <div class="quick-parse-row">
+                    <input type="text" id="quickParseInput" placeholder="Ex: Mercado 145,90 hoje" onkeydown="if(event.key==='Enter'){event.preventDefault(); applyQuickParse();}">
+                    <button type="button" onclick="applyQuickParse()">Aplicar</button>
+                </div>
+            </div>
 
             <div class="nature-switch" id="natureSwitch">
                 <button type="button" class="nature-btn active-pagar" id="btnNatPagar" onclick="setNature('pagar')">💸 Conta a Pagar</button>
@@ -1021,6 +1200,8 @@
         var globalData = { bills: [], veiculos: [], pagamentosMensais: [] };
         var customDialogResolve = null;
         var activePixChargeContext = null;
+        var activeFilterChip = 'todos';
+        var searchFilterQuery = '';
 
         // DETECÇÃO E SINCRONIZAÇÃO AUTOMÁTICA DE TEMA (CLARO / ESCURO)
         function applyThemeState(isDark) {
@@ -1284,7 +1465,6 @@
                 }
             }
 
-            // Se não possui assinatura ativa, libera automaticamente o Plano Essencial (Grátis)
             hasProAccess = false;
             document.getElementById('graceBanner').style.display = 'none';
             showApp();
@@ -1297,6 +1477,7 @@
         }
 
         function showAuth() {
+            document.body.classList.remove('app-active');
             document.getElementById('authContainer').style.display = 'flex';
             document.getElementById('paywallContainer').style.display = 'none';
             document.getElementById('appContent').style.display = 'none';
@@ -1304,6 +1485,7 @@
         }
 
         function showPaywall() {
+            document.body.classList.remove('app-active');
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('paywallContainer').style.display = 'flex';
             document.getElementById('appContent').style.display = 'none';
@@ -1312,7 +1494,6 @@
 
             var retBanner = document.getElementById('suspendedRetentionBanner');
             if (currentSub && currentSub.status === 'suspended' && currentSub.purge_at) {
-                var daysLeft = Math.max(0, Math.ceil((new Date(currentSub.purge_at) - new Date()) / (1000 * 60 * 60 * 24)));
                 retBanner.style.display = 'block';
                 retBanner.innerHTML = `⛔ <strong>Assinatura Expirada:</strong> Você está no plano Essencial. Seus dados completos seguem preservados.`;
             } else {
@@ -1321,9 +1502,10 @@
         }
 
         function showApp() {
+            document.body.classList.add('app-active');
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('paywallContainer').style.display = 'none';
-            document.getElementById('appContent').style.display = 'block';
+            document.getElementById('appContent').style.display = 'flex';
             document.getElementById('bottomBarActions').style.display = 'flex';
 
             var adminFlag = isMasterAdmin() || (currentSub && currentSub.is_admin);
@@ -1339,6 +1521,7 @@
                 streakBtn.style.display = 'none';
             }
 
+            renderFilterChips();
             updateDisplay();
             loadUserData();
             setTimeout(() => triggerShortcutPrompt(false), 900);
@@ -1358,6 +1541,199 @@
                 var vCount = getVehiclesForViewMonth().length;
                 document.getElementById('freeTierUsageText').innerHTML = `Plano <strong>Essencial</strong>: ${vCount}/${FREE_LIMIT_VEHICLES} registros no mês`;
             }
+        }
+
+        // =========================================================================
+        // BUSCA INSTANTÂNEA E CHIPS DE FILTRO RÁPIDO
+        // =========================================================================
+        function renderFilterChips() {
+            var row = document.getElementById('filterChipsRow');
+            var searchInput = document.getElementById('searchFilterInput');
+            if (currentMode === 'financeiro') {
+                searchInput.placeholder = "Buscar conta ou pagador...";
+                var chips = [
+                    { id: 'todos', label: 'Todos' },
+                    { id: 'pendentes', label: 'Pendentes' },
+                    { id: 'pagos', label: 'Concluídos' },
+                    { id: 'pagar', label: 'A Pagar' },
+                    { id: 'receber', label: 'A Receber' }
+                ];
+                row.innerHTML = chips.map(c =>
+                    `<button type="button" class="filter-chip ${activeFilterChip === c.id ? 'active' : ''}" onclick="setFilterChip('${c.id}')">${c.label}</button>`
+                ).join('');
+            } else {
+                searchInput.placeholder = "Buscar abastecimento ou serviço...";
+                var vChips = [
+                    { id: 'todos', label: 'Todos' },
+                    { id: 'Abastecimento', label: 'Abastecimento' },
+                    { id: 'Manutencao', label: 'Manutenção' }
+                ];
+                row.innerHTML = vChips.map(c =>
+                    `<button type="button" class="filter-chip ${activeFilterChip === c.id ? 'active' : ''}" onclick="setFilterChip('${c.id}')">${c.label}</button>`
+                ).join('');
+            }
+        }
+
+        function setFilterChip(chipId) {
+            activeFilterChip = chipId;
+            renderFilterChips();
+            renderCurrentView();
+        }
+
+        function onSearchInput(val) {
+            searchFilterQuery = val.trim().toLowerCase();
+            document.getElementById('btnClearSearch').style.display = searchFilterQuery ? 'block' : 'none';
+            renderCurrentView();
+        }
+
+        function clearSearchFilter() {
+            searchFilterQuery = '';
+            document.getElementById('searchFilterInput').value = '';
+            document.getElementById('btnClearSearch').style.display = 'none';
+            renderCurrentView();
+        }
+
+        // =========================================================================
+        // PARSER DE LINGUAGEM NATURAL (LANÇAMENTO RÁPIDO)
+        // =========================================================================
+        function applyQuickParse() {
+            var raw = document.getElementById('quickParseInput').value.trim();
+            if (!raw) return;
+
+            var text = raw;
+            var detectedNature = 'pagar';
+            if (/\b(receber|recebi|entrada|salario|salário|cliente|pix recebido)\b/i.test(text)) {
+                detectedNature = 'receber';
+            }
+
+            // Detecta data: "hoje", "amanha/amanhã", "dia 15" ou "15/11"
+            var targetDate = new Date(viewYear, viewMonth, currentDate.getDate(), 12, 0, 0);
+            if (/\bhoje\b/i.test(text)) {
+                targetDate = new Date();
+                text = text.replace(/\bhoje\b/ig, '');
+            } else if (/\bamanh[ãa]\b/i.test(text)) {
+                targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + 1);
+                text = text.replace(/\bamanh[ãa]\b/ig, '');
+            } else {
+                var fullDateMatch = text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+                if (fullDateMatch) {
+                    var d = parseInt(fullDateMatch[1]);
+                    var m = parseInt(fullDateMatch[2]) - 1;
+                    var y = fullDateMatch[3] ? (fullDateMatch[3].length === 2 ? 2000 + parseInt(fullDateMatch[3]) : parseInt(fullDateMatch[3])) : viewYear;
+                    targetDate = new Date(y, m, d, 12, 0, 0);
+                    text = text.replace(fullDateMatch[0], '');
+                } else {
+                    var dayMatch = text.match(/\bdia\s+(\d{1,2})\b/i);
+                    if (dayMatch) {
+                        var dayNum = Math.min(parseInt(dayMatch[1]), new Date(viewYear, viewMonth + 1, 0).getDate());
+                        targetDate = new Date(viewYear, viewMonth, dayNum, 12, 0, 0);
+                        text = text.replace(dayMatch[0], '');
+                    }
+                }
+            }
+
+            // Detecta valor monetário (ex: 145,90 ou 145.90 ou 1200)
+            var amountVal = '';
+            var moneyMatch = text.match(/(?:r\$\s*)?(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})|\d+(?:[.,]\d{1,2})?)/i);
+            if (moneyMatch) {
+                var numStr = moneyMatch[1];
+                if (numStr.includes(',') && numStr.includes('.')) numStr = numStr.replace(/\./g, '').replace(',', '.');
+                else if (numStr.includes(',')) numStr = numStr.replace(',', '.');
+                amountVal = parseFloat(numStr).toFixed(2);
+                text = text.replace(moneyMatch[0], '');
+            }
+
+            // Limpa conectivos residuais para extrair a descrição
+            var cleanDesc = text
+                .replace(/\b(receber|pagar|gastei|paguei|de|do|da|no|na|em|r\$)\b/ig, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toUpperCase();
+
+            setNature(detectedNature);
+            if (cleanDesc) {
+                if (detectedNature === 'receber') {
+                    document.getElementById('billName').value = cleanDesc;
+                    document.getElementById('billPagador').value = cleanDesc;
+                } else {
+                    document.getElementById('billName').value = cleanDesc;
+                }
+            }
+            if (amountVal) document.getElementById('billValue').value = amountVal;
+            document.getElementById('billDate').value = targetDate.toISOString().split('T')[0];
+
+            showToast("Campos preenchidos! Confira e toque em Salvar.");
+        }
+
+        // =========================================================================
+        // GESTOS DE SWIPE NOS CARDS (DIREITA: BAIXAR / ESQUERDA: EXCLUIR)
+        // =========================================================================
+        function attachCardSwipeHandlers() {
+            var cards = document.querySelectorAll('.swipe-card');
+            cards.forEach(function(card) {
+                var startX = 0, startY = 0, currentX = 0, isHorizontal = null;
+                var wrapper = card.parentElement;
+                var bgRight = wrapper.querySelector('.right-action');
+                var bgLeft = wrapper.querySelector('.left-action');
+                var itemId = card.getAttribute('data-id');
+                var itemModule = card.getAttribute('data-module');
+
+                card.addEventListener('touchstart', function(e) {
+                    if (e.target.closest('button') || e.target.closest('input')) return;
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                    currentX = 0;
+                    isHorizontal = null;
+                    card.classList.add('swiping');
+                }, { passive: true });
+
+                card.addEventListener('touchmove', function(e) {
+                    if (startX === 0) return;
+                    var dx = e.touches[0].clientX - startX;
+                    var dy = e.touches[0].clientY - startY;
+
+                    if (isHorizontal === null) {
+                        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                            isHorizontal = Math.abs(dx) > Math.abs(dy);
+                        }
+                    }
+                    if (!isHorizontal) return;
+
+                    // Bloqueia swipe para a direita no módulo veículo (não possui baixa)
+                    if (itemModule === 'veiculo' && dx > 0) dx = 0;
+
+                    currentX = Math.max(-130, Math.min(130, dx));
+                    card.style.transform = `translateX(${currentX}px)`;
+
+                    if (currentX > 15 && bgRight) {
+                        bgRight.style.opacity = Math.min(1, currentX / 75);
+                        if (bgLeft) bgLeft.style.opacity = 0;
+                    } else if (currentX < -15 && bgLeft) {
+                        bgLeft.style.opacity = Math.min(1, Math.abs(currentX) / 75);
+                        if (bgRight) bgRight.style.opacity = 0;
+                    }
+                }, { passive: true });
+
+                card.addEventListener('touchend', function() {
+                    card.classList.remove('swiping');
+                    card.style.transform = 'translateX(0px)';
+                    if (bgRight) bgRight.style.opacity = 0;
+                    if (bgLeft) bgLeft.style.opacity = 0;
+
+                    if (isHorizontal && Math.abs(currentX) >= 82) {
+                        if (navigator.vibrate) navigator.vibrate(15);
+                        if (currentX > 0 && itemModule === 'financeiro') {
+                            togglePaid(itemId);
+                        } else if (currentX < 0) {
+                            if (itemModule === 'financeiro') requestDeleteBill(itemId);
+                            else deleteVehicle(itemId);
+                        }
+                    }
+                    startX = 0;
+                    isHorizontal = null;
+                });
+            });
         }
 
         async function loadUserData() {
@@ -1456,19 +1832,25 @@
         function renderBills() {
             var container = document.getElementById('mainContainer');
             container.innerHTML = '';
-            var currentBills = getBillsForViewMonth();
-            var totalReceber = 0, totalPagar = 0;
+            var allMonthBills = getBillsForViewMonth();
 
-            currentBills.forEach(b => {
+            // Calcula totais do mês (Previsto e Realizado)
+            var totalReceber = 0, totalPagar = 0;
+            var recebidoReal = 0, pagoReal = 0;
+
+            allMonthBills.forEach(b => {
                 var val = parseFloat(b.valor) || 0;
                 if (b.natureza === 'receber') {
                     totalReceber += val;
+                    if (b.isPaidView) recebidoReal += val;
                 } else {
                     totalPagar += val;
+                    if (b.isPaidView) pagoReal += val;
                 }
             });
 
-            var saldoMes = totalReceber - totalPagar;
+            var saldoPrevisto = totalReceber - totalPagar;
+            var saldoRealizado = recebidoReal - pagoReal;
 
             document.getElementById('lblSummary1').innerText = "A RECEBER";
             document.getElementById('valSummary1').innerText = formatCurrency(totalReceber);
@@ -1477,16 +1859,36 @@
             document.getElementById('valSummary2').innerText = formatCurrency(totalPagar);
 
             document.getElementById('lblSummary3').innerText = "SALDO";
-            document.getElementById('valSummary3').innerText = formatCurrency(saldoMes);
+            document.getElementById('valSummary3').innerText = formatCurrency(saldoPrevisto);
+            var subSum3 = document.getElementById('subSummary3');
+            subSum3.style.display = 'block';
+            subSum3.innerText = "Realizado: " + formatCurrency(saldoRealizado);
 
-            currentBills.sort((a, b) => a.isPaidView === b.isPaidView ? new Date(a.displayData) - new Date(b.displayData) : (a.isPaidView ? 1 : -1));
+            // Aplica filtros de chip e busca textual
+            var filteredBills = allMonthBills.filter(b => {
+                if (activeFilterChip === 'pendentes' && b.isPaidView) return false;
+                if (activeFilterChip === 'pagos' && !b.isPaidView) return false;
+                if (activeFilterChip === 'pagar' && b.natureza === 'receber') return false;
+                if (activeFilterChip === 'receber' && b.natureza !== 'receber') return false;
 
-            if (currentBills.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top: 30px;">Nenhum lançamento neste mês.</p>';
+                if (searchFilterQuery) {
+                    var hay = (b.nome + ' ' + (b.pagador || '')).toLowerCase();
+                    if (!hay.includes(searchFilterQuery)) return false;
+                }
+                return true;
+            });
+
+            filteredBills.sort((a, b) => a.isPaidView === b.isPaidView ? new Date(a.displayData) - new Date(b.displayData) : (a.isPaidView ? 1 : -1));
+
+            if (filteredBills.length === 0) {
+                var emptyMsg = allMonthBills.length === 0
+                    ? 'Nenhum lançamento neste mês.'
+                    : 'Nenhum lançamento encontrado para este filtro.';
+                container.innerHTML = `<p style="text-align:center; color:var(--text-sub); margin-top: 28px; font-size:0.88rem;">${emptyMsg}</p>`;
                 return;
             }
 
-            currentBills.forEach((bill, idx) => {
+            filteredBills.forEach((bill, idx) => {
                 var isReceber = bill.natureza === 'receber';
                 var statusClass = bill.isPaidView ? 'paid' : (isReceber ? 'receivable' : '');
                 if (!bill.isPaidView && !isReceber) {
@@ -1504,25 +1906,32 @@
                 var pixBtnHtml = (isReceber && !bill.isPaidView)
                     ? `<button type="button" class="btn-pix-mini" onclick="event.stopPropagation(); openPixChargeForBill('${bill.id}')">📲 Cobrar Pix</button>`
                     : '';
-                var delay = Math.min(idx * 0.04, 0.36);
+                var delay = Math.min(idx * 0.035, 0.32);
+                var swipeRightLabel = bill.isPaidView ? '↩ Reabrir' : '✓ Concluir';
 
                 container.innerHTML += `
-                    <div class="card ${statusClass}" style="animation-delay:${delay}s;" onclick="openEditBill('${bill.id}')">
-                        <button type="button" class="btn-trash-classic" title="Excluir lançamento" onclick="event.stopPropagation(); requestDeleteBill('${bill.id}')">
-                            ${TRASH_ICON_SVG}
-                        </button>
-                        <input type="checkbox" class="card-checkbox" ${bill.isPaidView ? 'checked' : ''} onclick="event.stopPropagation()" onchange="togglePaid('${bill.id}')">
-                        <div class="info">
-                            <strong>${bill.nome}</strong>
-                            <span>${isReceber ? 'Recebimento' : 'Vencimento'}: ${dateFormatted}</span>
-                            ${natTag}${tipoTag}
-                        </div>
-                        <div class="value-col">
-                            <div class="value ${isReceber ? 'income' : ''}">${isReceber ? '+ ' : ''}${formatCurrency(bill.valor)}</div>
-                            ${pixBtnHtml}
+                    <div class="swipe-wrapper" style="animation-delay:${delay}s;">
+                        <div class="swipe-bg right-action">${swipeRightLabel}</div>
+                        <div class="swipe-bg left-action">🗑️ Excluir</div>
+                        <div class="card swipe-card ${statusClass}" data-id="${bill.id}" data-module="financeiro" onclick="openEditBill('${bill.id}')">
+                            <button type="button" class="btn-trash-classic" title="Excluir lançamento" onclick="event.stopPropagation(); requestDeleteBill('${bill.id}')">
+                                ${TRASH_ICON_SVG}
+                            </button>
+                            <input type="checkbox" class="card-checkbox" ${bill.isPaidView ? 'checked' : ''} onclick="event.stopPropagation()" onchange="togglePaid('${bill.id}')">
+                            <div class="info">
+                                <strong>${bill.nome}</strong>
+                                <span>${isReceber ? 'Recebimento' : 'Vencimento'}: ${dateFormatted}</span>
+                                ${natTag}${tipoTag}
+                            </div>
+                            <div class="value-col">
+                                <div class="value ${isReceber ? 'income' : ''}">${isReceber ? '+ ' : ''}${formatCurrency(bill.valor)}</div>
+                                ${pixBtnHtml}
+                            </div>
                         </div>
                     </div>`;
             });
+
+            attachCardSwipeHandlers();
         }
 
         // =========================================================================
@@ -2072,6 +2481,8 @@
                 document.getElementById('editBillId').value = "";
                 document.getElementById('editBillGrupo').value = "";
                 document.getElementById('editBillTipoOrig').value = "";
+                document.getElementById('quickParseBox').style.display = "block";
+                document.getElementById('quickParseInput').value = "";
                 document.getElementById('natureSwitch').style.display = "grid";
                 setNature('pagar');
                 document.getElementById('billName').value = "";
@@ -2113,6 +2524,7 @@
             document.getElementById('editBillId').value = bill.id;
             document.getElementById('editBillGrupo').value = bill.grupo_parcela || "";
             document.getElementById('editBillTipoOrig').value = bill.tipo;
+            document.getElementById('quickParseBox').style.display = "none";
             setNature(bill.natureza || 'pagar');
             document.getElementById('billName').value = bill.nome;
             document.getElementById('billPagador').value = bill.pagador || "";
@@ -2143,6 +2555,8 @@
 
             setTimeout(() => {
                 currentMode = mode;
+                activeFilterChip = 'todos';
+                clearSearchFilter();
                 if (mode === 'veiculo') {
                     document.body.classList.add('vehicle-mode');
                     document.getElementById('btnModFinanceiro').classList.remove('active');
@@ -2152,6 +2566,7 @@
                     document.getElementById('btnModVeiculo').classList.remove('active');
                     document.getElementById('btnModFinanceiro').classList.add('active');
                 }
+                renderFilterChips();
                 updateOverdueCounters();
                 updateFreeTierBanner();
                 updateDisplay();
@@ -2223,46 +2638,121 @@
             await loadUserData();
         }
 
+        // =========================================================================
+        // MÓDULO VEÍCULO COM CÁLCULO DE MÉDIA KM/L E CUSTO POR KM
+        // =========================================================================
+        function computeVehicleEfficiencyMap() {
+            var map = {};
+            var fuelRecords = globalData.veiculos
+                .filter(v => v.tipo_registro === 'Abastecimento' && v.km && parseFloat(v.km) > 0)
+                .sort((a, b) => {
+                    var kmDiff = parseFloat(a.km) - parseFloat(b.km);
+                    return kmDiff !== 0 ? kmDiff : new Date(a.data) - new Date(b.data);
+                });
+
+            for (var i = 1; i < fuelRecords.length; i++) {
+                var prev = fuelRecords[i - 1];
+                var curr = fuelRecords[i];
+                var dist = parseFloat(curr.km) - parseFloat(prev.km);
+                var liters = curr.detalhes ? parseFloat(curr.detalhes.replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+                var val = parseFloat(curr.valor) || 0;
+
+                if (dist > 0 && liters > 0) {
+                    var kmPerLiter = dist / liters;
+                    var costPerKm = val > 0 ? (val / dist) : null;
+                    if (kmPerLiter > 1 && kmPerLiter < 45) {
+                        map[curr.id] = {
+                            kmL: kmPerLiter.toFixed(1),
+                            costKm: costPerKm ? costPerKm.toFixed(2) : null,
+                            dist: Math.round(dist)
+                        };
+                    }
+                }
+            }
+            return map;
+        }
+
         function renderVehicles() {
             var container = document.getElementById('mainContainer');
             container.innerHTML = '';
-            var currentVeh = getVehiclesForViewMonth();
+            var allMonthVeh = getVehiclesForViewMonth();
             var totalGasto = 0, abastecimentos = 0, manutencoes = 0;
-            currentVeh.forEach(v => {
+
+            allMonthVeh.forEach(v => {
                 var val = parseFloat(v.valor) || 0;
                 totalGasto += val;
                 if(v.tipo_registro === 'Abastecimento') abastecimentos += val; else manutencoes += val;
             });
+
             document.getElementById('lblSummary1').innerText = "TOTAL VEÍCULO";
             document.getElementById('valSummary1').innerText = formatCurrency(totalGasto);
             document.getElementById('lblSummary2').innerText = "ABASTECIMENTO";
             document.getElementById('valSummary2').innerText = formatCurrency(abastecimentos);
             document.getElementById('lblSummary3').innerText = "MANUTENÇÃO";
             document.getElementById('valSummary3').innerText = formatCurrency(manutencoes);
+            document.getElementById('subSummary3').style.display = 'none';
 
-            if (currentVeh.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top: 30px;">Nenhum registro de veículo neste mês.</p>';
+            var effMap = computeVehicleEfficiencyMap();
+            var effValues = allMonthVeh.map(v => effMap[v.id]).filter(Boolean);
+            if (effValues.length > 0) {
+                var avgKmL = (effValues.reduce((acc, e) => acc + parseFloat(e.kmL), 0) / effValues.length).toFixed(1);
+                var validCosts = effValues.filter(e => e.costKm !== null);
+                var avgCostKm = validCosts.length > 0
+                    ? 'R$ ' + (validCosts.reduce((acc, e) => acc + parseFloat(e.costKm), 0) / validCosts.length).toFixed(2).replace('.', ',')
+                    : '—';
+                container.innerHTML += `
+                    <div class="veh-stats-banner">
+                        <div><span>Média do Mês</span><strong>⛽ ${avgKmL.replace('.', ',')} km/L</strong></div>
+                        <div><span>Custo por KM</span><strong>🛣️ ${avgCostKm}/km</strong></div>
+                    </div>`;
+            }
+
+            var filteredVeh = allMonthVeh.filter(v => {
+                if (activeFilterChip !== 'todos' && v.tipo_registro !== activeFilterChip) return false;
+                if (searchFilterQuery) {
+                    var hay = (v.nome + ' ' + (v.detalhes || '')).toLowerCase();
+                    if (!hay.includes(searchFilterQuery)) return false;
+                }
+                return true;
+            });
+
+            filteredVeh.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            if (filteredVeh.length === 0) {
+                var emptyMsg = allMonthVeh.length === 0
+                    ? 'Nenhum registro de veículo neste mês.'
+                    : 'Nenhum registro encontrado para este filtro.';
+                container.innerHTML += `<p style="text-align:center; color:var(--text-sub); margin-top: 28px; font-size:0.88rem;">${emptyMsg}</p>`;
                 return;
             }
-            currentVeh.forEach((v, idx) => {
+
+            filteredVeh.forEach((v, idx) => {
                 var dParts = v.data.split('-');
                 var dateFormatted = dParts[2] + "/" + dParts[1] + "/" + dParts[0];
-                var delay = Math.min(idx * 0.04, 0.36);
+                var delay = Math.min(idx * 0.035, 0.32);
+                var eff = effMap[v.id];
+                var effTag = eff ? `<span class="tag efficiency">⛽ ${eff.kmL.replace('.', ',')} km/L (+${eff.dist} km)</span>` : '';
+
                 container.innerHTML += `
-                    <div class="card" style="animation-delay:${delay}s; border-left-color: ${v.tipo_registro === 'Abastecimento' ? 'var(--green)' : 'var(--yellow)'};" onclick="openEditVehicle('${v.id}')">
-                        <button type="button" class="btn-trash-classic" title="Excluir registro" onclick="event.stopPropagation(); deleteVehicle('${v.id}')">
-                            ${TRASH_ICON_SVG}
-                        </button>
-                        <div class="info">
-                            <span class="tag">${v.tipo_registro.toUpperCase()}</span>
-                            <strong>${v.nome}</strong>
-                            <span>KM: ${v.km ? v.km + ' km' : 'N/I'} | Data: ${dateFormatted}</span>
-                        </div>
-                        <div class="value-col">
-                            <div class="value">${v.valor > 0 ? formatCurrency(v.valor) : 'A prever'}</div>
+                    <div class="swipe-wrapper" style="animation-delay:${delay}s;">
+                        <div class="swipe-bg left-action">🗑️ Excluir</div>
+                        <div class="card swipe-card" data-id="${v.id}" data-module="veiculo" style="border-left-color: ${v.tipo_registro === 'Abastecimento' ? 'var(--green)' : 'var(--yellow)'};" onclick="openEditVehicle('${v.id}')">
+                            <button type="button" class="btn-trash-classic" title="Excluir registro" onclick="event.stopPropagation(); deleteVehicle('${v.id}')">
+                                ${TRASH_ICON_SVG}
+                            </button>
+                            <div class="info">
+                                <span class="tag">${v.tipo_registro.toUpperCase()}</span>${effTag}
+                                <strong>${v.nome}</strong>
+                                <span>KM: ${v.km ? v.km + ' km' : 'N/I'}${v.detalhes ? ' • ' + v.detalhes : ''} • ${dateFormatted}</span>
+                            </div>
+                            <div class="value-col">
+                                <div class="value">${v.valor > 0 ? formatCurrency(v.valor) : 'A prever'}</div>
+                            </div>
                         </div>
                     </div>`;
             });
+
+            attachCardSwipeHandlers();
         }
 
         async function saveVehicle() {
