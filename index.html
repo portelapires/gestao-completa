@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <style>
         :root {
@@ -79,7 +80,6 @@
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* 1. Giro Horizontal no Próprio Eixo (Troca de Módulo) */
         @keyframes axisFlipOut {
             0% { opacity: 1; transform: perspective(1200px) rotateY(0deg) scale(1); }
             100% { opacity: 0.15; transform: perspective(1200px) rotateY(90deg) scale(0.95); }
@@ -90,7 +90,6 @@
             100% { opacity: 1; transform: perspective(1200px) rotateY(0deg) scale(1); }
         }
 
-        /* 2. Efeito Folha de Livro (Troca de Mês) */
         @keyframes bookPageNext {
             0% {
                 opacity: 0.15;
@@ -131,7 +130,6 @@
             }
         }
 
-        /* 3. Efeito Líquido / Fluido estilo macOS no Botão Adicionar */
         @keyframes liquidSheen {
             0% { transform: translateX(-140%) skewX(-22deg); }
             55%, 100% { transform: translateX(240%) skewX(-22deg); }
@@ -156,13 +154,13 @@
         body { margin: 0; background-color: var(--bg); color: var(--text-main); padding-bottom: 108px; transition: background-color 0.35s ease, color 0.35s ease; -webkit-font-smoothing: antialiased; }
         
         .center-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .auth-card { background: var(--card-bg); border-radius: 20px; padding: 30px 24px; width: 100%; max-width: 430px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); text-align: center; animation: fadeSlideUp 0.35s ease; }
-        .auth-card h1 { color: var(--text-main); margin-bottom: 6px; font-size: 1.45rem; letter-spacing: 0.8px; font-weight: 800; }
-        .auth-card p { color: var(--text-sub); font-size: 0.88rem; margin-bottom: 18px; line-height: 1.45; }
+        .auth-card { background: var(--card-bg); border-radius: 20px; padding: 28px 22px; width: 100%; max-width: 450px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); text-align: center; animation: fadeSlideUp 0.35s ease; }
+        .auth-card h1 { color: var(--text-main); margin: 0 0 6px 0; font-size: 1.42rem; letter-spacing: 0.6px; font-weight: 800; }
+        .auth-card p { color: var(--text-sub); font-size: 0.86rem; margin-bottom: 16px; line-height: 1.45; }
         
         .btn-social { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: #FFF; color: #1E293B; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; transition: transform 0.15s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
         .btn-social:active { transform: scale(0.97); }
-        .divider { display: flex; align-items: center; text-align: center; margin: 18px 0; color: var(--text-sub); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+        .divider { display: flex; align-items: center; text-align: center; margin: 16px 0; color: var(--text-sub); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
         .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .divider:not(:empty)::before { margin-right: .6em; }
         .divider:not(:empty)::after { margin-left: .6em; }
@@ -170,22 +168,38 @@
         .auth-input { width: 100%; padding: 12px 14px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg); color: var(--text-main); font-size: 0.95rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
         .auth-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
         .auth-options-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-sub); }
-        .btn-link { background: none; border: none; color: var(--accent-color); font-weight: 700; font-size: 0.82rem; cursor: pointer; padding: 0; text-decoration: underline; }
-        .btn-primary { width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--btn-bg); color: var(--btn-color); font-weight: 800; font-size: 0.96rem; cursor: pointer; transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
+        .btn-link { background: none; border: none; color: var(--accent-color); font-weight: 700; font-size: 0.8rem; cursor: pointer; padding: 0; text-decoration: underline; }
+        .btn-primary { width: 100%; padding: 13px; border-radius: 11px; border: none; background: var(--btn-bg); color: var(--btn-color); font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
         .btn-primary:active { transform: scale(0.97); }
 
-        .plans-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left; }
-        .plan-option { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--border-color); background: var(--bg); cursor: pointer; transition: all 0.2s ease; }
-        .plan-option.selected { border-color: var(--btn-bg); background: rgba(253, 224, 71, 0.08); transform: scale(1.01); }
-        .plan-left strong { display: block; font-size: 0.92rem; color: var(--text-main); }
-        .plan-left span { font-size: 0.76rem; color: var(--text-sub); }
-        .plan-right { text-align: right; }
-        .plan-right strong { display: block; font-size: 1rem; color: var(--text-main); font-weight: 800; }
-        .plan-badge { display: inline-block; background: #10B981; color: #FFF; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+        /* TELA DE PLANOS (ESSENCIAL VS GESTÃO COMPLETA) */
+        .plans-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; text-align: left; }
+        .plan-option { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 14px 14px; border-radius: 14px; border: 1.5px solid var(--border-color); background: var(--bg); cursor: pointer; transition: all 0.2s ease; gap: 10px; }
+        .plan-option.selected { border-color: var(--btn-bg); background: rgba(212, 175, 55, 0.09); box-shadow: var(--shadow-sm); }
+        .plan-option.annual-highlight { border-width: 2px; }
+        .plan-ribbon { position: absolute; top: -9px; right: 12px; background: #10B981; color: #FFF; font-size: 0.64rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.4px; text-transform: uppercase; }
+        .plan-left strong { display: block; font-size: 0.94rem; color: var(--text-main); margin-bottom: 2px; }
+        .plan-left span { display: block; font-size: 0.76rem; color: var(--text-sub); line-height: 1.35; }
+        .plan-right { text-align: right; flex-shrink: 0; }
+        .plan-right strong { display: block; font-size: 1.05rem; color: var(--text-main); font-weight: 800; }
+        .plan-right small { display: block; font-size: 0.7rem; color: var(--text-sub); }
+        .plan-badge { display: inline-block; background: rgba(16, 185, 129, 0.15); color: #10B981; font-size: 0.66rem; font-weight: 800; padding: 2px 6px; border-radius: 5px; margin-bottom: 2px; }
+
+        .benefits-box { background: var(--bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; text-align: left; margin-bottom: 14px; font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+        .benefits-box div { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+        .benefits-box div:last-child { margin-bottom: 0; }
+
+        .terms-check-row { display: flex; align-items: flex-start; gap: 8px; text-align: left; font-size: 0.76rem; color: var(--text-sub); margin: 10px 0 14px 0; line-height: 1.4; }
+        .terms-check-row input { width: auto; margin-top: 2px; flex-shrink: 0; }
 
         .alert-banner { max-width: 600px; margin: 12px auto 0 auto; padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; text-align: center; display: none; animation: fadeSlideUp 0.3s ease; }
         .alert-warning { background: rgba(245, 158, 11, 0.16); border: 1px solid #F59E0B; color: var(--text-main); }
         .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: var(--text-main); margin-bottom: 14px; text-align: left; }
+
+        /* BARRA DE STATUS DO PLANO GRÁTIS (ESSENCIAL) */
+        .free-tier-bar { max-width: 600px; margin: 10px auto 0 auto; padding: 0 12px; display: none; }
+        .free-tier-pill { background: var(--card-bg); border: 1px solid var(--border-color); border-left: 4px solid var(--btn-bg); border-radius: 11px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.76rem; box-shadow: var(--shadow-sm); }
+        .free-tier-pill button { background: var(--btn-bg); color: var(--btn-color); border: none; border-radius: 7px; padding: 5px 10px; font-weight: 800; font-size: 0.72rem; cursor: pointer; white-space: nowrap; }
 
         #appContent { display: none; width: 100%; }
         
@@ -230,12 +244,14 @@
             box-shadow: 4px 0 28px rgba(0,0,0,0.28); padding: max(env(safe-area-inset-top), 22px) 16px max(env(safe-area-inset-bottom), 20px) 16px;
             transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
             display: flex; flex-direction: column; justify-content: space-between;
+            overflow-y: auto;
         }
         .side-drawer.open { left: 0; }
         .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 14px; }
-        .drawer-item { width: 100%; text-align: left; background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 11px 13px; border-radius: 11px; font-weight: 700; font-size: 0.85rem; margin-bottom: 9px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: transform 0.15s ease, border-color 0.2s ease; }
+        .drawer-item { width: 100%; text-align: left; background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 11px 13px; border-radius: 11px; font-weight: 700; font-size: 0.83rem; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; transition: transform 0.15s ease, border-color 0.2s ease; }
         .drawer-item:hover { border-color: var(--accent-color); }
         .drawer-item:active { transform: scale(0.97); }
+        .pro-pill { background: linear-gradient(135deg, #D4AF37, #B48A1E); color: #0A1128; font-size: 0.62rem; font-weight: 900; padding: 2px 6px; border-radius: 5px; letter-spacing: 0.3px; flex-shrink: 0; }
         .drawer-item-logout {
             width: 100%;
             background: rgba(239, 68, 68, 0.08);
@@ -304,7 +320,7 @@
         .overdue-pill-btn { width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px dashed #EF4444; color: var(--text-main); padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: transform 0.15s ease; }
         .overdue-pill-btn:active { transform: scale(0.98); }
 
-        /* CARDS DE LANÇAMENTO (CLIQUE NO CARD EDITA; LIXEIRA CLÁSSICA NO CANTO) */
+        /* CARDS DE LANÇAMENTO */
         .container { padding: 0 12px; max-width: 600px; margin: 0 auto; }
         .card { background: var(--card-bg); border-radius: 14px; padding: 14px 16px; margin-bottom: 11px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-left: 5px solid var(--accent-color); position: relative; cursor: pointer; animation: fadeSlideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards; transition: transform 0.18s ease, box-shadow 0.2s ease, opacity 0.28s ease, background-color 0.3s ease; }
         .card:hover { box-shadow: var(--shadow-md); }
@@ -344,8 +360,11 @@
         .info { flex-grow: 1; margin-right: 10px; padding-right: 28px; min-width: 0; }
         .info strong { display: block; font-size: 0.94rem; color: var(--text-main); margin-bottom: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.2px; transition: color 0.25s ease; word-break: break-word; }
         .info span { display: block; font-size: 0.78rem; color: var(--text-sub); }
-        .value { font-size: 0.96rem; font-weight: 800; color: var(--text-main); text-align: right; flex-shrink: 0; margin-top: 16px; font-variant-numeric: tabular-nums; }
+        .value-col { text-align: right; flex-shrink: 0; margin-top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .value { font-size: 0.96rem; font-weight: 800; color: var(--text-main); font-variant-numeric: tabular-nums; }
         .value.income { color: var(--green); }
+        .btn-pix-mini { background: rgba(16, 185, 129, 0.14); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 7px; padding: 3px 8px; font-size: 0.68rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.12s ease, background-color 0.2s ease; }
+        .btn-pix-mini:active { transform: scale(0.92); }
         .tag { font-size: 0.64rem; background: var(--bg); padding: 2px 7px; border-radius: 5px; color: var(--text-main); border: 1px solid var(--border-color); font-weight: 700; display: inline-block; margin-top: 4px; margin-right: 4px; }
         
         /* BOTÃO ADICIONAR COM EFEITO LÍQUIDO / FLUIDO ESTILO MACOS */
@@ -394,7 +413,7 @@
 
         /* MODAIS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 17, 40, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 200; }
-        .modal-content { background: var(--card-bg); padding: 24px; width: 92%; max-width: 420px; color: var(--text-main); max-height: 90vh; overflow-y: auto; border-radius: 18px; border: 1px solid var(--border-color); animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: var(--shadow-lg); }
+        .modal-content { background: var(--card-bg); padding: 24px; width: 92%; max-width: 430px; color: var(--text-main); max-height: 90vh; overflow-y: auto; border-radius: 18px; border: 1px solid var(--border-color); animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: var(--shadow-lg); }
         .modal-content h3 { margin-top: 0; font-weight: 800; letter-spacing: -0.2px; }
         .modal-content label { display: block; margin-top: 12px; font-size: 0.83rem; font-weight: 600; color: var(--text-main); }
         .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 11px 12px; margin-top: 5px; background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.94rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
@@ -410,6 +429,10 @@
         .nature-btn:active { transform: scale(0.97); }
         .nature-btn.active-pagar { border-color: #EF4444; background: rgba(239,68,68,0.12); color: #EF4444; }
         .nature-btn.active-receber { border-color: #10B981; background: rgba(16,185,129,0.12); color: #10B981; }
+
+        .qr-wrapper { background: #FFFFFF; padding: 14px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin: 12px auto; border: 1px solid var(--border-color); }
+        .legal-doc { font-size: 0.83rem; line-height: 1.55; color: var(--text-sub); text-align: left; }
+        .legal-doc h4 { color: var(--text-main); margin: 14px 0 4px 0; font-size: 0.9rem; }
 
         .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; margin-top: 8px; font-size: 0.82rem; background: var(--bg); }
         .checkbox-group { display: flex; gap: 20px; margin-top: 8px; font-weight: bold; }
@@ -438,29 +461,41 @@
                 <button class="btn-cancel" style="padding:4px 10px;" onclick="closeDrawer()">✕</button>
             </div>
 
+            <button class="drawer-item" onclick="closeDrawer(); openPixConfigModal();">
+                <span>🔑 Minha Chave Pix (Recebimentos)</span>
+                <span class="pro-pill">PRO</span>
+            </button>
+
             <button class="drawer-item" onclick="closeDrawer(); openOverdueModal();">
                 <span>⏳ Contas Atrasadas (Sem Data)</span>
                 <span class="badge-count" id="drawerOverdueCount">0</span>
             </button>
 
             <button class="drawer-item" onclick="closeDrawer(); openCalendarModal();">
-                <span>📅 Sincronizar Agendas (Google / Apple)</span>
+                <span>📅 Sincronizar Agendas</span>
+                <span class="pro-pill">PRO</span>
             </button>
 
             <button class="drawer-item" onclick="closeDrawer(); openAiModal();">
                 <span>🤖 Analisar Finanças com IA</span>
+                <span class="pro-pill">PRO</span>
             </button>
 
             <button class="drawer-item" onclick="closeDrawer(); exportPDF();">
                 <span>📄 Exportar Relatório PDF</span>
+                <span class="pro-pill">PRO</span>
             </button>
 
             <button class="drawer-item" id="btnDrawerShortcut" onclick="closeDrawer(); triggerShortcutPrompt(true);">
                 <span id="lblDrawerShortcut">📲 Criar Atalho na Tela Inicial</span>
             </button>
+
+            <button class="drawer-item" onclick="closeDrawer(); openLegalModal();">
+                <span>📜 Termos & Política de Reembolso</span>
+            </button>
         </div>
 
-        <div>
+        <div style="margin-top: 14px;">
             <button class="drawer-item-logout" onclick="closeDrawer(); logout();">
                 <span>🚪 Sair da Conta</span>
             </button>
@@ -474,7 +509,7 @@
     <div id="authContainer" class="center-screen">
         <div class="auth-card">
             <h1>GESTÃO COMPLETA</h1>
-            <p>Acesse sua Gestão Completa</p>
+            <p>Organize suas finanças e seu veículo com clareza.<br>Comece grátis no plano <strong>Essencial</strong>.</p>
 
             <button type="button" class="btn-social" onclick="loginProvider('google')">
                 <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.26v3.15C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.26C.46 8.23 0 10.06 0 12s.46 3.77 1.26 5.39l4.02-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.61l4.02 3.15c.95-2.85 3.6-4.96 6.72-4.96z"/></svg>
@@ -492,47 +527,67 @@
                     <button type="button" class="btn-link" onclick="recoverPassword()">Esqueci minha senha</button>
                 </div>
 
-                <button type="submit" class="btn-primary">Entrar / Cadastrar</button>
+                <button type="submit" class="btn-primary">Entrar / Criar Conta Grátis</button>
             </form>
+
+            <p style="font-size:0.73rem; margin:14px 0 0 0;">
+                Ao continuar, você concorda com nossos
+                <button type="button" class="btn-link" style="font-size:0.73rem;" onclick="openLegalModal()">Termos de Uso e Política de Reembolso</button>.
+            </p>
         </div>
     </div>
 
-    <!-- 2. PAYWALL (PLANOS R$ 6,99 A R$ 59,90) -->
+    <!-- 2. PAYWALL / ESCOLHA DE PLANO (GESTÃO COMPLETA) -->
     <div id="paywallContainer" class="center-screen" style="display: none;">
         <div class="auth-card">
-            <h1>ESCOLHA SEU PLANO</h1>
-            <p id="paywallUserEmail" style="font-weight: 700; margin-bottom: 12px;"></p>
+            <h1>GESTÃO COMPLETA</h1>
+            <p id="paywallUserEmail" style="font-weight: 700; margin-bottom: 10px;"></p>
             <div id="suspendedRetentionBanner" class="alert-banner alert-danger"></div>
 
+            <div class="benefits-box">
+                <div><span>✅</span><span><strong>Lançamentos ilimitados</strong> (A Pagar, A Receber e Veículo)</span></div>
+                <div><span>✅</span><span><strong>Cobrança Pix Direta</strong> com QR Code + envio no WhatsApp</span></div>
+                <div><span>✅</span><span><strong>Contas Fixas Mensais e Parceladas</strong> automáticas</span></div>
+                <div><span>✅</span><span><strong>Relatórios PDF, Agendas e IA</strong> + novidades inclusas durante o plano</span></div>
+            </div>
+
             <div class="plans-grid" id="plansGrid">
-                <div class="plan-option selected" data-months="1" onclick="selectPlan(1, this)">
-                    <div class="plan-left"><strong>Mensal (1 mês)</strong><span>Renovação mensal • Cancele quando quiser</span></div>
-                    <div class="plan-right"><strong>R$ 6,99</strong></div>
+                <div class="plan-option annual-highlight selected" data-months="12" onclick="selectPlan(12, this)">
+                    <span class="plan-ribbon">Mais Escolhido • 41% OFF</span>
+                    <div class="plan-left">
+                        <strong>Gestão Completa — Anual</strong>
+                        <span>12 meses de acesso total • Garantia de 14 dias • Preço protegido por 1 ano</span>
+                    </div>
+                    <div class="plan-right">
+                        <span class="plan-badge">R$ 5,82/mês</span>
+                        <strong>R$ 69,90</strong>
+                        <small>cobrado 1x ao ano</small>
+                    </div>
                 </div>
-                <div class="plan-option" data-months="3" onclick="selectPlan(3, this)">
-                    <div class="plan-left"><strong>Trimestral (3 meses)</strong><span>Equivale a R$ 6,30/mês</span></div>
-                    <div class="plan-right"><span class="plan-badge">10% OFF</span><strong>R$ 18,90</strong></div>
-                </div>
-                <div class="plan-option" data-months="6" onclick="selectPlan(6, this)">
-                    <div class="plan-left"><strong>Semestral (6 meses)</strong><span>Equivale a R$ 5,82/mês</span></div>
-                    <div class="plan-right"><span class="plan-badge">17% OFF</span><strong>R$ 34,90</strong></div>
-                </div>
-                <div class="plan-option" data-months="9" onclick="selectPlan(9, this)">
-                    <div class="plan-left"><strong>Plano 9 Meses</strong><span>Equivale a R$ 5,32/mês</span></div>
-                    <div class="plan-right"><span class="plan-badge">24% OFF</span><strong>R$ 47,90</strong></div>
-                </div>
-                <div class="plan-option" data-months="12" onclick="selectPlan(12, this)">
-                    <div class="plan-left"><strong>Anual (12 meses)</strong><span>Equivale a R$ 4,99/mês (Mais vantajoso)</span></div>
-                    <div class="plan-right"><span class="plan-badge">29% OFF</span><strong>R$ 59,90</strong></div>
+
+                <div class="plan-option" data-months="1" onclick="selectPlan(1, this)">
+                    <div class="plan-left">
+                        <strong>Gestão Completa — Mensal</strong>
+                        <span>Renovação mensal • Garantia de 7 dias • Cancele com 1 clique</span>
+                    </div>
+                    <div class="plan-right">
+                        <strong>R$ 9,90</strong>
+                        <small>por mês</small>
+                    </div>
                 </div>
             </div>
 
             <input type="text" id="subName" class="auth-input" placeholder="Seu Nome Completo">
             <input type="text" id="subCpf" class="auth-input" placeholder="Seu CPF ou CNPJ (somente números)">
 
-            <button type="button" class="btn-primary" onclick="startAsaasSubscription()">Assinar / Renovar Agora</button>
-            <button type="button" class="btn-cancel" style="width:100%; margin-top:10px;" onclick="checkSubscriptionStatus()">Já paguei, liberar meu acesso</button>
-            <button type="button" class="btn-link" style="margin-top:14px;" onclick="logout()">Sair da conta</button>
+            <label class="terms-check-row">
+                <input type="checkbox" id="chkAcceptTerms" checked>
+                <span>Li e concordo com os <button type="button" class="btn-link" style="font-size:0.76rem;" onclick="openLegalModal()">Termos de Uso e Política de Reembolso</button> (7 dias no Mensal / 14 dias no Anual).</span>
+            </label>
+
+            <button type="button" class="btn-primary" onclick="startAsaasSubscription()">Assinar Gestão Completa</button>
+            <button type="button" class="btn-cancel" style="width:100%; margin-top:8px;" onclick="checkSubscriptionStatus()">Já paguei, liberar meu acesso</button>
+            <button type="button" class="btn-link" style="margin-top:12px; display:inline-block;" onclick="continueWithFreePlan()">Continuar no plano Essencial (Grátis)</button>
         </div>
     </div>
 
@@ -554,7 +609,7 @@
                 </div>
 
                 <div class="header-right">
-                    <button class="btn-head" onclick="openMySubModal()">Plano</button>
+                    <button class="btn-head" id="btnHeaderPlan" onclick="openMySubModal()">Plano</button>
                     <button class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema">💡</button>
                 </div>
             </div>
@@ -562,6 +617,14 @@
 
         <div style="padding: 0 12px;">
             <div id="graceBanner" class="alert-banner alert-warning"></div>
+        </div>
+
+        <!-- BARRA DISCRETA PARA USUÁRIOS DO PLANO ESSENCIAL (GRÁTIS) -->
+        <div class="free-tier-bar" id="freeTierBar">
+            <div class="free-tier-pill">
+                <span id="freeTierUsageText">Plano Essencial (Grátis)</span>
+                <button type="button" onclick="showPaywall()">Liberar Completo</button>
+            </div>
         </div>
 
         <div id="boardViewport">
@@ -604,7 +667,7 @@
 
     <!-- MODAL PERSONALIZADO DE CONFIRMAÇÃO / ALERTA -->
     <div class="modal" id="modalCustomDialog" style="z-index: 300;" onclick="if(event.target === this) closeCustomDialog(false)">
-        <div class="modal-content" style="max-width: 380px;">
+        <div class="modal-content" style="max-width: 390px;">
             <h3 id="customDialogTitle" style="margin-bottom:8px;">Confirmação</h3>
             <p id="customDialogMessage" style="font-size:0.9rem; line-height:1.5; color:var(--text-sub); margin:0;"></p>
             <div class="modal-buttons">
@@ -652,10 +715,10 @@
 
             <div id="divBillType">
                 <label>Tipo de Recorrência</label>
-                <select id="billType" onchange="document.getElementById('installmentDiv').style.display = this.value === 'Parcelada' ? 'block' : 'none';">
+                <select id="billType" onchange="handleBillTypeChange(this)">
                     <option value="Unica">Única</option>
-                    <option value="Mensal">Mensal (Fixo Perpétuo)</option>
-                    <option value="Parcelada">Parcelada</option>
+                    <option value="Mensal">Mensal (Fixo Perpétuo) — Gestão Completa</option>
+                    <option value="Parcelada">Parcelada — Gestão Completa</option>
                 </select>
             </div>
 
@@ -672,14 +735,93 @@
                 </select>
             </div>
 
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                <button class="btn-save" onclick="saveBill()">Salvar</button>
+            <div class="modal-buttons" style="justify-content: space-between;">
+                <button type="button" class="btn-save" id="btnModalCobrarPix" style="display:none; background:#10B981; color:#FFF;" onclick="openPixChargeFromModal()">📲 Cobrar via Pix</button>
+                <div style="display:flex; gap:8px; margin-left:auto;">
+                    <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button class="btn-save" onclick="saveBill()">Salvar</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: EXCLUIR CONTA PARCELADA (UMA OU TODAS) -->
+    <!-- MODAL: CONFIGURAR MINHA CHAVE PIX -->
+    <div class="modal" id="modalPixConfig" onclick="if(event.target === this) closeModalById('modalPixConfig')">
+        <div class="modal-content">
+            <h3>🔑 Minha Chave Pix (Recebimentos)</h3>
+            <p style="font-size:0.83rem; color:var(--text-sub); margin-top:0; line-height:1.45;">
+                Cadastre sua chave Pix para gerar QR Codes de cobrança nos seus lançamentos <strong>A Receber</strong>. O dinheiro cai direto na sua conta bancária, sem taxas intermediárias.
+            </p>
+            <label>Tipo de Chave Pix</label>
+            <select id="pixKeyType">
+                <option value="cpf">CPF (somente números)</option>
+                <option value="cnpj">CNPJ (somente números)</option>
+                <option value="celular">Celular (com DDD)</option>
+                <option value="email">E-mail</option>
+                <option value="aleatoria">Chave Aleatória (EVP)</option>
+            </select>
+            <label>Sua Chave Pix</label>
+            <input type="text" id="pixKeyValue" placeholder="Digite sua chave Pix">
+            <label>Seu Nome / Empresa (aparece no comprovante)</label>
+            <input type="text" id="pixMerchantName" placeholder="EX: JOAO SILVA" maxlength="25">
+            <label>Sua Cidade</label>
+            <input type="text" id="pixMerchantCity" placeholder="EX: GOIANIA" maxlength="15">
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeModalById('modalPixConfig')">Cancelar</button>
+                <button type="button" class="btn-save" onclick="savePixConfig()">Salvar Chave Pix</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: COBRANÇA PIX (QR CODE + COPIA E COLA + WHATSAPP) -->
+    <div class="modal" id="modalPixCharge" onclick="if(event.target === this) closeModalById('modalPixCharge')">
+        <div class="modal-content" style="text-align:center;">
+            <h3>📲 Cobrança Pix</h3>
+            <p id="pixChargeSubtitle" style="font-size:0.88rem; color:var(--text-sub); margin:0 0 6px 0;"></p>
+            <div style="font-size:1.35rem; font-weight:800; color:#10B981;" id="pixChargeAmount">R$ 0,00</div>
+
+            <div class="qr-wrapper">
+                <div id="pixQrCanvas"></div>
+            </div>
+
+            <label style="text-align:left; margin-top:6px;">Código Pix Copia e Cola</label>
+            <textarea id="pixPayloadBox" rows="3" readonly style="font-size:0.75rem; font-family:monospace;"></textarea>
+
+            <div class="modal-buttons" style="justify-content:center; gap:8px;">
+                <button type="button" class="btn-cancel" onclick="copyPixPayload()">📋 Copiar Código</button>
+                <button type="button" class="btn-save" style="background:#25D366; color:#FFF;" onclick="sharePixWhatsApp()">Enviar no WhatsApp</button>
+                <button type="button" class="btn-cancel" onclick="closeModalById('modalPixCharge')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TERMOS DE USO E POLÍTICA DE REEMBOLSO -->
+    <div class="modal" id="modalLegal" style="z-index: 260;" onclick="if(event.target === this) closeModalById('modalLegal')">
+        <div class="modal-content">
+            <h3>📜 Termos & Política de Reembolso</h3>
+            <div class="legal-doc">
+                <h4>1. Compromisso de Transparência e Privacidade</h4>
+                <p>Todos os lançamentos financeiros e registros de veículos pertencem exclusivamente a você. Nós <strong>não vendemos, não alugamos e não compartilhamos</strong> seus dados com terceiros. Você pode exportar ou excluir seus registros a qualquer momento.</p>
+
+                <h4>2. Planos: Essencial e Gestão Completa</h4>
+                <p>O plano <strong>Essencial</strong> é gratuito e permite até 15 lançamentos financeiros e 3 registros de veículo por mês. O plano <strong>Gestão Completa</strong> libera uso ilimitado e ferramentas avançadas mediante assinatura Mensal (R$ 9,90/mês) ou Anual (R$ 69,90/ano).</p>
+
+                <h4>3. Preço Protegido e Atualizações</h4>
+                <p>Durante a vigência do ciclo contratado, o valor pago não sofre alterações e todas as novas funcionalidades lançadas são liberadas sem custo adicional.</p>
+
+                <h4>4. Política de Reembolso (Garantia Risco Zero)</h4>
+                <p>Oferecemos garantia incondicional de <strong>7 dias no plano Mensal</strong> e <strong>14 dias no plano Anual</strong>. Se você assinar e decidir não continuar dentro desse prazo, basta cancelar pelo app ou solicitar o estorno para receber <strong>100% do valor de volta</strong>, sem burocracia.</p>
+
+                <h4>5. Cancelamento Livre</h4>
+                <p>Você pode cancelar a renovação automática a qualquer momento com 1 clique em <em>"Plano"</em>. Seu acesso permanece ativo até o fim do período já pago e seus dados antigos continuam salvos caso retorne ao plano Essencial.</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-save" onclick="closeModalById('modalLegal')">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXCLUIR CONTA PARCELADA -->
     <div class="modal" id="modalDeleteParcel" onclick="if(event.target === this) closeModalById('modalDeleteParcel')">
         <div class="modal-content">
             <h3>Excluir Conta Parcelada</h3>
@@ -831,6 +973,9 @@
         <div class="modal-content">
             <h3>Minha Assinatura</h3>
             <p id="mySubStatusText" style="font-size:0.88rem; line-height:1.55;"></p>
+            <div id="upgradeSubArea" style="display:none; margin-top: 12px;">
+                <button type="button" class="btn-primary" onclick="closeModalById('modalMySub'); showPaywall();">Assinar Gestão Completa</button>
+            </div>
             <div id="cancelSubArea" style="margin-top: 16px;">
                 <button type="button" class="btn-primary" style="background:#EF4444; color:#FFF;" onclick="cancelMySubscription()">Cancelar Renovação Automática</button>
             </div>
@@ -858,9 +1003,13 @@
 
         var TRASH_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
 
+        var FREE_LIMIT_BILLS = 15;
+        var FREE_LIMIT_VEHICLES = 3;
+
         var currentUser = null;
         var currentSub = null;
-        var selectedPlanMonths = 1;
+        var hasProAccess = false;
+        var selectedPlanMonths = 12;
         var currentNature = 'pagar';
         var pendingDeleteBill = null;
         var deferredInstallPrompt = null;
@@ -871,6 +1020,7 @@
         var monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
         var globalData = { bills: [], veiculos: [], pagamentosMensais: [] };
         var customDialogResolve = null;
+        var activePixChargeContext = null;
 
         // DETECÇÃO E SINCRONIZAÇÃO AUTOMÁTICA DE TEMA (CLARO / ESCURO)
         function applyThemeState(isDark) {
@@ -945,6 +1095,16 @@
             return showCustomDialog({ title: title || "Confirmação", message: message, isConfirm: true, confirmText: confirmText || "Confirmar", danger: danger !== false });
         }
 
+        async function promptUpgrade(featureName) {
+            var ok = await appConfirm(
+                `"${featureName}" faz parte do plano Gestão Completa (R$ 9,90/mês ou R$ 69,90/ano com 14 dias de garantia).\n\nDeseja conhecer e liberar o acesso completo agora?`,
+                "Recurso Gestão Completa",
+                "Ver Planos",
+                false
+            );
+            if (ok) showPaywall();
+        }
+
         function showToast(msg) {
             var el = document.getElementById('appToast');
             el.innerText = msg;
@@ -982,6 +1142,10 @@
         function closeDrawer() {
             document.getElementById('sideDrawer').classList.remove('open');
             setTimeout(() => document.getElementById('drawerOverlay').style.display = 'none', 260);
+        }
+
+        function openLegalModal() {
+            openModalById('modalLegal');
         }
 
         function triggerShortcutPrompt(manual) {
@@ -1063,7 +1227,7 @@
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'PASSWORD_RECOVERY') openModalById('modalNewPassword');
                 else if (session) { currentUser = session.user; await checkSubscriptionStatus(); }
-                else { currentUser = null; currentSub = null; showAuth(); }
+                else { currentUser = null; currentSub = null; hasProAccess = false; showAuth(); }
             });
         };
 
@@ -1079,6 +1243,7 @@
                 const { data } = await _supabase.from('assinaturas').select('*').eq('email', ADMIN_EMAIL).maybeSingle();
                 currentSub = data || { email: ADMIN_EMAIL, status: 'courtesy', is_admin: true };
                 currentSub.is_admin = true;
+                hasProAccess = true;
                 hideLoader();
                 showApp();
                 return;
@@ -1089,21 +1254,26 @@
                 .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email.toLowerCase()}`).maybeSingle();
             hideLoader();
             currentSub = data;
+            hasProAccess = false;
 
-            if (!currentSub) { showPaywall(); return; }
-            if (currentSub.is_admin || currentSub.status === 'courtesy') { showApp(); return; }
+            if (currentSub && (currentSub.is_admin || currentSub.status === 'courtesy')) {
+                hasProAccess = true;
+                showApp();
+                return;
+            }
 
-            if ((currentSub.status === 'active' || currentSub.status === 'canceled') && currentSub.current_period_end) {
+            if (currentSub && (currentSub.status === 'active' || currentSub.status === 'canceled') && currentSub.current_period_end) {
                 var today = new Date(); today.setHours(0, 0, 0, 0);
                 var dueDate = new Date(currentSub.current_period_end + "T00:00:00");
                 var graceLimit = new Date(dueDate); graceLimit.setDate(graceLimit.getDate() + 3);
 
                 if (today <= graceLimit) {
+                    hasProAccess = true;
                     showApp();
                     var banner = document.getElementById('graceBanner');
                     if (currentSub.status === 'canceled') {
                         banner.style.display = 'block';
-                        banner.innerText = `⚠️ Assinatura cancelada. Acesso ativo até ${formatDateBR(currentSub.current_period_end)} (+ 3 dias de tolerância).`;
+                        banner.innerText = `⚠️ Assinatura cancelada. Acesso Gestão Completa ativo até ${formatDateBR(currentSub.current_period_end)} (+ 3 dias de tolerância).`;
                     } else if (today > dueDate) {
                         banner.style.display = 'block';
                         banner.innerText = `⚠️ Vencida em ${formatDateBR(currentSub.current_period_end)}. Você está nos 3 dias de tolerância.`;
@@ -1113,7 +1283,17 @@
                     return;
                 }
             }
-            showPaywall();
+
+            // Se não possui assinatura ativa, libera automaticamente o Plano Essencial (Grátis)
+            hasProAccess = false;
+            document.getElementById('graceBanner').style.display = 'none';
+            showApp();
+        }
+
+        function continueWithFreePlan() {
+            hasProAccess = false;
+            showApp();
+            showToast("Você está usando o plano Essencial (Grátis).");
         }
 
         function showAuth() {
@@ -1134,7 +1314,7 @@
             if (currentSub && currentSub.status === 'suspended' && currentSub.purge_at) {
                 var daysLeft = Math.max(0, Math.ceil((new Date(currentSub.purge_at) - new Date()) / (1000 * 60 * 60 * 24)));
                 retBanner.style.display = 'block';
-                retBanner.innerHTML = `⛔ <strong>Acesso Suspenso:</strong> Dados salvos por <strong>${daysLeft} dias</strong> (até ${formatDateBR(currentSub.purge_at)}).`;
+                retBanner.innerHTML = `⛔ <strong>Assinatura Expirada:</strong> Você está no plano Essencial. Seus dados completos seguem preservados.`;
             } else {
                 retBanner.style.display = 'none';
             }
@@ -1148,9 +1328,10 @@
 
             var adminFlag = isMasterAdmin() || (currentSub && currentSub.is_admin);
             document.getElementById('btnAdminPanel').style.display = adminFlag ? 'flex' : 'none';
+            document.getElementById('btnHeaderPlan').innerText = hasProAccess ? 'Completo' : 'Essencial';
 
             var streakBtn = document.getElementById('btnStreakBadge');
-            if (!adminFlag && currentSub && currentSub.streak_months > 0) {
+            if (!adminFlag && hasProAccess && currentSub && currentSub.streak_months > 0) {
                 var info = getStreakBadgeInfo(currentSub.streak_months);
                 streakBtn.innerText = info.short;
                 streakBtn.style.display = 'flex';
@@ -1163,6 +1344,22 @@
             setTimeout(() => triggerShortcutPrompt(false), 900);
         }
 
+        function updateFreeTierBanner() {
+            var bar = document.getElementById('freeTierBar');
+            if (hasProAccess) {
+                bar.style.display = 'none';
+                return;
+            }
+            bar.style.display = 'block';
+            if (currentMode === 'financeiro') {
+                var count = getBillsForViewMonth().length;
+                document.getElementById('freeTierUsageText').innerHTML = `Plano <strong>Essencial</strong>: ${count}/${FREE_LIMIT_BILLS} lançamentos no mês`;
+            } else {
+                var vCount = getVehiclesForViewMonth().length;
+                document.getElementById('freeTierUsageText').innerHTML = `Plano <strong>Essencial</strong>: ${vCount}/${FREE_LIMIT_VEHICLES} registros no mês`;
+            }
+        }
+
         async function loadUserData() {
             showLoader();
             try {
@@ -1173,6 +1370,7 @@
                 globalData.veiculos = veiculos || [];
                 globalData.pagamentosMensais = pagMensais || [];
                 updateOverdueCounters();
+                updateFreeTierBanner();
                 renderCurrentView();
             } catch (err) {
                 appAlert("Erro ao carregar dados: " + err.message, "Erro");
@@ -1195,10 +1393,22 @@
             document.getElementById('lblBillName').innerText = nat === 'receber' ? 'Descrição do Recebimento' : 'Descrição da Conta';
             document.getElementById('lblBillDate').innerText = nat === 'receber' ? 'Data Prevista de Recebimento' : 'Data de Vencimento';
             document.getElementById('divSemDataCheck').style.display = nat === 'pagar' ? 'block' : 'none';
+            document.getElementById('btnModalCobrarPix').style.display = nat === 'receber' ? 'inline-block' : 'none';
             if (nat === 'receber') {
                 document.getElementById('chkSemData').checked = false;
                 toggleSemDataField();
             }
+        }
+
+        function handleBillTypeChange(selectEl) {
+            if (!hasProAccess && (selectEl.value === 'Mensal' || selectEl.value === 'Parcelada')) {
+                var label = selectEl.value === 'Mensal' ? 'Contas Fixas Mensais' : 'Contas Parceladas';
+                selectEl.value = 'Unica';
+                document.getElementById('installmentDiv').style.display = 'none';
+                promptUpgrade(label);
+                return;
+            }
+            document.getElementById('installmentDiv').style.display = selectEl.value === 'Parcelada' ? 'block' : 'none';
         }
 
         function toggleSemDataField() {
@@ -1232,6 +1442,15 @@
 
         function getBillsForViewMonth() {
             return getBillsForMonthYear(viewMonth, viewYear);
+        }
+
+        function getVehiclesForViewMonth() {
+            return globalData.veiculos.filter(v => {
+                if(!v.data) return false;
+                var parts = v.data.split('-');
+                var d = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+                return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
+            });
         }
 
         function renderBills() {
@@ -1282,6 +1501,9 @@
                 var dateFormatted = dParts[2] + "/" + dParts[1] + "/" + dParts[0];
                 var natTag = isReceber ? `<span class="tag" style="color:#10B981;border-color:#10B981;">A RECEBER${bill.pagador ? ' • ' + bill.pagador : ''}</span>` : '';
                 var tipoTag = bill.tipo !== 'Unica' ? `<span class="tag">${bill.tipo === 'Mensal' ? 'Fixo Mensal' : bill.tipo + ' ' + (bill.parcela || '')}</span>` : '';
+                var pixBtnHtml = (isReceber && !bill.isPaidView)
+                    ? `<button type="button" class="btn-pix-mini" onclick="event.stopPropagation(); openPixChargeForBill('${bill.id}')">📲 Cobrar Pix</button>`
+                    : '';
                 var delay = Math.min(idx * 0.04, 0.36);
 
                 container.innerHTML += `
@@ -1295,11 +1517,184 @@
                             <span>${isReceber ? 'Recebimento' : 'Vencimento'}: ${dateFormatted}</span>
                             ${natTag}${tipoTag}
                         </div>
-                        <div class="value ${isReceber ? 'income' : ''}">${isReceber ? '+ ' : ''}${formatCurrency(bill.valor)}</div>
+                        <div class="value-col">
+                            <div class="value ${isReceber ? 'income' : ''}">${isReceber ? '+ ' : ''}${formatCurrency(bill.valor)}</div>
+                            ${pixBtnHtml}
+                        </div>
                     </div>`;
             });
         }
 
+        // =========================================================================
+        // MÓDULO PIX DIRETO (PADRÃO EMV BANCO CENTRAL - CUSTO ZERO)
+        // =========================================================================
+        function getSavedPixConfig() {
+            try {
+                return JSON.parse(localStorage.getItem('user_pix_config_' + currentUser.id)) || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function openPixConfigModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Cobrança Pix Direta com QR Code");
+                return;
+            }
+            var cfg = getSavedPixConfig() || {};
+            document.getElementById('pixKeyType').value = cfg.keyType || 'cpf';
+            document.getElementById('pixKeyValue').value = cfg.keyValue || '';
+            document.getElementById('pixMerchantName').value = cfg.merchantName || '';
+            document.getElementById('pixMerchantCity').value = cfg.merchantCity || '';
+            openModalById('modalPixConfig');
+        }
+
+        function savePixConfig() {
+            var keyType = document.getElementById('pixKeyType').value;
+            var keyValue = document.getElementById('pixKeyValue').value.trim();
+            var merchantName = document.getElementById('pixMerchantName').value.trim();
+            var merchantCity = document.getElementById('pixMerchantCity').value.trim() || 'BRASIL';
+
+            if (!keyValue || !merchantName) {
+                appAlert("Preencha sua Chave Pix e o Nome do recebedor.", "Dados Incompletos");
+                return;
+            }
+            localStorage.setItem('user_pix_config_' + currentUser.id, JSON.stringify({
+                keyType: keyType,
+                keyValue: keyValue,
+                merchantName: merchantName,
+                merchantCity: merchantCity
+            }));
+            closeModalById('modalPixConfig');
+            showToast("Chave Pix salva com sucesso!");
+        }
+
+        function normalizePixKey(keyType, rawKey) {
+            var k = rawKey.trim();
+            if (keyType === 'cpf' || keyType === 'cnpj') return k.replace(/\D/g, '');
+            if (keyType === 'celular') {
+                var digits = k.replace(/\D/g, '');
+                if (!digits.startsWith('55') && digits.length <= 11) digits = '55' + digits;
+                return '+' + digits;
+            }
+            return k;
+        }
+
+        function stripAccents(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").trim();
+        }
+
+        function emvField(id, value) {
+            var len = value.length.toString().padStart(2, '0');
+            return id + len + value;
+        }
+
+        function crc16Ccitt(payload) {
+            var crc = 0xFFFF;
+            for (var i = 0; i < payload.length; i++) {
+                crc ^= payload.charCodeAt(i) << 8;
+                for (var j = 0; j < 8; j++) {
+                    if ((crc & 0x8000) !== 0) crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+                    else crc = (crc << 1) & 0xFFFF;
+                }
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function buildPixBrCode(cfg, amount, txid) {
+            var key = normalizePixKey(cfg.keyType, cfg.keyValue);
+            var merchantName = (stripAccents(cfg.merchantName) || 'RECEBEDOR').toUpperCase().substring(0, 25);
+            var merchantCity = (stripAccents(cfg.merchantCity) || 'BRASIL').toUpperCase().substring(0, 15);
+            var cleanTxid = (stripAccents(txid || 'GESTAO').replace(/\s+/g, '') || 'GESTAO').substring(0, 25);
+
+            var gui = emvField('00', 'br.gov.bcb.pix');
+            var keyField = emvField('01', key);
+            var merchantAccount = emvField('26', gui + keyField);
+
+            var payload =
+                emvField('00', '01') +
+                merchantAccount +
+                emvField('52', '0000') +
+                emvField('53', '986') +
+                (amount > 0 ? emvField('54', Number(amount).toFixed(2)) : '') +
+                emvField('58', 'BR') +
+                emvField('59', merchantName) +
+                emvField('60', merchantCity) +
+                emvField('62', emvField('05', cleanTxid)) +
+                '6304';
+
+            return payload + crc16Ccitt(payload);
+        }
+
+        function renderPixChargeModal(desc, pagador, amount) {
+            if (!hasProAccess) {
+                promptUpgrade("Cobrança Pix Direta com QR Code");
+                return;
+            }
+            var cfg = getSavedPixConfig();
+            if (!cfg || !cfg.keyValue) {
+                appConfirm("Você ainda não cadastrou sua Chave Pix. Deseja cadastrar agora para gerar o QR Code?", "Configurar Chave Pix", "Cadastrar Chave", false)
+                    .then(ok => { if (ok) openPixConfigModal(); });
+                return;
+            }
+
+            var valNum = parseFloat(amount) || 0;
+            var brCode = buildPixBrCode(cfg, valNum, 'GC' + Date.now().toString().slice(-8));
+            activePixChargeContext = { desc: desc, pagador: pagador, amount: valNum, brCode: brCode };
+
+            document.getElementById('pixChargeSubtitle').innerText = desc + (pagador ? ` • Pagador: ${pagador}` : '');
+            document.getElementById('pixChargeAmount').innerText = formatCurrency(valNum);
+            document.getElementById('pixPayloadBox').value = brCode;
+
+            var qrContainer = document.getElementById('pixQrCanvas');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: brCode,
+                width: 196,
+                height: 196,
+                colorDark: "#0A1128",
+                colorLight: "#FFFFFF",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            openModalById('modalPixCharge');
+        }
+
+        function openPixChargeForBill(id) {
+            var bill = globalData.bills.find(b => b.id === id);
+            if (!bill) return;
+            renderPixChargeModal(bill.nome, bill.pagador || '', bill.valor);
+        }
+
+        function openPixChargeFromModal() {
+            var desc = document.getElementById('billName').value.toUpperCase().trim() || 'COBRANÇA PIX';
+            var pagador = document.getElementById('billPagador').value.toUpperCase().trim();
+            var valor = document.getElementById('billValue').value;
+            if (!valor || parseFloat(valor) <= 0) {
+                appAlert("Informe o valor a receber antes de gerar o Pix.", "Valor Obrigatório");
+                return;
+            }
+            renderPixChargeModal(desc, pagador, valor);
+        }
+
+        function copyPixPayload() {
+            var box = document.getElementById('pixPayloadBox');
+            box.select();
+            navigator.clipboard.writeText(box.value);
+            showToast("Código Pix Copia e Cola copiado!");
+        }
+
+        function sharePixWhatsApp() {
+            if (!activePixChargeContext) return;
+            var ctx = activePixChargeContext;
+            var saudacao = ctx.pagador ? `Olá, *${ctx.pagador}*!` : `Olá!`;
+            var msg = `${saudacao}\n\nSegue a cobrança Pix referente a *${ctx.desc}* no valor de *${formatCurrency(ctx.amount)}*.\n\nCopie o código Pix abaixo e cole na opção *Pix Copia e Cola* do seu banco:\n\n${ctx.brCode}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+        }
+
+        // =========================================================================
+        // LANÇAMENTOS FINANCEIROS
+        // =========================================================================
         async function requestDeleteBill(id) {
             var bill = globalData.bills.find(b => b.id === id);
             if (!bill) return;
@@ -1371,6 +1766,16 @@
                 appAlert("Preencha todos os campos obrigatórios antes de salvar.", "Campos Incompletos");
                 return;
             }
+
+            if (!editId && !hasProAccess) {
+                var currentMonthCount = getBillsForViewMonth().length;
+                if (currentMonthCount >= FREE_LIMIT_BILLS) {
+                    closeModal();
+                    promptUpgrade(`Mais de ${FREE_LIMIT_BILLS} lançamentos no mês`);
+                    return;
+                }
+            }
+
             closeModal(); showLoader();
 
             if (editId) {
@@ -1484,6 +1889,11 @@
         }
 
         function openConvertParcelModal(id) {
+            if (!hasProAccess) {
+                closeModalById('modalOverdueList');
+                promptUpgrade("Renegociação e Parcelamento de Dívidas");
+                return;
+            }
             var item = globalData.bills.find(b => b.id === id);
             if (!item) return;
             closeModalById('modalOverdueList');
@@ -1551,6 +1961,10 @@
         }
 
         function openCalendarModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Sincronização com Google e Apple Agenda");
+                return;
+            }
             openModalById('modalCalendar');
         }
 
@@ -1614,6 +2028,10 @@
         }
 
         function openAiModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Análise Financeira com Inteligência Artificial");
+                return;
+            }
             document.getElementById('geminiCopyHint').style.display = 'none';
             var bills = getBillsForViewMonth();
             var linhas = bills.map(b => `- [${b.natureza === 'receber' ? 'RECEBER' : 'PAGAR'}] ${b.nome}: ${formatCurrency(b.valor)} (Dia ${b.displayData.split('-')[2]}) - ${b.isPaidView ? 'Concluído' : 'Pendente'}`);
@@ -1646,6 +2064,10 @@
 
         function openModal() {
             if (currentMode === 'financeiro') {
+                if (!hasProAccess && getBillsForViewMonth().length >= FREE_LIMIT_BILLS) {
+                    promptUpgrade(`Mais de ${FREE_LIMIT_BILLS} lançamentos no mês`);
+                    return;
+                }
                 document.getElementById('modalFinTitle').innerText = "Novo Lançamento";
                 document.getElementById('editBillId').value = "";
                 document.getElementById('editBillGrupo').value = "";
@@ -1664,6 +2086,10 @@
                 document.getElementById('divEditParcelScope').style.display = "none";
                 openModalById('modalFinanceiro');
             } else {
+                if (!hasProAccess && getVehiclesForViewMonth().length >= FREE_LIMIT_VEHICLES) {
+                    promptUpgrade(`Mais de ${FREE_LIMIT_VEHICLES} registros de veículo no mês`);
+                    return;
+                }
                 document.getElementById('modalVehTitle').innerText = "Registro do Veículo";
                 document.getElementById('editVehId').value = "";
                 document.getElementById('vehType').value = "Abastecimento";
@@ -1727,6 +2153,7 @@
                     document.getElementById('btnModFinanceiro').classList.add('active');
                 }
                 updateOverdueCounters();
+                updateFreeTierBanner();
                 updateDisplay();
                 renderCurrentView();
 
@@ -1748,6 +2175,7 @@
             if (viewMonth > 11) { viewMonth = 0; viewYear++; }
             if (viewMonth < 0) { viewMonth = 11; viewYear--; }
             animateBookPage(step);
+            updateFreeTierBanner();
             updateDisplay();
             renderCurrentView();
         }
@@ -1757,6 +2185,7 @@
             viewMonth = currentDate.getMonth();
             viewYear = currentDate.getFullYear();
             animateBookPage(dir);
+            updateFreeTierBanner();
             updateDisplay();
             renderCurrentView();
         }
@@ -1797,12 +2226,7 @@
         function renderVehicles() {
             var container = document.getElementById('mainContainer');
             container.innerHTML = '';
-            var currentVeh = globalData.veiculos.filter(v => {
-                if(!v.data) return false;
-                var parts = v.data.split('-');
-                var d = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
-                return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
-            });
+            var currentVeh = getVehiclesForViewMonth();
             var totalGasto = 0, abastecimentos = 0, manutencoes = 0;
             currentVeh.forEach(v => {
                 var val = parseFloat(v.valor) || 0;
@@ -1834,7 +2258,9 @@
                             <strong>${v.nome}</strong>
                             <span>KM: ${v.km ? v.km + ' km' : 'N/I'} | Data: ${dateFormatted}</span>
                         </div>
-                        <div class="value">${v.valor > 0 ? formatCurrency(v.valor) : 'A prever'}</div>
+                        <div class="value-col">
+                            <div class="value">${v.valor > 0 ? formatCurrency(v.valor) : 'A prever'}</div>
+                        </div>
                     </div>`;
             });
         }
@@ -1852,6 +2278,13 @@
             var valor = document.getElementById('vehValue').value || 0;
             var dataStr = document.getElementById('vehDate').value;
             if (!nome || !dataStr) { appAlert("Preencha os campos obrigatórios do veículo.", "Campos Incompletos"); return; }
+
+            if (!editId && !hasProAccess && getVehiclesForViewMonth().length >= FREE_LIMIT_VEHICLES) {
+                closeModal();
+                promptUpgrade(`Mais de ${FREE_LIMIT_VEHICLES} registros de veículo no mês`);
+                return;
+            }
+
             closeModal(); showLoader();
             if (editId) await _supabase.from('veiculos').update({ tipo_registro: tipo, nome: nome, km: km, valor: valor, data: dataStr, detalhes: detalhes }).eq('id', editId);
             else await _supabase.from('veiculos').insert([{ user_id: currentUser.id, tipo_registro: tipo, nome: nome, km: km, valor: valor, data: dataStr, detalhes: detalhes }]);
@@ -1899,12 +2332,25 @@
         }
 
         async function startAsaasSubscription() {
+            if (!document.getElementById('chkAcceptTerms').checked) {
+                appAlert("Marque a caixa aceitando os Termos de Uso e Política de Reembolso para continuar.", "Aceite Necessário");
+                return;
+            }
             var name = document.getElementById('subName').value.trim();
             var cpfCnpj = document.getElementById('subCpf').value.replace(/\D/g, '');
             if (!name || cpfCnpj.length < 11) { appAlert("Preencha nome completo e CPF/CNPJ válidos.", "Dados Inválidos"); return; }
+            var planAmount = selectedPlanMonths === 12 ? 69.90 : 9.90;
+            var planName = selectedPlanMonths === 12 ? "Gestão Completa Anual" : "Gestão Completa Mensal";
             showLoader();
             const { data, error } = await _supabase.functions.invoke('asaas-checkout', {
-                body: { action: 'subscribe', name: name, cpfCnpj: cpfCnpj, planMonths: selectedPlanMonths }
+                body: {
+                    action: 'subscribe',
+                    name: name,
+                    cpfCnpj: cpfCnpj,
+                    planMonths: selectedPlanMonths,
+                    planAmount: planAmount,
+                    planName: planName
+                }
             });
             hideLoader();
             if (error || data?.error) appAlert("Erro: " + (data?.error || error.message), "Erro no Checkout");
@@ -1917,21 +2363,31 @@
         function openMySubModal() {
             var txt = document.getElementById('mySubStatusText');
             var cancelArea = document.getElementById('cancelSubArea');
+            var upgradeArea = document.getElementById('upgradeSubArea');
+
             if (isMasterAdmin() || currentSub?.status === 'courtesy' || currentSub?.is_admin) {
-                txt.innerHTML = "Status: <strong>Acesso Cortesia / Administrador</strong>";
+                txt.innerHTML = "Plano Atual: <strong>Gestão Completa (Cortesia / Admin)</strong>";
                 cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'none';
+            } else if (!hasProAccess) {
+                txt.innerHTML = `Plano Atual: <strong>Essencial (Grátis)</strong><br>• Até ${FREE_LIMIT_BILLS} lançamentos financeiros/mês<br>• Até ${FREE_LIMIT_VEHICLES} registros de veículo/mês<br><br>Faça upgrade para liberar recursos ilimitados e Cobrança Pix.`;
+                cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'block';
             } else if (currentSub?.status === 'canceled') {
-                txt.innerHTML = `Status: <strong>Cancelamento Agendado</strong><br>Acesso ativo até <strong>${formatDateBR(currentSub.current_period_end)}</strong> (+3 dias de tolerância).`;
+                txt.innerHTML = `Plano Atual: <strong>Gestão Completa (Cancelamento Agendado)</strong><br>Acesso completo ativo até <strong>${formatDateBR(currentSub.current_period_end)}</strong> (+3 dias de tolerância).`;
                 cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'none';
             } else {
-                txt.innerHTML = `Status: <strong>Ativa (${currentSub?.plan_months || 1}m)</strong><br>Vencimento: <strong>${formatDateBR(currentSub?.current_period_end)}</strong>`;
-                cancelArea.style.display = (currentSub?.plan_months === 9) ? 'none' : 'block';
+                var ciclo = currentSub?.plan_months === 12 ? 'Anual (R$ 69,90)' : 'Mensal (R$ 9,90)';
+                txt.innerHTML = `Plano Atual: <strong>Gestão Completa — ${ciclo}</strong><br>Próxima renovação: <strong>${formatDateBR(currentSub?.current_period_end)}</strong><br><small style="color:var(--text-sub);">Novas funcionalidades inclusas sem custo extra durante sua vigência.</small>`;
+                cancelArea.style.display = 'block';
+                upgradeArea.style.display = 'none';
             }
             openModalById('modalMySub');
         }
 
         async function cancelMySubscription() {
-            var ok = await appConfirm("Cancelar renovação automática? Seu acesso continua ativo até o fim do período já pago.", "Cancelar Assinatura", "Cancelar Renovação", true);
+            var ok = await appConfirm("Cancelar renovação automática? Seu acesso Gestão Completa continua ativo até o fim do período já pago.", "Cancelar Assinatura", "Cancelar Renovação", true);
             if (!ok) return;
             showLoader();
             await _supabase.functions.invoke('asaas-checkout', { body: { action: 'cancel' } });
@@ -2006,6 +2462,10 @@
         async function logout() { await _supabase.auth.signOut(); }
 
         function exportPDF() {
+            if (!hasProAccess) {
+                promptUpgrade("Exportação de Relatórios em PDF");
+                return;
+            }
             var doc = new window.jspdf.jsPDF();
             var currentBills = getBillsForViewMonth();
             if (currentBills.length === 0) {

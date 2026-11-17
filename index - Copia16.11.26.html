@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Gestão Completa">
+    <meta name="theme-color" id="metaThemeColor" content="#0A1128">
+    <title>Gestão Completa App</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        :root {
+            --bg: #F4F6FA; 
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A; 
+            --text-sub: #64748B; 
+            --border-color: #E2E8F0;
+            --red: #EF4444; 
+            --yellow: #F59E0B; 
+            --green: #10B981; 
+            --blue: #3B82F6; 
+            --gray: #94A3B8;
+
+            --header-bg: #0A1128;
+            --header-text: #D4AF37;
+            --accent-color: #0A1128;
+            --btn-bg: #D4AF37;
+            --btn-color: #0A1128;
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -6px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.18);
+        }
+
+        body.dark-mode {
+            --bg: #0B1120; 
+            --card-bg: #151F32;
+            --text-main: #F8FAFC; 
+            --text-sub: #94A3B8; 
+            --border-color: #24324D;
+            --header-bg: #0F172A;
+            --header-text: #FDE047;
+            --accent-color: #38BDF8;
+            --btn-bg: #FDE047;
+            --btn-color: #0F172A;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 20px 35px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        body.vehicle-mode {
+            --header-bg: #1E2430;
+            --header-text: #F87171;
+            --accent-color: #EF4444;
+            --btn-bg: #EF4444;
+            --btn-color: #FFFFFF;
+        }
+
+        body.dark-mode.vehicle-mode {
+            --header-bg: #111622;
+            --header-text: #F87171;
+            --accent-color: #EF4444;
+            --btn-bg: #EF4444;
+            --btn-color: #FFFFFF;
+        }
+
+        /* ANIMAÇÕES DE ALTO PADRÃO */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.94) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* 1. Giro Horizontal no Próprio Eixo (Troca de Módulo) */
+        @keyframes axisFlipOut {
+            0% { opacity: 1; transform: perspective(1200px) rotateY(0deg) scale(1); }
+            100% { opacity: 0.15; transform: perspective(1200px) rotateY(90deg) scale(0.95); }
+        }
+
+        @keyframes axisFlipIn {
+            0% { opacity: 0.15; transform: perspective(1200px) rotateY(-90deg) scale(0.95); }
+            100% { opacity: 1; transform: perspective(1200px) rotateY(0deg) scale(1); }
+        }
+
+        /* 2. Efeito Folha de Livro (Troca de Mês) */
+        @keyframes bookPageNext {
+            0% {
+                opacity: 0.15;
+                transform-origin: left center;
+                transform: perspective(1500px) rotateY(32deg) translateX(18px);
+                box-shadow: -18px 0 30px rgba(0, 0, 0, 0.12);
+            }
+            60% {
+                opacity: 1;
+                transform-origin: left center;
+                transform: perspective(1500px) rotateY(-3deg) translateX(0);
+            }
+            100% {
+                opacity: 1;
+                transform-origin: left center;
+                transform: perspective(1500px) rotateY(0deg) translateX(0);
+                box-shadow: none;
+            }
+        }
+
+        @keyframes bookPagePrev {
+            0% {
+                opacity: 0.15;
+                transform-origin: right center;
+                transform: perspective(1500px) rotateY(-32deg) translateX(-18px);
+                box-shadow: 18px 0 30px rgba(0, 0, 0, 0.12);
+            }
+            60% {
+                opacity: 1;
+                transform-origin: right center;
+                transform: perspective(1500px) rotateY(3deg) translateX(0);
+            }
+            100% {
+                opacity: 1;
+                transform-origin: right center;
+                transform: perspective(1500px) rotateY(0deg) translateX(0);
+                box-shadow: none;
+            }
+        }
+
+        /* 3. Efeito Líquido / Fluido estilo macOS no Botão Adicionar */
+        @keyframes liquidSheen {
+            0% { transform: translateX(-140%) skewX(-22deg); }
+            55%, 100% { transform: translateX(240%) skewX(-22deg); }
+        }
+
+        @keyframes liquidBounce {
+            0% { transform: scale(1, 1); }
+            30% { transform: scale(1.12, 0.88); }
+            55% { transform: scale(0.94, 1.06); }
+            78% { transform: scale(1.03, 0.98); }
+            100% { transform: scale(1, 1); }
+        }
+
+        @keyframes checkPulse {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.26); }
+            100% { transform: scale(1); }
+        }
+
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+        body { margin: 0; background-color: var(--bg); color: var(--text-main); padding-bottom: 108px; transition: background-color 0.35s ease, color 0.35s ease; -webkit-font-smoothing: antialiased; }
+        
+        .center-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .auth-card { background: var(--card-bg); border-radius: 20px; padding: 30px 24px; width: 100%; max-width: 430px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); text-align: center; animation: fadeSlideUp 0.35s ease; }
+        .auth-card h1 { color: var(--text-main); margin-bottom: 6px; font-size: 1.45rem; letter-spacing: 0.8px; font-weight: 800; }
+        .auth-card p { color: var(--text-sub); font-size: 0.88rem; margin-bottom: 18px; line-height: 1.45; }
+        
+        .btn-social { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: #FFF; color: #1E293B; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; transition: transform 0.15s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
+        .btn-social:active { transform: scale(0.97); }
+        .divider { display: flex; align-items: center; text-align: center; margin: 18px 0; color: var(--text-sub); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .divider:not(:empty)::before { margin-right: .6em; }
+        .divider:not(:empty)::after { margin-left: .6em; }
+
+        .auth-input { width: 100%; padding: 12px 14px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg); color: var(--text-main); font-size: 0.95rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .auth-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .auth-options-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-sub); }
+        .btn-link { background: none; border: none; color: var(--accent-color); font-weight: 700; font-size: 0.82rem; cursor: pointer; padding: 0; text-decoration: underline; }
+        .btn-primary { width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--btn-bg); color: var(--btn-color); font-weight: 800; font-size: 0.96rem; cursor: pointer; transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .plans-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left; }
+        .plan-option { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--border-color); background: var(--bg); cursor: pointer; transition: all 0.2s ease; }
+        .plan-option.selected { border-color: var(--btn-bg); background: rgba(253, 224, 71, 0.08); transform: scale(1.01); }
+        .plan-left strong { display: block; font-size: 0.92rem; color: var(--text-main); }
+        .plan-left span { font-size: 0.76rem; color: var(--text-sub); }
+        .plan-right { text-align: right; }
+        .plan-right strong { display: block; font-size: 1rem; color: var(--text-main); font-weight: 800; }
+        .plan-badge { display: inline-block; background: #10B981; color: #FFF; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+
+        .alert-banner { max-width: 600px; margin: 12px auto 0 auto; padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; text-align: center; display: none; animation: fadeSlideUp 0.3s ease; }
+        .alert-warning { background: rgba(245, 158, 11, 0.16); border: 1px solid #F59E0B; color: var(--text-main); }
+        .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: var(--text-main); margin-bottom: 14px; text-align: left; }
+
+        #appContent { display: none; width: 100%; }
+        
+        /* HEADER EXECUTIVO AJUSTADO PARA MOBILE */
+        .header { 
+            background-color: var(--header-bg); 
+            color: var(--header-text); 
+            padding: max(env(safe-area-inset-top), 12px) 10px 12px 10px;
+            position: sticky; top: 0; z-index: 20; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            transition: background-color 0.35s ease, color 0.35s ease;
+            width: 100%;
+        }
+        
+        .header-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; max-width: 820px; margin: 0 auto; gap: 4px; width: 100%; }
+        .header-left { display: flex; justify-content: flex-start; align-items: center; gap: 5px; min-width: 0; }
+        .header-center { display: flex; justify-content: center; align-items: center; }
+        .header-right { display: flex; justify-content: flex-end; align-items: center; gap: 5px; min-width: 0; }
+
+        .btn-hamburger { background: rgba(255,255,255,0.08); color: var(--header-text); border: 1px solid rgba(255,255,255,0.16); border-radius: 9px; width: 34px; height: 32px; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s ease, background-color 0.2s ease; }
+        .btn-hamburger:active { transform: scale(0.9); }
+        .module-switcher { display: inline-flex; background: rgba(255, 255, 255, 0.08); border-radius: 11px; padding: 3px; border: 1px solid rgba(255, 255, 255, 0.14); }
+        .module-btn { background: transparent; color: rgba(255, 255, 255, 0.72); border: none; padding: 6px 11px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; text-transform: uppercase; transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease; }
+        .module-btn:active { transform: scale(0.95); }
+        .module-btn.active { background: var(--btn-bg); color: var(--btn-color); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+
+        .btn-head { background: rgba(255,255,255,0.06); color: var(--header-text); border: 1px solid rgba(255,255,255,0.22); padding: 4px 9px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.72rem; height: 32px; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-head:active { transform: scale(0.92); }
+        .btn-admin { background: #10B981; color: #FFF; border: none; padding: 4px 8px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.7rem; height: 32px; display: none; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-admin:active { transform: scale(0.92); }
+        .btn-streak { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; border: none; padding: 4px 7px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.7rem; height: 32px; display: none; align-items: center; gap: 3px; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-streak:active { transform: scale(0.92); }
+        .btn-theme { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; font-size: 0.95rem; cursor: pointer; padding: 0; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .btn-theme:active { transform: rotate(35deg) scale(0.88); }
+
+        /* MENU LATERAL */
+        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 150; backdrop-filter: blur(3px); transition: opacity 0.25s ease; }
+        .side-drawer {
+            position: fixed; top: 0; left: -295px; width: 280px; height: 100%;
+            background: var(--card-bg); color: var(--text-main); z-index: 160;
+            box-shadow: 4px 0 28px rgba(0,0,0,0.28); padding: max(env(safe-area-inset-top), 22px) 16px max(env(safe-area-inset-bottom), 20px) 16px;
+            transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .side-drawer.open { left: 0; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 14px; }
+        .drawer-item { width: 100%; text-align: left; background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 11px 13px; border-radius: 11px; font-weight: 700; font-size: 0.85rem; margin-bottom: 9px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: transform 0.15s ease, border-color 0.2s ease; }
+        .drawer-item:hover { border-color: var(--accent-color); }
+        .drawer-item:active { transform: scale(0.97); }
+        .drawer-item-logout {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.08);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 11px 13px;
+            border-radius: 11px;
+            font-weight: 800;
+            font-size: 0.86rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            transition: transform 0.15s ease, background-color 0.2s ease;
+        }
+        .drawer-item-logout:hover { background: rgba(239, 68, 68, 0.15); }
+        .drawer-item-logout:active { transform: scale(0.97); }
+        .badge-count { background: #EF4444; color: #FFF; font-size: 0.72rem; padding: 2px 7px; border-radius: 10px; }
+
+        /* VIEWPORT DO PAINEL COM PALCO 3D */
+        #boardViewport {
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+        }
+        .module-flip-out { animation: axisFlipOut 0.18s cubic-bezier(0.4, 0, 1, 1) forwards; }
+        .module-flip-in { animation: axisFlipIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+        /* ROLETA DE MESES */
+        .month-roulette-wrapper { max-width: 600px; margin: 16px auto 14px auto; padding: 0 12px; text-align: center; }
+        .month-roulette { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; user-select: none; }
+        .month-side { font-size: 0.82rem; font-weight: 600; color: var(--text-sub); cursor: pointer; padding: 8px 4px; border-radius: 8px; opacity: 0.78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.2s ease, transform 0.15s ease; }
+        .month-side:hover { opacity: 1; }
+        .month-side:active { transform: scale(0.94); }
+        .month-side.left { text-align: right; }
+        .month-side.right { text-align: left; }
+        .month-center { font-size: 1.04rem; font-weight: 800; letter-spacing: 0.2px; color: var(--text-main); padding: 7px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; white-space: nowrap; box-shadow: var(--shadow-sm); }
+        .btn-today { display: inline-block; margin-top: 8px; background: var(--btn-bg); color: var(--btn-color); border: none; padding: 4px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.72rem; animation: fadeSlideUp 0.25s ease; transition: transform 0.15s ease; }
+        .btn-today:active { transform: scale(0.94); }
+
+        /* FOLHA DE LIVRO AO TROCAR MÊS */
+        #pageSheetArea {
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+        }
+        .book-page-next { animation: bookPageNext 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
+        .book-page-prev { animation: bookPagePrev 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
+
+        /* DASHBOARD: A RECEBER (VERDE), A PAGAR (VERMELHO), SALDO (AZUL) */
+        .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 600px; margin: 0 auto 14px auto; padding: 0 12px; }
+        .summary-card { background: var(--card-bg); padding: 12px 6px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); border-top: 4px solid var(--blue); box-shadow: var(--shadow-sm); transition: background-color 0.3s ease, transform 0.2s ease, border-top-color 0.3s ease; min-width: 0; }
+        .summary-card span { display: block; font-size: 0.62rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-bottom: 4px; }
+        .summary-card strong { display: block; font-size: 0.86rem; color: var(--text-main); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .summary-card.receivable-card { border-top-color: var(--green); }
+        .summary-card.receivable-card strong { color: var(--green); }
+
+        .summary-card.payable-card { border-top-color: var(--red); }
+        .summary-card.payable-card strong { color: var(--red); }
+
+        .summary-card.balance-card { border-top-color: var(--blue); }
+        .summary-card.balance-card strong { color: var(--blue); }
+
+        .overdue-pill-bar { max-width: 600px; margin: 0 auto 12px auto; padding: 0 12px; display: none; animation: fadeSlideUp 0.3s ease; }
+        .overdue-pill-btn { width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px dashed #EF4444; color: var(--text-main); padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: transform 0.15s ease; }
+        .overdue-pill-btn:active { transform: scale(0.98); }
+
+        /* CARDS DE LANÇAMENTO (CLIQUE NO CARD EDITA; LIXEIRA CLÁSSICA NO CANTO) */
+        .container { padding: 0 12px; max-width: 600px; margin: 0 auto; }
+        .card { background: var(--card-bg); border-radius: 14px; padding: 14px 16px; margin-bottom: 11px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-left: 5px solid var(--accent-color); position: relative; cursor: pointer; animation: fadeSlideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards; transition: transform 0.18s ease, box-shadow 0.2s ease, opacity 0.28s ease, background-color 0.3s ease; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card:active { transform: scale(0.985); }
+
+        .btn-trash-classic {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.65;
+            transition: color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease, transform 0.15s ease;
+        }
+        .btn-trash-classic:hover {
+            color: var(--red);
+            background: rgba(239, 68, 68, 0.1);
+            opacity: 1;
+        }
+        .btn-trash-classic:active { transform: scale(0.88); }
+        
+        .card.warning { border-left-color: var(--yellow); }
+        .card.overdue { border-left-color: var(--red); }
+        .card.receivable { border-left-color: var(--green); }
+        .card.paid { border-left-color: var(--green); opacity: 0.62; }
+        .card.paid .info strong { text-decoration: line-through; color: var(--gray); }
+        
+        .card-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--green); margin-right: 13px; flex-shrink: 0; transition: transform 0.15s ease; }
+        .card-checkbox:checked { animation: checkPulse 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .info { flex-grow: 1; margin-right: 10px; padding-right: 28px; min-width: 0; }
+        .info strong { display: block; font-size: 0.94rem; color: var(--text-main); margin-bottom: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.2px; transition: color 0.25s ease; word-break: break-word; }
+        .info span { display: block; font-size: 0.78rem; color: var(--text-sub); }
+        .value { font-size: 0.96rem; font-weight: 800; color: var(--text-main); text-align: right; flex-shrink: 0; margin-top: 16px; font-variant-numeric: tabular-nums; }
+        .value.income { color: var(--green); }
+        .tag { font-size: 0.64rem; background: var(--bg); padding: 2px 7px; border-radius: 5px; color: var(--text-main); border: 1px solid var(--border-color); font-weight: 700; display: inline-block; margin-top: 4px; margin-right: 4px; }
+        
+        /* BOTÃO ADICIONAR COM EFEITO LÍQUIDO / FLUIDO ESTILO MACOS */
+        .bottom-bar-actions { position: fixed; bottom: max(env(safe-area-inset-bottom), 22px); left: 0; right: 0; display: none; justify-content: center; align-items: center; pointer-events: none; z-index: 100; }
+        .btn-add-center {
+            pointer-events: auto;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 55%), var(--btn-bg);
+            color: var(--btn-color);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            height: 54px;
+            padding: 0 30px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.96rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.35), inset 0 1.5px 1px rgba(255, 255, 255, 0.55), inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background-color 0.35s ease;
+        }
+        .btn-add-center::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 45%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.48), transparent);
+            animation: liquidSheen 4.2s infinite ease-in-out;
+            pointer-events: none;
+        }
+        .btn-add-center:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 16px 34px -6px rgba(0, 0, 0, 0.42), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.65);
+        }
+        .btn-add-center:active {
+            animation: liquidBounce 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* MODAIS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 17, 40, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 200; }
+        .modal-content { background: var(--card-bg); padding: 24px; width: 92%; max-width: 420px; color: var(--text-main); max-height: 90vh; overflow-y: auto; border-radius: 18px; border: 1px solid var(--border-color); animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: var(--shadow-lg); }
+        .modal-content h3 { margin-top: 0; font-weight: 800; letter-spacing: -0.2px; }
+        .modal-content label { display: block; margin-top: 12px; font-size: 0.83rem; font-weight: 600; color: var(--text-main); }
+        .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 11px 12px; margin-top: 5px; background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.94rem; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .modal-content input:focus, .modal-content select:focus, .modal-content textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14); }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn-cancel { background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.12s ease; }
+        .btn-cancel:active { transform: scale(0.95); }
+        .btn-save { background: var(--header-bg); color: var(--header-text); border: none; padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: transform 0.12s ease; }
+        .btn-save:active { transform: scale(0.95); }
+
+        .nature-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .nature-btn { padding: 10px; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg); color: var(--text-main); font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .nature-btn:active { transform: scale(0.97); }
+        .nature-btn.active-pagar { border-color: #EF4444; background: rgba(239,68,68,0.12); color: #EF4444; }
+        .nature-btn.active-receber { border-color: #10B981; background: rgba(16,185,129,0.12); color: #10B981; }
+
+        .admin-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 10px; margin-top: 8px; font-size: 0.82rem; background: var(--bg); }
+        .checkbox-group { display: flex; gap: 20px; margin-top: 8px; font-weight: bold; }
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 17, 40, 0.72); color: white; align-items: center; justify-content: center; z-index: 999; font-size: 1.05rem; font-weight: 700; backdrop-filter: blur(3px); }
+
+        .app-toast {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--header-bg); color: var(--header-text); border: 1px solid rgba(255,255,255,0.15);
+            padding: 10px 18px; border-radius: 12px; font-size: 0.84rem; font-weight: 700;
+            box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; z-index: 350;
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <div id="loader">Sincronizando...</div>
+    <div id="appToast" class="app-toast"></div>
+
+    <!-- MENU LATERAL ESQUERDO (SANDUÍCHE) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <aside class="side-drawer" id="sideDrawer">
+        <div>
+            <div class="drawer-header">
+                <strong style="font-size:1rem;">🛠️ Ferramentas</strong>
+                <button class="btn-cancel" style="padding:4px 10px;" onclick="closeDrawer()">✕</button>
+            </div>
+
+            <button class="drawer-item" onclick="closeDrawer(); openOverdueModal();">
+                <span>⏳ Contas Atrasadas (Sem Data)</span>
+                <span class="badge-count" id="drawerOverdueCount">0</span>
+            </button>
+
+            <button class="drawer-item" onclick="closeDrawer(); openCalendarModal();">
+                <span>📅 Sincronizar Agendas (Google / Apple)</span>
+            </button>
+
+            <button class="drawer-item" onclick="closeDrawer(); openAiModal();">
+                <span>🤖 Analisar Finanças com IA</span>
+            </button>
+
+            <button class="drawer-item" onclick="closeDrawer(); exportPDF();">
+                <span>📄 Exportar Relatório PDF</span>
+            </button>
+
+            <button class="drawer-item" id="btnDrawerShortcut" onclick="closeDrawer(); triggerShortcutPrompt(true);">
+                <span id="lblDrawerShortcut">📲 Criar Atalho na Tela Inicial</span>
+            </button>
+        </div>
+
+        <div>
+            <button class="drawer-item-logout" onclick="closeDrawer(); logout();">
+                <span>🚪 Sair da Conta</span>
+            </button>
+            <div style="font-size:0.75rem; color:var(--text-sub); text-align:center;">
+                Gestão Completa App
+            </div>
+        </div>
+    </aside>
+
+    <!-- 1. TELA DE LOGIN -->
+    <div id="authContainer" class="center-screen">
+        <div class="auth-card">
+            <h1>GESTÃO COMPLETA</h1>
+            <p>Acesse sua Gestão Completa</p>
+
+            <button type="button" class="btn-social" onclick="loginProvider('google')">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.26v3.15C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.26C.46 8.23 0 10.06 0 12s.46 3.77 1.26 5.39l4.02-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.61l4.02 3.15c.95-2.85 3.6-4.96 6.72-4.96z"/></svg>
+                Entrar com Google
+            </button>
+
+            <div class="divider">ou Acesse com seu E-mail</div>
+
+            <form id="loginForm" onsubmit="event.preventDefault(); loginEmail();">
+                <input type="email" id="authEmail" name="email" autocomplete="username" class="auth-input" placeholder="Seu e-mail" required>
+                <input type="password" id="authPassword" name="password" autocomplete="current-password" class="auth-input" placeholder="Sua senha" required>
+
+                <div class="auth-options-row">
+                    <label><input type="checkbox" id="rememberEmail" checked> Lembrar e-mail</label>
+                    <button type="button" class="btn-link" onclick="recoverPassword()">Esqueci minha senha</button>
+                </div>
+
+                <button type="submit" class="btn-primary">Entrar / Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. PAYWALL (PLANOS R$ 6,99 A R$ 59,90) -->
+    <div id="paywallContainer" class="center-screen" style="display: none;">
+        <div class="auth-card">
+            <h1>ESCOLHA SEU PLANO</h1>
+            <p id="paywallUserEmail" style="font-weight: 700; margin-bottom: 12px;"></p>
+            <div id="suspendedRetentionBanner" class="alert-banner alert-danger"></div>
+
+            <div class="plans-grid" id="plansGrid">
+                <div class="plan-option selected" data-months="1" onclick="selectPlan(1, this)">
+                    <div class="plan-left"><strong>Mensal (1 mês)</strong><span>Renovação mensal • Cancele quando quiser</span></div>
+                    <div class="plan-right"><strong>R$ 6,99</strong></div>
+                </div>
+                <div class="plan-option" data-months="3" onclick="selectPlan(3, this)">
+                    <div class="plan-left"><strong>Trimestral (3 meses)</strong><span>Equivale a R$ 6,30/mês</span></div>
+                    <div class="plan-right"><span class="plan-badge">10% OFF</span><strong>R$ 18,90</strong></div>
+                </div>
+                <div class="plan-option" data-months="6" onclick="selectPlan(6, this)">
+                    <div class="plan-left"><strong>Semestral (6 meses)</strong><span>Equivale a R$ 5,82/mês</span></div>
+                    <div class="plan-right"><span class="plan-badge">17% OFF</span><strong>R$ 34,90</strong></div>
+                </div>
+                <div class="plan-option" data-months="9" onclick="selectPlan(9, this)">
+                    <div class="plan-left"><strong>Plano 9 Meses</strong><span>Equivale a R$ 5,32/mês</span></div>
+                    <div class="plan-right"><span class="plan-badge">24% OFF</span><strong>R$ 47,90</strong></div>
+                </div>
+                <div class="plan-option" data-months="12" onclick="selectPlan(12, this)">
+                    <div class="plan-left"><strong>Anual (12 meses)</strong><span>Equivale a R$ 4,99/mês (Mais vantajoso)</span></div>
+                    <div class="plan-right"><span class="plan-badge">29% OFF</span><strong>R$ 59,90</strong></div>
+                </div>
+            </div>
+
+            <input type="text" id="subName" class="auth-input" placeholder="Seu Nome Completo">
+            <input type="text" id="subCpf" class="auth-input" placeholder="Seu CPF ou CNPJ (somente números)">
+
+            <button type="button" class="btn-primary" onclick="startAsaasSubscription()">Assinar / Renovar Agora</button>
+            <button type="button" class="btn-cancel" style="width:100%; margin-top:10px;" onclick="checkSubscriptionStatus()">Já paguei, liberar meu acesso</button>
+            <button type="button" class="btn-link" style="margin-top:14px;" onclick="logout()">Sair da conta</button>
+        </div>
+    </div>
+
+    <!-- 3. APP PRINCIPAL -->
+    <div id="appContent">
+        <div class="header">
+            <div class="header-grid">
+                <div class="header-left">
+                    <button class="btn-hamburger" onclick="openDrawer()" title="Menu de Ferramentas">☰</button>
+                    <button class="btn-admin" id="btnAdminPanel" onclick="openAdminModal()">👑 Admin</button>
+                    <button class="btn-streak" id="btnStreakBadge" onclick="openStreakModal()"></button>
+                </div>
+
+                <div class="header-center">
+                    <div class="module-switcher">
+                        <button class="module-btn active" id="btnModFinanceiro" onclick="setMode('financeiro')">Financeiro</button>
+                        <button class="module-btn" id="btnModVeiculo" onclick="setMode('veiculo')">Veículo</button>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <button class="btn-head" onclick="openMySubModal()">Plano</button>
+                    <button class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema">💡</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 0 12px;">
+            <div id="graceBanner" class="alert-banner alert-warning"></div>
+        </div>
+
+        <div id="boardViewport">
+            <div class="month-roulette-wrapper">
+                <div class="month-roulette">
+                    <div class="month-side left" id="prevPeriodDisplay" onclick="changePeriod(-1)">Outubro 2026</div>
+                    <div class="month-center" id="periodDisplay">Novembro 2026</div>
+                    <div class="month-side right" id="nextPeriodDisplay" onclick="changePeriod(1)">Dezembro 2026</div>
+                </div>
+                <button id="btnToday" class="btn-today" style="display: none;" onclick="goToCurrentPeriod()">📅 Mês Atual</button>
+            </div>
+
+            <div id="pageSheetArea">
+                <div class="summary-container" id="summaryContainer">
+                    <div class="summary-card receivable-card" id="sumCard1"><span id="lblSummary1">A RECEBER</span><strong id="valSummary1">R$ 0,00</strong></div>
+                    <div class="summary-card payable-card" id="sumCard2"><span id="lblSummary2">A PAGAR</span><strong id="valSummary2">R$ 0,00</strong></div>
+                    <div class="summary-card balance-card" id="sumCard3"><span id="lblSummary3">SALDO</span><strong id="valSummary3">R$ 0,00</strong></div>
+                </div>
+
+                <div class="overdue-pill-bar" id="overduePillBar">
+                    <button class="overdue-pill-btn" onclick="openOverdueModal()">
+                        <span>⏳ Você tem <strong id="pillOverdueCount">0</strong> conta(s) atrasada(s) sem data</span>
+                        <span>Gerenciar ›</span>
+                    </button>
+                </div>
+
+                <div class="container" id="mainContainer">
+                    <p style="text-align:center;">Carregando seus registros...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar-actions" id="bottomBarActions">
+        <button class="btn-add-center" id="btnAddCenter" onclick="openModal()">
+            <span style="font-size:1.35rem; line-height:1;">+</span>
+            <span>Adicionar</span>
+        </button>
+    </div>
+
+    <!-- MODAL PERSONALIZADO DE CONFIRMAÇÃO / ALERTA -->
+    <div class="modal" id="modalCustomDialog" style="z-index: 300;" onclick="if(event.target === this) closeCustomDialog(false)">
+        <div class="modal-content" style="max-width: 380px;">
+            <h3 id="customDialogTitle" style="margin-bottom:8px;">Confirmação</h3>
+            <p id="customDialogMessage" style="font-size:0.9rem; line-height:1.5; color:var(--text-sub); margin:0;"></p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" id="customDialogCancelBtn" onclick="closeCustomDialog(false)">Cancelar</button>
+                <button type="button" class="btn-save" id="customDialogConfirmBtn" onclick="closeCustomDialog(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FINANCEIRO (A PAGAR / A RECEBER / ATRASADA SEM DATA) -->
+    <div class="modal" id="modalFinanceiro" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <h3 id="modalFinTitle">Novo Lançamento</h3>
+            <input type="hidden" id="editBillId">
+            <input type="hidden" id="editBillGrupo">
+            <input type="hidden" id="editBillTipoOrig">
+
+            <div class="nature-switch" id="natureSwitch">
+                <button type="button" class="nature-btn active-pagar" id="btnNatPagar" onclick="setNature('pagar')">💸 Conta a Pagar</button>
+                <button type="button" class="nature-btn" id="btnNatReceber" onclick="setNature('receber')">💰 Valor a Receber</button>
+            </div>
+
+            <label id="lblBillName">Descrição da Conta</label>
+            <input type="text" id="billName" placeholder="EX: ENERGIA / SALÁRIO">
+
+            <div id="divPagador" style="display:none;">
+                <label>De quem receberá? (Pagador)</label>
+                <input type="text" id="billPagador" placeholder="EX: CLIENTE JOÃO / EMPRESA X">
+            </div>
+
+            <label>Valor (R$)</label>
+            <input type="number" id="billValue" step="0.01" placeholder="0.00">
+
+            <div id="divSemDataCheck" style="margin-top:10px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; color:#EF4444;">
+                    <input type="checkbox" id="chkSemData" style="width:auto; margin:0;" onchange="toggleSemDataField()">
+                    ⏳ Conta atrasada sem data de vencimento (lembrete)
+                </label>
+            </div>
+
+            <div id="divBillDate">
+                <label id="lblBillDate">Data de Vencimento</label>
+                <input type="date" id="billDate">
+            </div>
+
+            <div id="divBillType">
+                <label>Tipo de Recorrência</label>
+                <select id="billType" onchange="document.getElementById('installmentDiv').style.display = this.value === 'Parcelada' ? 'block' : 'none';">
+                    <option value="Unica">Única</option>
+                    <option value="Mensal">Mensal (Fixo Perpétuo)</option>
+                    <option value="Parcelada">Parcelada</option>
+                </select>
+            </div>
+
+            <div id="installmentDiv" style="display: none;">
+                <label>Quantidade de Parcelas</label>
+                <input type="number" id="billInstallments" value="2" min="2">
+            </div>
+
+            <div id="divEditParcelScope" style="display:none; margin-top:12px; padding:10px; border-radius:10px; background:var(--bg); border:1px solid var(--border-color);">
+                <label style="margin-top:0;">Aplicar alteração (incluindo dia de vencimento) em:</label>
+                <select id="editParcelScope">
+                    <option value="one">Somente nesta parcela</option>
+                    <option value="all">Todas as parcelas desta compra</option>
+                </select>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveBill()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXCLUIR CONTA PARCELADA (UMA OU TODAS) -->
+    <div class="modal" id="modalDeleteParcel" onclick="if(event.target === this) closeModalById('modalDeleteParcel')">
+        <div class="modal-content">
+            <h3>Excluir Conta Parcelada</h3>
+            <p style="font-size:0.9rem; line-height:1.45;">Esta é uma conta parcelada. Você deseja excluir apenas esta parcela ou todas as parcelas da série?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModalById('modalDeleteParcel')">Cancelar</button>
+                <button class="btn-save" style="background:#F59E0B; color:#FFF;" onclick="confirmDeleteParcel('one')">Só esta parcela</button>
+                <button class="btn-save" style="background:#EF4444; color:#FFF;" onclick="confirmDeleteParcel('all')">Excluir Todas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CONTAS ATRASADAS SEM DATA & CONVERSÃO EM PARCELADA -->
+    <div class="modal" id="modalOverdueList" onclick="if(event.target === this) closeModalById('modalOverdueList')">
+        <div class="modal-content">
+            <h3>⏳ Contas Atrasadas (Sem Data)</h3>
+            <p style="font-size:0.82rem; color:var(--text-sub); margin-top:0;">Anote dívidas atrasadas para pagar quando puder, dê baixa ou negocie parcelando.</p>
+            <button type="button" class="btn-primary" style="margin-bottom:12px;" onclick="closeModalById('modalOverdueList'); openNewOverdueModal();">+ Anotar Nova Conta Atrasada</button>
+            <div id="overdueItemsContainer"></div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModalById('modalOverdueList')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CONVERTER CONTA ATRASADA EM PARCELADA -->
+    <div class="modal" id="modalConvertParcel" onclick="if(event.target === this) closeModalById('modalConvertParcel')">
+        <div class="modal-content">
+            <h3>🔄 Renegociar / Parcelar Conta</h3>
+            <input type="hidden" id="convertBillId">
+            <label>Descrição</label>
+            <input type="text" id="convertName">
+            <label>Valor Atualizado de Cada Parcela (R$)</label>
+            <input type="number" id="convertParcelValue" step="0.01" placeholder="0.00">
+            <label>Quantidade de Parcelas</label>
+            <input type="number" id="convertQty" value="2" min="2">
+            <label>Vencimento da 1ª Parcela</label>
+            <input type="date" id="convertFirstDate">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModalById('modalConvertParcel')">Cancelar</button>
+                <button class="btn-save" onclick="executeConvertToParcel()">Gerar Parcelas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: INTEGRAÇÃO AGENDAS (TODOS OS LANÇAMENTOS) -->
+    <div class="modal" id="modalCalendar" onclick="if(event.target === this) closeModalById('modalCalendar')">
+        <div class="modal-content">
+            <h3>📅 Sincronizar Todos os Lançamentos</h3>
+            <p style="font-size:0.85rem; color:var(--text-sub); line-height:1.45;">
+                Exporta <strong>todos os vencimentos e recebimentos</strong> (mês atual, parcelas futuras e recorrências mensais) de uma só vez:
+            </p>
+            <button type="button" class="btn-primary" style="margin-bottom:10px; background:#4285F4; color:#FFF;" onclick="syncAllToGoogleCalendar()">Sincronizar Tudo com Google Agenda</button>
+            <button type="button" class="btn-primary" onclick="downloadAllIcsCalendar()">Sincronizar Tudo (Apple Calendário / iPhone / Outlook)</button>
+            <p style="font-size:0.75rem; color:var(--text-sub); margin-top:12px; line-height:1.4;">
+                💡 <strong>Como atualizar:</strong> Sempre que cadastrar ou alterar contas no app, clique aqui novamente para baixar/importar o pacote atualizado sem duplicar os eventos já existentes.
+            </p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModalById('modalCalendar')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: INTEGRAÇÃO COM IAs -->
+    <div class="modal" id="modalAi" onclick="if(event.target === this) closeModalById('modalAi')">
+        <div class="modal-content">
+            <h3>🤖 Assistente Financeiro com IA</h3>
+            <p style="font-size:0.83rem; color:var(--text-sub); margin-top:0;">Resumo pronto dos seus lançamentos para análise de fluxo de caixa e corte de gastos:</p>
+            <textarea id="aiPromptBox" rows="6" readonly></textarea>
+            <p id="geminiCopyHint" style="display:none; font-size:0.78rem; color:#10B981; font-weight:700; margin:8px 0 0 0;">✓ Resumo copiado! Cole (Ctrl+V / Colar) na caixa de mensagem do Gemini.</p>
+            <div class="modal-buttons" style="justify-content:space-between;">
+                <button type="button" class="btn-cancel" onclick="copyAiPrompt()">📋 Copiar Texto</button>
+                <button type="button" class="btn-save" style="background:#3B82F6; color:#FFF;" onclick="openInGemini()">✨ Abrir no Gemini</button>
+                <button type="button" class="btn-save" style="background:#10A37F; color:#FFF;" onclick="openInChatGpt()">Abrir no ChatGPT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PROGRAMA DE RECONHECIMENTO (BADGE DE SEQUÊNCIA) -->
+    <div class="modal" id="modalStreak" onclick="if(event.target === this) closeModalById('modalStreak')">
+        <div class="modal-content" style="text-align:center;">
+            <div id="streakIconBig" style="font-size:3rem; margin-bottom:6px;">🏅</div>
+            <h3 id="streakTitle">Assinante Fiel</h3>
+            <p id="streakDesc" style="font-size:0.88rem; line-height:1.5; color:var(--text-sub);"></p>
+            <div class="modal-buttons" style="justify-content:center;">
+                <button class="btn-save" onclick="closeModalById('modalStreak')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ATALHO NA ÁREA DE TRABALHO / FAVORITOS -->
+    <div class="modal" id="modalShortcut" onclick="if(event.target === this) closeModalById('modalShortcut')">
+        <div class="modal-content">
+            <h3 id="shortcutModalTitle">📲 Instalar Atalho como App</h3>
+            <p id="shortcutModalBody" style="font-size:0.88rem; line-height:1.55;"></p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModalById('modalShortcut')">Agora não</button>
+                <button class="btn-save" id="btnInstallPwaAction" style="display:none;" onclick="installPwaNow()">Instalar Agora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VEÍCULO -->
+    <div class="modal" id="modalVeiculo" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <h3 id="modalVehTitle">Registro do Veículo</h3>
+            <input type="hidden" id="editVehId">
+            <label>Tipo de Registro</label>
+            <select id="vehType" onchange="toggleVehFields()">
+                <option value="Abastecimento">Abastecimento</option>
+                <option value="Manutencao">Manutenção</option>
+            </select>
+            <div id="divAbastecimentoFields">
+                <label>Combustível</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="chkGasolina" value="GASOLINA" checked> Gasolina</label>
+                    <label><input type="checkbox" id="chkEtanol" value="ETANOL"> Etanol</label>
+                </div>
+            </div>
+            <div id="divManutencaoName" style="display:none;">
+                <label>Serviço</label><input type="text" id="vehServiceName" placeholder="EX: TROCA DE ÓLEO">
+            </div>
+            <label>Quilometragem (Opcional)</label><input type="number" id="vehKm" placeholder="EX: 45000">
+            <label>Valor Total (R$)</label><input type="number" id="vehValue" step="0.01" placeholder="0.00">
+            <div id="divLitros"><label>Litros</label><input type="number" id="vehLitros" step="0.001" placeholder="0.000"></div>
+            <label>Data</label><input type="date" id="vehDate">
+            <div id="divManutencaoDetalhes" style="display:none;"><label>Detalhes</label><input type="text" id="vehDetails"></div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveVehicle()">Salvar Registro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN -->
+    <div class="modal" id="modalAdmin" onclick="if(event.target === this) closeModalById('modalAdmin')">
+        <div class="modal-content">
+            <h3>👑 Controle de Cortesias (Admin)</h3>
+            <label>E-mail do Beneficiário</label>
+            <input type="email" id="adminTargetEmail" placeholder="cliente@email.com">
+            <button type="button" class="btn-primary" style="margin-top:10px;" onclick="grantCourtesy()">Liberar Cortesia Grátis</button>
+            <div id="adminUsersList" style="max-height: 220px; overflow-y: auto; margin-top: 12px;"></div>
+            <div class="modal-buttons"><button type="button" class="btn-cancel" onclick="closeModalById('modalAdmin')">Fechar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL MINHA ASSINATURA -->
+    <div class="modal" id="modalMySub" onclick="if(event.target === this) closeModalById('modalMySub')">
+        <div class="modal-content">
+            <h3>Minha Assinatura</h3>
+            <p id="mySubStatusText" style="font-size:0.88rem; line-height:1.55;"></p>
+            <div id="cancelSubArea" style="margin-top: 16px;">
+                <button type="button" class="btn-primary" style="background:#EF4444; color:#FFF;" onclick="cancelMySubscription()">Cancelar Renovação Automática</button>
+            </div>
+            <div class="modal-buttons"><button type="button" class="btn-cancel" onclick="closeModalById('modalMySub')">Fechar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVA SENHA -->
+    <div class="modal" id="modalNewPassword">
+        <div class="modal-content">
+            <h3>Criar Nova Senha</h3>
+            <input type="password" id="newPasswordInput" placeholder="Nova senha (mín. 6 caracteres)">
+            <div class="modal-buttons"><button type="button" class="btn-save" onclick="updateRecoveredPassword()">Salvar Nova Senha</button></div>
+        </div>
+    </div>
+
+    <script>
+        var ADMIN_EMAIL = "portelapires@gmail.com";
+        var SUPABASE_URL = "https://zjacjwmyvusmxbdzksia.supabase.co";
+        var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqYWNqd215dnVzbXhiZHprc2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzAyMDUsImV4cCI6MjEwNTMwNjIwNX0.MtfJh8cbslxDLivVFI1Fldfiaka6BXmzaLbmdO6y3IE";
+        
+        var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        });
+
+        var TRASH_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
+
+        var currentUser = null;
+        var currentSub = null;
+        var selectedPlanMonths = 1;
+        var currentNature = 'pagar';
+        var pendingDeleteBill = null;
+        var deferredInstallPrompt = null;
+        var currentMode = 'financeiro';
+        var currentDate = new Date();
+        var viewMonth = currentDate.getMonth(); 
+        var viewYear = currentDate.getFullYear();
+        var monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        var globalData = { bills: [], veiculos: [], pagamentosMensais: [] };
+        var customDialogResolve = null;
+
+        // DETECÇÃO E SINCRONIZAÇÃO AUTOMÁTICA DE TEMA (CLARO / ESCURO)
+        function applyThemeState(isDark) {
+            if (isDark) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+            var metaTheme = document.getElementById('metaThemeColor');
+            if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0F172A' : '#0A1128');
+        }
+
+        function initAutoTheme() {
+            var savedTheme = localStorage.getItem('theme');
+            var mediaQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+            if (savedTheme === 'dark' || savedTheme === 'light') {
+                applyThemeState(savedTheme === 'dark');
+            } else {
+                applyThemeState(mediaQuery ? mediaQuery.matches : false);
+            }
+            if (mediaQuery) {
+                var listener = function(e) {
+                    if (!localStorage.getItem('theme')) applyThemeState(e.matches);
+                };
+                if (mediaQuery.addEventListener) mediaQuery.addEventListener('change', listener);
+                else if (mediaQuery.addListener) mediaQuery.addListener(listener);
+            }
+        }
+
+        function toggleTheme() {
+            var nextDark = !document.body.classList.contains('dark-mode');
+            applyThemeState(nextDark);
+            localStorage.setItem('theme', nextDark ? 'dark' : 'light');
+            showToast(nextDark ? "🌙 Modo Escuro ativado" : "☀️ Modo Claro ativado");
+        }
+
+        function showCustomDialog(options) {
+            return new Promise((resolve) => {
+                customDialogResolve = resolve;
+                document.getElementById('customDialogTitle').innerText = options.title || "Aviso";
+                document.getElementById('customDialogMessage').innerText = options.message || "";
+                var cancelBtn = document.getElementById('customDialogCancelBtn');
+                var confirmBtn = document.getElementById('customDialogConfirmBtn');
+
+                if (options.isConfirm) {
+                    cancelBtn.style.display = 'inline-block';
+                    cancelBtn.innerText = options.cancelText || "Cancelar";
+                    confirmBtn.innerText = options.confirmText || "Confirmar";
+                    confirmBtn.style.background = options.danger ? "#EF4444" : "var(--header-bg)";
+                    confirmBtn.style.color = options.danger ? "#FFF" : "var(--header-text)";
+                } else {
+                    cancelBtn.style.display = 'none';
+                    confirmBtn.innerText = "OK";
+                    confirmBtn.style.background = "var(--header-bg)";
+                    confirmBtn.style.color = "var(--header-text)";
+                }
+                openModalById('modalCustomDialog');
+            });
+        }
+
+        function closeCustomDialog(result) {
+            closeModalById('modalCustomDialog');
+            if (customDialogResolve) {
+                var res = customDialogResolve;
+                customDialogResolve = null;
+                res(result);
+            }
+        }
+
+        function appAlert(message, title) {
+            return showCustomDialog({ title: title || "Aviso", message: message, isConfirm: false });
+        }
+
+        function appConfirm(message, title, confirmText, danger) {
+            return showCustomDialog({ title: title || "Confirmação", message: message, isConfirm: true, confirmText: confirmText || "Confirmar", danger: danger !== false });
+        }
+
+        function showToast(msg) {
+            var el = document.getElementById('appToast');
+            el.innerText = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2800);
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+        });
+
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function isMasterAdmin() {
+            return currentUser && currentUser.email && currentUser.email.toLowerCase().trim() === ADMIN_EMAIL;
+        }
+
+        function selectPlan(months, el) {
+            selectedPlanMonths = months;
+            document.querySelectorAll('.plan-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function openDrawer() {
+            document.getElementById('lblDrawerShortcut').innerText = isMobileDevice()
+                ? "📲 Criar Atalho na Tela Inicial"
+                : "⭐ Salvar nos Favoritos";
+            document.getElementById('drawerOverlay').style.display = 'block';
+            requestAnimationFrame(() => document.getElementById('sideDrawer').classList.add('open'));
+        }
+
+        function closeDrawer() {
+            document.getElementById('sideDrawer').classList.remove('open');
+            setTimeout(() => document.getElementById('drawerOverlay').style.display = 'none', 260);
+        }
+
+        function triggerShortcutPrompt(manual) {
+            var alreadyShown = localStorage.getItem('shortcut_prompt_shown');
+            if (!manual && alreadyShown) return;
+            localStorage.setItem('shortcut_prompt_shown', '1');
+
+            var title = document.getElementById('shortcutModalTitle');
+            var body = document.getElementById('shortcutModalBody');
+            var btnInstall = document.getElementById('btnInstallPwaAction');
+
+            if (isMobileDevice()) {
+                title.innerText = "📲 Adicionar App à Tela Inicial";
+                if (deferredInstallPrompt) {
+                    body.innerHTML = "Crie um atalho direto na área de trabalho do seu celular para abrir sua Gestão Completa como um aplicativo.";
+                    btnInstall.style.display = 'inline-block';
+                } else {
+                    btnInstall.style.display = 'none';
+                    body.innerHTML = "Para usar como aplicativo na área de trabalho do seu celular:<br><br>1. Toque no botão <strong>Compartilhar</strong> (iPhone) ou nos <strong>3 pontinhos (⋮)</strong> do navegador (Android).<br>2. Selecione <strong>Adicionar à Tela de Início</strong>.";
+                }
+            } else {
+                btnInstall.style.display = 'none';
+                title.innerText = "⭐ Salvar nos Favoritos";
+                body.innerHTML = "Salve este sistema nos favoritos do seu navegador para acessá-lo com 1 clique:<br><br>Pressione <strong>Ctrl + D</strong> (Windows/Linux) ou <strong>Cmd + D</strong> (Mac) e confirme em <strong>Concluído</strong>.";
+            }
+            openModalById('modalShortcut');
+        }
+
+        async function installPwaNow() {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            closeModalById('modalShortcut');
+        }
+
+        function getStreakBadgeInfo(months) {
+            if (!months || months < 1) return null;
+            if (months < 12) {
+                return {
+                    short: `🏅 ${months}m`,
+                    icon: "🏅",
+                    title: `Sequência de ${months} ${months === 1 ? 'Mês' : 'Meses'}!`,
+                    desc: `Parabéns! Você mantém sua assinatura ativa sem interrupção há <strong>${months} ${months === 1 ? 'mês' : 'meses'}</strong>. Continue ativo para desbloquear o emblema de 1 Ano!`
+                };
+            }
+            var years = Math.floor(months / 12);
+            var icon = years >= 3 ? "👑" : (years === 2 ? "💎" : "🏆");
+            return {
+                short: `${icon} ${years}a`,
+                icon: icon,
+                title: `Assinante Veterano — ${years} ${years === 1 ? 'Ano' : 'Anos'}!`,
+                desc: `Reconhecimento especial! Você está conosco há <strong>${years} ${years === 1 ? 'ano' : 'anos'}</strong> (${months} meses consecutivos sem interrupção).`
+            };
+        }
+
+        function openStreakModal() {
+            var info = getStreakBadgeInfo(currentSub?.streak_months || 0);
+            if (!info) return;
+            document.getElementById('streakIconBig').innerText = info.icon;
+            document.getElementById('streakTitle').innerText = info.title;
+            document.getElementById('streakDesc').innerHTML = info.desc;
+            openModalById('modalStreak');
+        }
+
+        window.onload = async function() {
+            initAutoTheme();
+            var savedEmail = localStorage.getItem('saved_login_email');
+            if (savedEmail) document.getElementById('authEmail').value = savedEmail;
+            
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                await checkSubscriptionStatus();
+            } else {
+                showAuth();
+            }
+
+            _supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'PASSWORD_RECOVERY') openModalById('modalNewPassword');
+                else if (session) { currentUser = session.user; await checkSubscriptionStatus(); }
+                else { currentUser = null; currentSub = null; showAuth(); }
+            });
+        };
+
+        function formatDateBR(isoDate) {
+            if (!isoDate) return '';
+            var p = isoDate.split('T')[0].split('-');
+            return p[2] + '/' + p[1] + '/' + p[0];
+        }
+
+        async function checkSubscriptionStatus() {
+            showLoader();
+            if (isMasterAdmin()) {
+                const { data } = await _supabase.from('assinaturas').select('*').eq('email', ADMIN_EMAIL).maybeSingle();
+                currentSub = data || { email: ADMIN_EMAIL, status: 'courtesy', is_admin: true };
+                currentSub.is_admin = true;
+                hideLoader();
+                showApp();
+                return;
+            }
+
+            try { await _supabase.rpc('process_subscription_lifecycle'); } catch (e) {}
+            const { data } = await _supabase.from('assinaturas').select('*')
+                .or(`user_id.eq.${currentUser.id},email.eq.${currentUser.email.toLowerCase()}`).maybeSingle();
+            hideLoader();
+            currentSub = data;
+
+            if (!currentSub) { showPaywall(); return; }
+            if (currentSub.is_admin || currentSub.status === 'courtesy') { showApp(); return; }
+
+            if ((currentSub.status === 'active' || currentSub.status === 'canceled') && currentSub.current_period_end) {
+                var today = new Date(); today.setHours(0, 0, 0, 0);
+                var dueDate = new Date(currentSub.current_period_end + "T00:00:00");
+                var graceLimit = new Date(dueDate); graceLimit.setDate(graceLimit.getDate() + 3);
+
+                if (today <= graceLimit) {
+                    showApp();
+                    var banner = document.getElementById('graceBanner');
+                    if (currentSub.status === 'canceled') {
+                        banner.style.display = 'block';
+                        banner.innerText = `⚠️ Assinatura cancelada. Acesso ativo até ${formatDateBR(currentSub.current_period_end)} (+ 3 dias de tolerância).`;
+                    } else if (today > dueDate) {
+                        banner.style.display = 'block';
+                        banner.innerText = `⚠️ Vencida em ${formatDateBR(currentSub.current_period_end)}. Você está nos 3 dias de tolerância.`;
+                    } else {
+                        banner.style.display = 'none';
+                    }
+                    return;
+                }
+            }
+            showPaywall();
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('paywallContainer').style.display = 'none';
+            document.getElementById('appContent').style.display = 'none';
+            document.getElementById('bottomBarActions').style.display = 'none';
+        }
+
+        function showPaywall() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('paywallContainer').style.display = 'flex';
+            document.getElementById('appContent').style.display = 'none';
+            document.getElementById('bottomBarActions').style.display = 'none';
+            document.getElementById('paywallUserEmail').innerText = "Conta: " + currentUser.email;
+
+            var retBanner = document.getElementById('suspendedRetentionBanner');
+            if (currentSub && currentSub.status === 'suspended' && currentSub.purge_at) {
+                var daysLeft = Math.max(0, Math.ceil((new Date(currentSub.purge_at) - new Date()) / (1000 * 60 * 60 * 24)));
+                retBanner.style.display = 'block';
+                retBanner.innerHTML = `⛔ <strong>Acesso Suspenso:</strong> Dados salvos por <strong>${daysLeft} dias</strong> (até ${formatDateBR(currentSub.purge_at)}).`;
+            } else {
+                retBanner.style.display = 'none';
+            }
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('paywallContainer').style.display = 'none';
+            document.getElementById('appContent').style.display = 'block';
+            document.getElementById('bottomBarActions').style.display = 'flex';
+
+            var adminFlag = isMasterAdmin() || (currentSub && currentSub.is_admin);
+            document.getElementById('btnAdminPanel').style.display = adminFlag ? 'flex' : 'none';
+
+            var streakBtn = document.getElementById('btnStreakBadge');
+            if (!adminFlag && currentSub && currentSub.streak_months > 0) {
+                var info = getStreakBadgeInfo(currentSub.streak_months);
+                streakBtn.innerText = info.short;
+                streakBtn.style.display = 'flex';
+            } else {
+                streakBtn.style.display = 'none';
+            }
+
+            updateDisplay();
+            loadUserData();
+            setTimeout(() => triggerShortcutPrompt(false), 900);
+        }
+
+        async function loadUserData() {
+            showLoader();
+            try {
+                let { data: contas } = await _supabase.from('contas').select('*');
+                let { data: veiculos } = await _supabase.from('veiculos').select('*');
+                let { data: pagMensais } = await _supabase.from('pagamentos_mensais').select('*');
+                globalData.bills = contas || [];
+                globalData.veiculos = veiculos || [];
+                globalData.pagamentosMensais = pagMensais || [];
+                updateOverdueCounters();
+                renderCurrentView();
+            } catch (err) {
+                appAlert("Erro ao carregar dados: " + err.message, "Erro");
+            }
+            hideLoader();
+        }
+
+        function updateOverdueCounters() {
+            var semDataList = globalData.bills.filter(b => b.sem_data && !b.pago);
+            document.getElementById('drawerOverdueCount').innerText = semDataList.length;
+            document.getElementById('pillOverdueCount').innerText = semDataList.length;
+            document.getElementById('overduePillBar').style.display = (currentMode === 'financeiro' && semDataList.length > 0) ? 'block' : 'none';
+        }
+
+        function setNature(nat) {
+            currentNature = nat;
+            document.getElementById('btnNatPagar').className = 'nature-btn' + (nat === 'pagar' ? ' active-pagar' : '');
+            document.getElementById('btnNatReceber').className = 'nature-btn' + (nat === 'receber' ? ' active-receber' : '');
+            document.getElementById('divPagador').style.display = nat === 'receber' ? 'block' : 'none';
+            document.getElementById('lblBillName').innerText = nat === 'receber' ? 'Descrição do Recebimento' : 'Descrição da Conta';
+            document.getElementById('lblBillDate').innerText = nat === 'receber' ? 'Data Prevista de Recebimento' : 'Data de Vencimento';
+            document.getElementById('divSemDataCheck').style.display = nat === 'pagar' ? 'block' : 'none';
+            if (nat === 'receber') {
+                document.getElementById('chkSemData').checked = false;
+                toggleSemDataField();
+            }
+        }
+
+        function toggleSemDataField() {
+            var isSemData = document.getElementById('chkSemData').checked;
+            document.getElementById('divBillDate').style.display = isSemData ? 'none' : 'block';
+            document.getElementById('divBillType').style.display = isSemData ? 'none' : 'block';
+            if (isSemData) document.getElementById('installmentDiv').style.display = 'none';
+        }
+
+        function getBillsForMonthYear(m, y) {
+            var mesAnoKey = y + "-" + (m + 1).toString().padStart(2, '0');
+            var result = [];
+            globalData.bills.forEach(function(bill) {
+                if (bill.sem_data || !bill.data) return;
+                var parts = bill.data.split('-');
+                var bYear = parseInt(parts[0]), bMonth = parseInt(parts[1]) - 1, bDay = parts[2];
+                if (bill.tipo === 'Mensal') {
+                    if (y > bYear || (y === bYear && m >= bMonth)) {
+                        var pagRecord = globalData.pagamentosMensais.find(p => p.conta_id === bill.id && p.mes_ano === mesAnoKey);
+                        var maxDays = new Date(y, m + 1, 0).getDate();
+                        var validDay = Math.min(parseInt(bDay), maxDays).toString().padStart(2, '0');
+                        var mStr = (m + 1).toString().padStart(2, '0');
+                        result.push({ ...bill, displayData: y + "-" + mStr + "-" + validDay, isPaidView: pagRecord ? pagRecord.pago : false });
+                    }
+                } else if (bMonth === m && bYear === y) {
+                    result.push({ ...bill, displayData: bill.data, isPaidView: bill.pago });
+                }
+            });
+            return result;
+        }
+
+        function getBillsForViewMonth() {
+            return getBillsForMonthYear(viewMonth, viewYear);
+        }
+
+        function renderBills() {
+            var container = document.getElementById('mainContainer');
+            container.innerHTML = '';
+            var currentBills = getBillsForViewMonth();
+            var totalReceber = 0, totalPagar = 0;
+
+            currentBills.forEach(b => {
+                var val = parseFloat(b.valor) || 0;
+                if (b.natureza === 'receber') {
+                    totalReceber += val;
+                } else {
+                    totalPagar += val;
+                }
+            });
+
+            var saldoMes = totalReceber - totalPagar;
+
+            document.getElementById('lblSummary1').innerText = "A RECEBER";
+            document.getElementById('valSummary1').innerText = formatCurrency(totalReceber);
+
+            document.getElementById('lblSummary2').innerText = "A PAGAR";
+            document.getElementById('valSummary2').innerText = formatCurrency(totalPagar);
+
+            document.getElementById('lblSummary3').innerText = "SALDO";
+            document.getElementById('valSummary3').innerText = formatCurrency(saldoMes);
+
+            currentBills.sort((a, b) => a.isPaidView === b.isPaidView ? new Date(a.displayData) - new Date(b.displayData) : (a.isPaidView ? 1 : -1));
+
+            if (currentBills.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top: 30px;">Nenhum lançamento neste mês.</p>';
+                return;
+            }
+
+            currentBills.forEach((bill, idx) => {
+                var isReceber = bill.natureza === 'receber';
+                var statusClass = bill.isPaidView ? 'paid' : (isReceber ? 'receivable' : '');
+                if (!bill.isPaidView && !isReceber) {
+                    var parts = bill.displayData.split('-');
+                    var bDate = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+                    var today = new Date(); today.setHours(12,0,0,0);
+                    var diffDays = Math.ceil((bDate - today) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0) statusClass = 'overdue';
+                    else if (diffDays <= 2) statusClass = 'warning';
+                }
+                var dParts = bill.displayData.split('-');
+                var dateFormatted = dParts[2] + "/" + dParts[1] + "/" + dParts[0];
+                var natTag = isReceber ? `<span class="tag" style="color:#10B981;border-color:#10B981;">A RECEBER${bill.pagador ? ' • ' + bill.pagador : ''}</span>` : '';
+                var tipoTag = bill.tipo !== 'Unica' ? `<span class="tag">${bill.tipo === 'Mensal' ? 'Fixo Mensal' : bill.tipo + ' ' + (bill.parcela || '')}</span>` : '';
+                var delay = Math.min(idx * 0.04, 0.36);
+
+                container.innerHTML += `
+                    <div class="card ${statusClass}" style="animation-delay:${delay}s;" onclick="openEditBill('${bill.id}')">
+                        <button type="button" class="btn-trash-classic" title="Excluir lançamento" onclick="event.stopPropagation(); requestDeleteBill('${bill.id}')">
+                            ${TRASH_ICON_SVG}
+                        </button>
+                        <input type="checkbox" class="card-checkbox" ${bill.isPaidView ? 'checked' : ''} onclick="event.stopPropagation()" onchange="togglePaid('${bill.id}')">
+                        <div class="info">
+                            <strong>${bill.nome}</strong>
+                            <span>${isReceber ? 'Recebimento' : 'Vencimento'}: ${dateFormatted}</span>
+                            ${natTag}${tipoTag}
+                        </div>
+                        <div class="value ${isReceber ? 'income' : ''}">${isReceber ? '+ ' : ''}${formatCurrency(bill.valor)}</div>
+                    </div>`;
+            });
+        }
+
+        async function requestDeleteBill(id) {
+            var bill = globalData.bills.find(b => b.id === id);
+            if (!bill) return;
+            if (bill.tipo === 'Parcelada') {
+                pendingDeleteBill = bill;
+                openModalById('modalDeleteParcel');
+            } else {
+                var ok = await appConfirm(`Deseja realmente excluir "${bill.nome}"?`, "Excluir Lançamento", "Excluir", true);
+                if (ok) deleteSingleBill(bill.id);
+            }
+        }
+
+        async function deleteSingleBill(id) {
+            showLoader();
+            await _supabase.from('contas').delete().eq('id', id);
+            await loadUserData();
+            showToast("Lançamento excluído.");
+        }
+
+        async function confirmDeleteParcel(scope) {
+            closeModalById('modalDeleteParcel');
+            if (!pendingDeleteBill) return;
+            showLoader();
+            if (scope === 'all') {
+                if (pendingDeleteBill.grupo_parcela) {
+                    await _supabase.from('contas').delete().eq('grupo_parcela', pendingDeleteBill.grupo_parcela);
+                } else {
+                    await _supabase.from('contas').delete().eq('user_id', currentUser.id).eq('nome', pendingDeleteBill.nome).eq('tipo', 'Parcelada');
+                }
+            } else {
+                await _supabase.from('contas').delete().eq('id', pendingDeleteBill.id);
+            }
+            pendingDeleteBill = null;
+            await loadUserData();
+            showToast(scope === 'all' ? "Todas as parcelas foram excluídas." : "Parcela excluída.");
+        }
+
+        async function safeInsertContas(records) {
+            const { error } = await _supabase.from('contas').insert(records);
+            if (error && error.message && error.message.includes('column')) {
+                var fallback = records.map(r => ({
+                    user_id: r.user_id, nome: r.nome, valor: r.valor, data: r.data,
+                    tipo: r.tipo, pago: r.pago, parcela: r.parcela || null
+                }));
+                await _supabase.from('contas').insert(fallback);
+            }
+        }
+
+        async function safeUpdateConta(id, payload) {
+            const { error } = await _supabase.from('contas').update(payload).eq('id', id);
+            if (error && error.message && error.message.includes('column')) {
+                await _supabase.from('contas').update({
+                    nome: payload.nome, valor: payload.valor, data: payload.data
+                }).eq('id', id);
+            }
+        }
+
+        async function saveBill() {
+            var editId = document.getElementById('editBillId').value;
+            var nome = document.getElementById('billName').value.toUpperCase().trim();
+            var pagador = document.getElementById('billPagador').value.toUpperCase().trim();
+            var valor = document.getElementById('billValue').value;
+            var isSemData = document.getElementById('chkSemData').checked;
+            var dataStr = document.getElementById('billDate').value;
+            var tipo = document.getElementById('billType').value;
+            var installments = document.getElementById('billInstallments').value;
+
+            if (!nome || !valor || (!isSemData && !dataStr)) {
+                appAlert("Preencha todos os campos obrigatórios antes de salvar.", "Campos Incompletos");
+                return;
+            }
+            closeModal(); showLoader();
+
+            if (editId) {
+                var origTipo = document.getElementById('editBillTipoOrig').value;
+                var scope = document.getElementById('editParcelScope').value;
+
+                if (origTipo === 'Parcelada' && scope === 'all') {
+                    var origBill = globalData.bills.find(b => b.id === editId);
+                    var newDay = parseInt(dataStr.split('-')[2]);
+                    var siblings = globalData.bills.filter(b =>
+                        origBill.grupo_parcela ? b.grupo_parcela === origBill.grupo_parcela : (b.nome === origBill.nome && b.tipo === 'Parcelada')
+                    );
+                    for (var s of siblings) {
+                        var p = s.data.split('-');
+                        var y = parseInt(p[0]), m = parseInt(p[1]) - 1;
+                        var maxD = new Date(y, m + 1, 0).getDate();
+                        var validD = Math.min(newDay, maxD).toString().padStart(2, '0');
+                        var updatedDate = `${y}-${(m + 1).toString().padStart(2, '0')}-${validD}`;
+                        await safeUpdateConta(s.id, { nome: nome, valor: valor, data: updatedDate, pagador: pagador || null });
+                    }
+                } else {
+                    await safeUpdateConta(editId, {
+                        nome: nome,
+                        valor: valor,
+                        data: isSemData ? null : dataStr,
+                        natureza: currentNature,
+                        pagador: currentNature === 'receber' ? pagador : null,
+                        sem_data: isSemData
+                    });
+                }
+            } else if (isSemData) {
+                await safeInsertContas([{
+                    user_id: currentUser.id, nome: nome, valor: valor, data: null,
+                    tipo: 'Unica', pago: false, natureza: 'pagar', sem_data: true
+                }]);
+            } else if (tipo === 'Unica' || tipo === 'Mensal') {
+                await safeInsertContas([{
+                    user_id: currentUser.id, nome: nome, valor: valor, data: dataStr,
+                    tipo: tipo, pago: false, natureza: currentNature, pagador: currentNature === 'receber' ? pagador : null
+                }]);
+            } else {
+                var baseDate = new Date(dataStr + "T12:00:00");
+                var qty = parseInt(installments);
+                var grupoId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('grp_' + Date.now());
+                var newRecords = [];
+                for (var i = 0; i < qty; i++) {
+                    var targetMonth = baseDate.getMonth() + i;
+                    var targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
+                    var normMonth = targetMonth % 12;
+                    var maxDays = new Date(targetYear, normMonth + 1, 0).getDate();
+                    var day = Math.min(baseDate.getDate(), maxDays);
+                    var d = new Date(targetYear, normMonth, day, 12, 0, 0);
+                    newRecords.push({
+                        user_id: currentUser.id, nome: nome, valor: valor,
+                        data: d.toISOString().split('T')[0], tipo: 'Parcelada',
+                        pago: false, parcela: (i + 1) + "/" + qty, grupo_parcela: grupoId,
+                        natureza: currentNature, pagador: currentNature === 'receber' ? pagador : null
+                    });
+                }
+                await safeInsertContas(newRecords);
+            }
+            await loadUserData();
+            showToast("Lançamento salvo com sucesso!");
+        }
+
+        function openOverdueModal() {
+            var list = globalData.bills.filter(b => b.sem_data && !b.pago);
+            var container = document.getElementById('overdueItemsContainer');
+            container.innerHTML = '';
+            if (list.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); font-size:0.86rem;">Nenhuma conta atrasada sem data pendente.</p>';
+            } else {
+                list.forEach(item => {
+                    container.innerHTML += `
+                        <div class="admin-list-item" style="flex-direction:column; align-items:stretch; gap:8px;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>${item.nome}</strong>
+                                <strong style="color:#EF4444;">${formatCurrency(item.valor)}</strong>
+                            </div>
+                            <div style="display:flex; gap:6px; justify-content:flex-end;">
+                                <button class="btn-save" style="padding:6px 10px; font-size:0.76rem; background:#10B981; color:#FFF;" onclick="payOverdueItem('${item.id}')">✓ Dar Baixa</button>
+                                <button class="btn-save" style="padding:6px 10px; font-size:0.76rem;" onclick="openConvertParcelModal('${item.id}')">🔄 Parcelar</button>
+                                <button class="btn-cancel" style="padding:6px 10px; font-size:0.76rem; display:flex; align-items:center;" onclick="confirmDeleteOverdueItem('${item.id}')">${TRASH_ICON_SVG}</button>
+                            </div>
+                        </div>`;
+                });
+            }
+            openModalById('modalOverdueList');
+        }
+
+        async function confirmDeleteOverdueItem(id) {
+            var ok = await appConfirm("Excluir esta conta atrasada?", "Excluir Pendência", "Excluir", true);
+            if (!ok) return;
+            closeModalById('modalOverdueList');
+            await deleteSingleBill(id);
+        }
+
+        function openNewOverdueModal() {
+            openModal();
+            setNature('pagar');
+            document.getElementById('chkSemData').checked = true;
+            toggleSemDataField();
+        }
+
+        async function payOverdueItem(id) {
+            closeModalById('modalOverdueList');
+            showLoader();
+            await _supabase.from('contas').update({ pago: true, data: new Date().toISOString().split('T')[0] }).eq('id', id);
+            await loadUserData();
+            showToast("Conta baixada como paga!");
+        }
+
+        function openConvertParcelModal(id) {
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item) return;
+            closeModalById('modalOverdueList');
+            document.getElementById('convertBillId').value = item.id;
+            document.getElementById('convertName').value = item.nome;
+            document.getElementById('convertParcelValue').value = item.valor;
+            document.getElementById('convertQty').value = 2;
+            document.getElementById('convertFirstDate').value = new Date().toISOString().split('T')[0];
+            openModalById('modalConvertParcel');
+        }
+
+        async function executeConvertToParcel() {
+            var origId = document.getElementById('convertBillId').value;
+            var nome = document.getElementById('convertName').value.toUpperCase().trim();
+            var pVal = document.getElementById('convertParcelValue').value;
+            var qty = parseInt(document.getElementById('convertQty').value);
+            var firstDate = document.getElementById('convertFirstDate').value;
+
+            if (!nome || !pVal || !firstDate || qty < 2) {
+                appAlert("Preencha o valor atualizado, parcelas e data da 1ª parcela.", "Dados Incompletos");
+                return;
+            }
+            closeModalById('modalConvertParcel');
+            showLoader();
+
+            var baseDate = new Date(firstDate + "T12:00:00");
+            var grupoId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('grp_' + Date.now());
+            var newRecords = [];
+            for (var i = 0; i < qty; i++) {
+                var targetMonth = baseDate.getMonth() + i;
+                var targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
+                var normMonth = targetMonth % 12;
+                var maxDays = new Date(targetYear, normMonth + 1, 0).getDate();
+                var day = Math.min(baseDate.getDate(), maxDays);
+                var d = new Date(targetYear, normMonth, day, 12, 0, 0);
+                newRecords.push({
+                    user_id: currentUser.id, nome: nome, valor: pVal,
+                    data: d.toISOString().split('T')[0], tipo: 'Parcelada',
+                    pago: false, parcela: (i + 1) + "/" + qty, grupo_parcela: grupoId,
+                    natureza: 'pagar', sem_data: false
+                });
+            }
+            await safeInsertContas(newRecords);
+            await _supabase.from('contas').delete().eq('id', origId);
+            await loadUserData();
+            showToast("Conta convertida em " + qty + " parcelas!");
+        }
+
+        function collectAllCalendarEvents() {
+            var eventsMap = new Map();
+            var startM = currentDate.getMonth();
+            var startY = currentDate.getFullYear();
+
+            for (var offset = 0; offset < 12; offset++) {
+                var m = (startM + offset) % 12;
+                var y = startY + Math.floor((startM + offset) / 12);
+                var list = getBillsForMonthYear(m, y);
+                list.forEach(b => {
+                    if (b.isPaidView) return;
+                    var key = `${b.id}-${b.displayData}`;
+                    if (!eventsMap.has(key)) eventsMap.set(key, b);
+                });
+            }
+            return Array.from(eventsMap.values());
+        }
+
+        function openCalendarModal() {
+            openModalById('modalCalendar');
+        }
+
+        function buildIcsContent(allEvents) {
+            var lines = [
+                "BEGIN:VCALENDAR",
+                "VERSION:2.0",
+                "PRODID:-//Gestao Completa App//Agenda Financeira//PT-BR",
+                "CALSCALE:GREGORIAN",
+                "METHOD:PUBLISH"
+            ];
+            allEvents.forEach(b => {
+                var d = b.displayData.replace(/-/g, '');
+                var prefix = b.natureza === 'receber' ? 'Receber' : 'Pagar';
+                var extra = b.pagador ? ` (${b.pagador})` : (b.parcela ? ` (${b.parcela})` : '');
+                lines.push("BEGIN:VEVENT");
+                lines.push(`UID:${b.id}-${d}@gestaocompleta.app`);
+                lines.push(`DTSTART;VALUE=DATE:${d}`);
+                lines.push(`DTEND;VALUE=DATE:${d}`);
+                lines.push(`SUMMARY:${prefix}: ${b.nome}${extra} - ${formatCurrency(b.valor)}`);
+                lines.push(`DESCRIPTION:Lançamento sincronizado pelo Gestão Completa App.`);
+                lines.push("END:VEVENT");
+            });
+            lines.push("END:VCALENDAR");
+            return lines.join("\r\n");
+        }
+
+        function downloadAllIcsCalendar() {
+            var allEvents = collectAllCalendarEvents();
+            if (allEvents.length === 0) {
+                closeModalById('modalCalendar');
+                appAlert("Nenhum lançamento pendente encontrado para sincronizar.", "Agenda Vazia");
+                return;
+            }
+            var ics = buildIcsContent(allEvents);
+            var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Gestao_Completa_Todos_Lancamentos.ics";
+            link.click();
+            closeModalById('modalCalendar');
+            showToast(`${allEvents.length} lançamento(s) exportado(s) para sua agenda!`);
+        }
+
+        function syncAllToGoogleCalendar() {
+            var allEvents = collectAllCalendarEvents();
+            if (allEvents.length === 0) {
+                closeModalById('modalCalendar');
+                appAlert("Nenhum lançamento pendente encontrado para sincronizar.", "Agenda Vazia");
+                return;
+            }
+            var ics = buildIcsContent(allEvents);
+            var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Google_Agenda_Todos_Lancamentos.ics";
+            link.click();
+            window.open("https://calendar.google.com/calendar/u/0/r/settings/export", "_blank");
+            closeModalById('modalCalendar');
+            showToast("Arquivo baixado! Selecione-o na tela de importação do Google Agenda.");
+        }
+
+        function openAiModal() {
+            document.getElementById('geminiCopyHint').style.display = 'none';
+            var bills = getBillsForViewMonth();
+            var linhas = bills.map(b => `- [${b.natureza === 'receber' ? 'RECEBER' : 'PAGAR'}] ${b.nome}: ${formatCurrency(b.valor)} (Dia ${b.displayData.split('-')[2]}) - ${b.isPaidView ? 'Concluído' : 'Pendente'}`);
+            var semData = globalData.bills.filter(b => b.sem_data && !b.pago).map(b => `- [ATRASADA SEM DATA] ${b.nome}: ${formatCurrency(b.valor)}`);
+            var prompt = "Analise meu planejamento financeiro de " + monthNames[viewMonth] + "/" + viewYear + " e sugira prioridades de pagamento e economia:\n\nLançamentos do mês:\n" + (linhas.join("\n") || "Nenhum") + "\n\nContas atrasadas sem data:\n" + (semData.join("\n") || "Nenhuma");
+            document.getElementById('aiPromptBox').value = prompt;
+            openModalById('modalAi');
+        }
+
+        function copyAiPrompt() {
+            var box = document.getElementById('aiPromptBox');
+            box.select();
+            navigator.clipboard.writeText(box.value);
+            showToast("Resumo financeiro copiado!");
+        }
+
+        function openInGemini() {
+            var box = document.getElementById('aiPromptBox');
+            box.select();
+            navigator.clipboard.writeText(box.value);
+            document.getElementById('geminiCopyHint').style.display = 'block';
+            showToast("Texto copiado! Cole no Gemini.");
+            window.open("https://gemini.google.com/app", "_blank", "noopener,noreferrer");
+        }
+
+        function openInChatGpt() {
+            var q = encodeURIComponent(document.getElementById('aiPromptBox').value);
+            window.open(`https://chatgpt.com/?q=${q}`, "_blank", "noopener,noreferrer");
+        }
+
+        function openModal() {
+            if (currentMode === 'financeiro') {
+                document.getElementById('modalFinTitle').innerText = "Novo Lançamento";
+                document.getElementById('editBillId').value = "";
+                document.getElementById('editBillGrupo').value = "";
+                document.getElementById('editBillTipoOrig').value = "";
+                document.getElementById('natureSwitch').style.display = "grid";
+                setNature('pagar');
+                document.getElementById('billName').value = "";
+                document.getElementById('billPagador').value = "";
+                document.getElementById('billValue').value = "";
+                document.getElementById('chkSemData').checked = false;
+                toggleSemDataField();
+                document.getElementById('billDate').value = new Date(viewYear, viewMonth, currentDate.getDate()).toISOString().split('T')[0];
+                document.getElementById('divBillType').style.display = "block";
+                document.getElementById('billType').value = "Unica";
+                document.getElementById('installmentDiv').style.display = "none";
+                document.getElementById('divEditParcelScope').style.display = "none";
+                openModalById('modalFinanceiro');
+            } else {
+                document.getElementById('modalVehTitle').innerText = "Registro do Veículo";
+                document.getElementById('editVehId').value = "";
+                document.getElementById('vehType').value = "Abastecimento";
+                document.getElementById('chkGasolina').checked = true;
+                document.getElementById('chkEtanol').checked = false;
+                document.getElementById('vehServiceName').value = "";
+                document.getElementById('vehKm').value = "";
+                document.getElementById('vehValue').value = "";
+                document.getElementById('vehLitros').value = "";
+                document.getElementById('vehDetails').value = "";
+                toggleVehFields();
+                document.getElementById('vehDate').value = currentDate.toISOString().split('T')[0];
+                openModalById('modalVeiculo');
+            }
+        }
+
+        function openEditBill(id) {
+            var bill = globalData.bills.find(b => b.id === id);
+            if (!bill) return;
+            document.getElementById('modalFinTitle').innerText = "Editar Lançamento";
+            document.getElementById('editBillId').value = bill.id;
+            document.getElementById('editBillGrupo').value = bill.grupo_parcela || "";
+            document.getElementById('editBillTipoOrig').value = bill.tipo;
+            setNature(bill.natureza || 'pagar');
+            document.getElementById('billName').value = bill.nome;
+            document.getElementById('billPagador').value = bill.pagador || "";
+            document.getElementById('billValue').value = bill.valor;
+            document.getElementById('chkSemData').checked = !!bill.sem_data;
+            toggleSemDataField();
+            document.getElementById('billDate').value = bill.data || "";
+            document.getElementById('divBillType').style.display = "none";
+            document.getElementById('installmentDiv').style.display = "none";
+            document.getElementById('divEditParcelScope').style.display = bill.tipo === 'Parcelada' ? 'block' : 'none';
+            document.getElementById('editParcelScope').value = 'one';
+            openModalById('modalFinanceiro');
+        }
+
+        function openModalById(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModalById(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModal() { closeModalById('modalFinanceiro'); closeModalById('modalVeiculo'); }
+
+        function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+        function setMode(mode) {
+            if (currentMode === mode) return;
+            var viewport = document.getElementById('boardViewport');
+            viewport.classList.remove('module-flip-out', 'module-flip-in');
+            void viewport.offsetWidth;
+            viewport.classList.add('module-flip-out');
+
+            setTimeout(() => {
+                currentMode = mode;
+                if (mode === 'veiculo') {
+                    document.body.classList.add('vehicle-mode');
+                    document.getElementById('btnModFinanceiro').classList.remove('active');
+                    document.getElementById('btnModVeiculo').classList.add('active');
+                } else {
+                    document.body.classList.remove('vehicle-mode');
+                    document.getElementById('btnModVeiculo').classList.remove('active');
+                    document.getElementById('btnModFinanceiro').classList.add('active');
+                }
+                updateOverdueCounters();
+                updateDisplay();
+                renderCurrentView();
+
+                viewport.classList.remove('module-flip-out');
+                void viewport.offsetWidth;
+                viewport.classList.add('module-flip-in');
+            }, 170);
+        }
+
+        function animateBookPage(direction) {
+            var sheet = document.getElementById('pageSheetArea');
+            sheet.classList.remove('book-page-next', 'book-page-prev');
+            void sheet.offsetWidth;
+            sheet.classList.add(direction > 0 ? 'book-page-next' : 'book-page-prev');
+        }
+
+        function changePeriod(step) {
+            viewMonth += step;
+            if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+            if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+            animateBookPage(step);
+            updateDisplay();
+            renderCurrentView();
+        }
+
+        function goToCurrentPeriod() {
+            var dir = (viewYear > currentDate.getFullYear() || (viewYear === currentDate.getFullYear() && viewMonth > currentDate.getMonth())) ? -1 : 1;
+            viewMonth = currentDate.getMonth();
+            viewYear = currentDate.getFullYear();
+            animateBookPage(dir);
+            updateDisplay();
+            renderCurrentView();
+        }
+
+        function updateDisplay() {
+            var prevM = viewMonth - 1, prevY = viewYear; if (prevM < 0) { prevM = 11; prevY--; }
+            var nextM = viewMonth + 1, nextY = viewYear; if (nextM > 11) { nextM = 0; nextY++; }
+            document.getElementById('prevPeriodDisplay').innerText = "‹ " + monthNames[prevM] + " " + prevY;
+            document.getElementById('periodDisplay').innerText = monthNames[viewMonth] + " " + viewYear;
+            document.getElementById('nextPeriodDisplay').innerText = monthNames[nextM] + " " + nextY + " ›";
+            var isToday = (viewMonth === currentDate.getMonth() && viewYear === currentDate.getFullYear());
+            document.getElementById('btnToday').style.display = isToday ? 'none' : 'inline-block';
+        }
+
+        function renderCurrentView() {
+            if (currentMode === 'financeiro') renderBills();
+            else renderVehicles();
+        }
+
+        function formatCurrency(val) { return Number(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function getViewMonthKey() { return viewYear + "-" + (viewMonth + 1).toString().padStart(2, '0'); }
+
+        async function togglePaid(id) {
+            showLoader();
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item) { hideLoader(); return; }
+            if (item.tipo === 'Mensal') {
+                var mesAnoKey = getViewMonthKey();
+                var existing = globalData.pagamentosMensais.find(p => p.conta_id === id && p.mes_ano === mesAnoKey);
+                if (existing) await _supabase.from('pagamentos_mensais').update({ pago: !existing.pago }).eq('id', existing.id);
+                else await _supabase.from('pagamentos_mensais').insert([{ user_id: currentUser.id, conta_id: id, mes_ano: mesAnoKey, pago: true }]);
+            } else {
+                await _supabase.from('contas').update({ pago: !item.pago }).eq('id', id);
+            }
+            await loadUserData();
+        }
+
+        function renderVehicles() {
+            var container = document.getElementById('mainContainer');
+            container.innerHTML = '';
+            var currentVeh = globalData.veiculos.filter(v => {
+                if(!v.data) return false;
+                var parts = v.data.split('-');
+                var d = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+                return d.getMonth() === viewMonth && d.getFullYear() === viewYear;
+            });
+            var totalGasto = 0, abastecimentos = 0, manutencoes = 0;
+            currentVeh.forEach(v => {
+                var val = parseFloat(v.valor) || 0;
+                totalGasto += val;
+                if(v.tipo_registro === 'Abastecimento') abastecimentos += val; else manutencoes += val;
+            });
+            document.getElementById('lblSummary1').innerText = "TOTAL VEÍCULO";
+            document.getElementById('valSummary1').innerText = formatCurrency(totalGasto);
+            document.getElementById('lblSummary2').innerText = "ABASTECIMENTO";
+            document.getElementById('valSummary2').innerText = formatCurrency(abastecimentos);
+            document.getElementById('lblSummary3').innerText = "MANUTENÇÃO";
+            document.getElementById('valSummary3').innerText = formatCurrency(manutencoes);
+
+            if (currentVeh.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top: 30px;">Nenhum registro de veículo neste mês.</p>';
+                return;
+            }
+            currentVeh.forEach((v, idx) => {
+                var dParts = v.data.split('-');
+                var dateFormatted = dParts[2] + "/" + dParts[1] + "/" + dParts[0];
+                var delay = Math.min(idx * 0.04, 0.36);
+                container.innerHTML += `
+                    <div class="card" style="animation-delay:${delay}s; border-left-color: ${v.tipo_registro === 'Abastecimento' ? 'var(--green)' : 'var(--yellow)'};" onclick="openEditVehicle('${v.id}')">
+                        <button type="button" class="btn-trash-classic" title="Excluir registro" onclick="event.stopPropagation(); deleteVehicle('${v.id}')">
+                            ${TRASH_ICON_SVG}
+                        </button>
+                        <div class="info">
+                            <span class="tag">${v.tipo_registro.toUpperCase()}</span>
+                            <strong>${v.nome}</strong>
+                            <span>KM: ${v.km ? v.km + ' km' : 'N/I'} | Data: ${dateFormatted}</span>
+                        </div>
+                        <div class="value">${v.valor > 0 ? formatCurrency(v.valor) : 'A prever'}</div>
+                    </div>`;
+            });
+        }
+
+        async function saveVehicle() {
+            var editId = document.getElementById('editVehId').value;
+            var tipo = document.getElementById('vehType').value;
+            var nome = tipo === 'Abastecimento'
+                ? [document.getElementById('chkGasolina').checked ? "GASOLINA" : "", document.getElementById('chkEtanol').checked ? "ETANOL" : ""].filter(Boolean).join(" + ")
+                : document.getElementById('vehServiceName').value.toUpperCase();
+            var detalhes = tipo === 'Abastecimento'
+                ? (document.getElementById('vehLitros').value ? document.getElementById('vehLitros').value + ' L' : '')
+                : document.getElementById('vehDetails').value;
+            var km = document.getElementById('vehKm').value || null;
+            var valor = document.getElementById('vehValue').value || 0;
+            var dataStr = document.getElementById('vehDate').value;
+            if (!nome || !dataStr) { appAlert("Preencha os campos obrigatórios do veículo.", "Campos Incompletos"); return; }
+            closeModal(); showLoader();
+            if (editId) await _supabase.from('veiculos').update({ tipo_registro: tipo, nome: nome, km: km, valor: valor, data: dataStr, detalhes: detalhes }).eq('id', editId);
+            else await _supabase.from('veiculos').insert([{ user_id: currentUser.id, tipo_registro: tipo, nome: nome, km: km, valor: valor, data: dataStr, detalhes: detalhes }]);
+            await loadUserData();
+            showToast("Registro do veículo salvo!");
+        }
+
+        function openEditVehicle(id) {
+            var v = globalData.veiculos.find(item => item.id === id);
+            if (!v) return;
+            document.getElementById('modalVehTitle').innerText = "Editar Registro do Veículo";
+            document.getElementById('editVehId').value = v.id;
+            document.getElementById('vehType').value = v.tipo_registro;
+            toggleVehFields();
+            if (v.tipo_registro === 'Abastecimento') {
+                document.getElementById('chkGasolina').checked = v.nome.includes('GASOLINA');
+                document.getElementById('chkEtanol').checked = v.nome.includes('ETANOL');
+                document.getElementById('vehLitros').value = v.detalhes ? v.detalhes.replace(' L', '') : '';
+            } else {
+                document.getElementById('vehServiceName').value = v.nome;
+                document.getElementById('vehDetails').value = v.detalhes || '';
+            }
+            document.getElementById('vehKm').value = v.km || '';
+            document.getElementById('vehValue').value = v.valor || '';
+            document.getElementById('vehDate').value = v.data;
+            openModalById('modalVeiculo');
+        }
+
+        async function deleteVehicle(id) {
+            var ok = await appConfirm("Deseja realmente excluir este registro do veículo?", "Excluir Registro", "Excluir", true);
+            if (ok) {
+                showLoader();
+                await _supabase.from('veiculos').delete().eq('id', id);
+                await loadUserData();
+                showToast("Registro excluído.");
+            }
+        }
+
+        function toggleVehFields() {
+            var isAbast = document.getElementById('vehType').value === 'Abastecimento';
+            document.getElementById('divAbastecimentoFields').style.display = isAbast ? 'block' : 'none';
+            document.getElementById('divManutencaoName').style.display = isAbast ? 'none' : 'block';
+            document.getElementById('divLitros').style.display = isAbast ? 'block' : 'none';
+            document.getElementById('divManutencaoDetalhes').style.display = isAbast ? 'none' : 'block';
+        }
+
+        async function startAsaasSubscription() {
+            var name = document.getElementById('subName').value.trim();
+            var cpfCnpj = document.getElementById('subCpf').value.replace(/\D/g, '');
+            if (!name || cpfCnpj.length < 11) { appAlert("Preencha nome completo e CPF/CNPJ válidos.", "Dados Inválidos"); return; }
+            showLoader();
+            const { data, error } = await _supabase.functions.invoke('asaas-checkout', {
+                body: { action: 'subscribe', name: name, cpfCnpj: cpfCnpj, planMonths: selectedPlanMonths }
+            });
+            hideLoader();
+            if (error || data?.error) appAlert("Erro: " + (data?.error || error.message), "Erro no Checkout");
+            else if (data?.invoiceUrl) {
+                window.open(data.invoiceUrl, '_blank');
+                appAlert("Conclua o pagamento na aba aberta e depois clique em 'Já paguei, liberar meu acesso'.", "Fatura Gerada");
+            }
+        }
+
+        function openMySubModal() {
+            var txt = document.getElementById('mySubStatusText');
+            var cancelArea = document.getElementById('cancelSubArea');
+            if (isMasterAdmin() || currentSub?.status === 'courtesy' || currentSub?.is_admin) {
+                txt.innerHTML = "Status: <strong>Acesso Cortesia / Administrador</strong>";
+                cancelArea.style.display = 'none';
+            } else if (currentSub?.status === 'canceled') {
+                txt.innerHTML = `Status: <strong>Cancelamento Agendado</strong><br>Acesso ativo até <strong>${formatDateBR(currentSub.current_period_end)}</strong> (+3 dias de tolerância).`;
+                cancelArea.style.display = 'none';
+            } else {
+                txt.innerHTML = `Status: <strong>Ativa (${currentSub?.plan_months || 1}m)</strong><br>Vencimento: <strong>${formatDateBR(currentSub?.current_period_end)}</strong>`;
+                cancelArea.style.display = (currentSub?.plan_months === 9) ? 'none' : 'block';
+            }
+            openModalById('modalMySub');
+        }
+
+        async function cancelMySubscription() {
+            var ok = await appConfirm("Cancelar renovação automática? Seu acesso continua ativo até o fim do período já pago.", "Cancelar Assinatura", "Cancelar Renovação", true);
+            if (!ok) return;
+            showLoader();
+            await _supabase.functions.invoke('asaas-checkout', { body: { action: 'cancel' } });
+            hideLoader();
+            closeModalById('modalMySub');
+            await checkSubscriptionStatus();
+        }
+
+        async function openAdminModal() {
+            if (!isMasterAdmin() && !currentSub?.is_admin) return;
+            openModalById('modalAdmin');
+            const { data } = await _supabase.from('assinaturas').select('*').order('created_at', { ascending: false });
+            var list = document.getElementById('adminUsersList');
+            list.innerHTML = '';
+            (data || []).forEach(u => {
+                var btn = (u.is_admin || u.email === ADMIN_EMAIL) ? 'ADMIN' : (
+                    u.status === 'courtesy'
+                    ? `<button class="btn-link" style="color:#EF4444;" onclick="revokeCourtesy('${u.email}')">Remover</button>`
+                    : `<button class="btn-link" onclick="grantCourtesy('${u.email}')">Dar Cortesia</button>`
+                );
+                list.innerHTML += `<div class="admin-list-item"><div><strong>${u.email}</strong> (${u.status})</div><div>${btn}</div></div>`;
+            });
+        }
+
+        async function grantCourtesy(emailParam) {
+            var email = (emailParam || document.getElementById('adminTargetEmail').value).trim().toLowerCase();
+            if (!email) return;
+            await _supabase.from('assinaturas').upsert({ email: email, status: 'courtesy', suspended_at: null, purge_at: null }, { onConflict: 'email' });
+            document.getElementById('adminTargetEmail').value = '';
+            openAdminModal();
+            showToast("Cortesia liberada!");
+        }
+
+        async function revokeCourtesy(email) {
+            await _supabase.from('assinaturas').update({ status: 'inactive' }).eq('email', email);
+            openAdminModal();
+            showToast("Cortesia removida.");
+        }
+
+        async function loginProvider(provider) {
+            showLoader();
+            await _supabase.auth.signInWithOAuth({ provider: provider, options: { redirectTo: window.location.origin } });
+        }
+
+        async function loginEmail() {
+            var email = document.getElementById('authEmail').value.trim();
+            var password = document.getElementById('authPassword').value;
+            if (document.getElementById('rememberEmail').checked) localStorage.setItem('saved_login_email', email);
+            showLoader();
+            const { error } = await _supabase.auth.signInWithPassword({ email: email, password: password });
+            if (error && error.message.includes("Invalid login credentials")) {
+                await _supabase.auth.signUp({ email: email, password: password });
+            } else if (error) appAlert(error.message, "Erro de Acesso");
+            hideLoader();
+        }
+
+        async function recoverPassword() {
+            var email = document.getElementById('authEmail').value.trim();
+            if (!email) { appAlert("Digite seu e-mail no campo acima primeiro.", "Recuperar Senha"); return; }
+            await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+            appAlert("Link de recuperação enviado para " + email, "E-mail Enviado");
+        }
+
+        async function updateRecoveredPassword() {
+            var pwd = document.getElementById('newPasswordInput').value;
+            if (pwd.length < 6) return;
+            await _supabase.auth.updateUser({ password: pwd });
+            closeModalById('modalNewPassword');
+            await checkSubscriptionStatus();
+        }
+
+        async function logout() { await _supabase.auth.signOut(); }
+
+        function exportPDF() {
+            var doc = new window.jspdf.jsPDF();
+            var currentBills = getBillsForViewMonth();
+            if (currentBills.length === 0) {
+                appAlert("Nenhum lançamento encontrado neste mês para gerar PDF.", "Relatório Vazio");
+                return;
+            }
+            doc.text("Relatório Financeiro - " + monthNames[viewMonth] + " " + viewYear, 14, 20);
+            var tableData = currentBills.map(b => [
+                (b.natureza === 'receber' ? '[RECEBER] ' : '[PAGAR] ') + b.nome,
+                formatDateBR(b.displayData),
+                formatCurrency(b.valor),
+                b.isPaidView ? 'CONCLUÍDO' : 'PENDENTE'
+            ]);
+            doc.autoTable({ startY: 28, head: [['Descrição', 'Data', 'Valor', 'Status']], body: tableData });
+            doc.save(`Financeiro_${monthNames[viewMonth]}_${viewYear}.pdf`);
+        }
+    </script>
+</body>
+</html>
