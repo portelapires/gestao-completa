@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Gestão Completa">
@@ -152,7 +152,7 @@
 
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { max-width: 100%; overflow-x: hidden; }
-        body { margin: 0; background-color: var(--bg); color: var(--text-main); transition: background-color 0.35s ease, color 0.35s ease; -webkit-font-smoothing: antialiased; }
+        body { margin: 0; background-color: var(--bg); color: var(--text-main); transition: background-color 0.35s ease, color 0.35s ease; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         body.app-active { height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
         
         .center-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
@@ -212,56 +212,178 @@
             overflow: hidden;
         }
         
-        /* HEADER EXECUTIVO AJUSTADO PARA MOBILE */
+        /* HEADER EXECUTIVO LIMPO E RESPONSIVO (SEM DESFOQUE NO TOPO) */
         .header { 
             background-color: var(--header-bg); 
             color: var(--header-text); 
-            padding: max(env(safe-area-inset-top), 11px) 10px 11px 10px;
+            padding: calc(env(safe-area-inset-top, 0px) + 11px) 14px 11px 14px;
             flex-shrink: 0;
             z-index: 20; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            box-shadow: 0 3px 14px rgba(0,0,0,0.16);
             border-bottom: 1px solid rgba(255,255,255,0.08);
             transition: background-color 0.35s ease, color 0.35s ease;
             width: 100%;
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
         
-        .header-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; max-width: 820px; margin: 0 auto; gap: 4px; width: 100%; }
-        .header-left { display: flex; justify-content: flex-start; align-items: center; gap: 5px; min-width: 0; }
+        .header-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; max-width: 820px; margin: 0 auto; gap: 8px; width: 100%; }
+        .header-left { display: flex; justify-content: flex-start; align-items: center; gap: 6px; min-width: 0; }
         .header-center { display: flex; justify-content: center; align-items: center; }
-        .header-right { display: flex; justify-content: flex-end; align-items: center; gap: 5px; min-width: 0; }
+        .header-right { display: flex; justify-content: flex-end; align-items: center; gap: 6px; min-width: 0; }
 
-        .btn-hamburger { background: rgba(255,255,255,0.08); color: var(--header-text); border: 1px solid rgba(255,255,255,0.16); border-radius: 9px; width: 34px; height: 32px; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s ease, background-color 0.2s ease; }
-        .btn-hamburger:active { transform: scale(0.9); }
+        .btn-hamburger { background: rgba(255,255,255,0.09); color: var(--header-text); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; width: 36px; height: 34px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.15s ease, background-color 0.2s ease; }
+        .btn-hamburger:active { transform: scale(0.92); }
         .module-switcher { display: inline-flex; background: rgba(255, 255, 255, 0.08); border-radius: 11px; padding: 3px; border: 1px solid rgba(255, 255, 255, 0.14); }
-        .module-btn { background: transparent; color: rgba(255, 255, 255, 0.72); border: none; padding: 6px 10px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; text-transform: uppercase; transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease; }
+        .module-btn { background: transparent; color: rgba(255, 255, 255, 0.72); border: none; padding: 6px 13px; border-radius: 8px; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease; }
         .module-btn:active { transform: scale(0.95); }
         .module-btn.active { background: var(--btn-bg); color: var(--btn-color); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
 
-        .btn-head { background: rgba(255,255,255,0.06); color: var(--header-text); border: 1px solid rgba(255,255,255,0.22); padding: 4px 8px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.7rem; height: 32px; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
-        .btn-head:active { transform: scale(0.92); }
-        .btn-admin { background: #10B981; color: #FFF; border: none; padding: 4px 7px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.68rem; height: 32px; display: none; align-items: center; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
-        .btn-admin:active { transform: scale(0.92); }
-        .btn-streak { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; border: none; padding: 4px 7px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.68rem; height: 32px; display: none; align-items: center; gap: 3px; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
+        .btn-streak { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; border: none; padding: 4px 8px; border-radius: 9px; font-weight: 800; cursor: pointer; font-size: 0.7rem; height: 34px; display: none; align-items: center; gap: 3px; white-space: nowrap; flex-shrink: 0; transition: transform 0.15s ease; }
         .btn-streak:active { transform: scale(0.92); }
-        .btn-theme { position: relative; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; font-size: 0.92rem; cursor: pointer; padding: 0; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.25s ease; }
-        .btn-theme:active { transform: scale(0.88); }
+        .btn-bell-header { position: relative; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; font-size: 0.98rem; cursor: pointer; padding: 0; height: 34px; width: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s ease; }
+        .btn-bell-header:active { transform: scale(0.9); }
         .bell-badge { position: absolute; top: -4px; right: -4px; background: #EF4444; color: #FFF; font-size: 0.6rem; font-weight: 900; min-width: 15px; height: 15px; border-radius: 999px; display: none; align-items: center; justify-content: center; padding: 0 3px; border: 1.5px solid var(--header-bg); }
 
-        /* MENU LATERAL */
-        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 150; backdrop-filter: blur(3px); transition: opacity 0.25s ease; }
+        /* MENU LATERAL RESPONSIVO + CABEÇALHO DO PERFIL */
+        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 150; transition: opacity 0.25s ease; }
         .side-drawer {
-            position: fixed; top: 0; left: -295px; width: 280px; height: 100%;
-            background: var(--card-bg); color: var(--text-main); z-index: 160;
-            box-shadow: 4px 0 28px rgba(0,0,0,0.28); padding: max(env(safe-area-inset-top), 22px) 16px max(env(safe-area-inset-bottom), 20px) 16px;
+            position: fixed;
+            top: 0;
+            left: calc(-1 * min(85vw, 315px) - 20px);
+            width: min(85vw, 315px);
+            height: 100dvh;
+            background: var(--card-bg);
+            color: var(--text-main);
+            z-index: 160;
+            box-shadow: 4px 0 28px rgba(0,0,0,0.28);
+            padding: calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 20px) 16px;
             transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex; flex-direction: column; justify-content: space-between;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             overflow-y: auto;
         }
         .side-drawer.open { left: 0; }
-        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 14px; }
+
+        .drawer-profile-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-profile-left {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .drawer-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .drawer-user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            min-width: 0;
+        }
+
+        .drawer-user-name {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 145px;
+        }
+
+        /* Botão-Tag de Perfil/Plano abaixo do nome */
+        .plan-tag-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.15s ease, filter 0.2s ease;
+        }
+        .plan-tag-btn:active { transform: scale(0.94); }
+
+        .plan-tag-btn.tag-admin {
+            background: linear-gradient(135deg, #D4AF37, #B48A1E);
+            color: #0A1128;
+            box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+        }
+        .plan-tag-btn.tag-vip {
+            background: rgba(14, 165, 233, 0.14);
+            color: #0284C7;
+            border-color: rgba(14, 165, 233, 0.35);
+        }
+        .plan-tag-btn.tag-completo {
+            background: rgba(16, 185, 129, 0.14);
+            color: #10B981;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+        .plan-tag-btn.tag-essencial {
+            background: var(--bg);
+            color: var(--text-sub);
+            border-color: var(--border-color);
+        }
+
+        .drawer-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .drawer-icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .drawer-icon-btn:active { transform: scale(0.9); }
+
         .drawer-item { width: 100%; text-align: left; background: var(--bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 11px 13px; border-radius: 11px; font-weight: 700; font-size: 0.83rem; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; transition: transform 0.15s ease, border-color 0.2s ease; }
         .drawer-item:hover { border-color: var(--accent-color); }
         .drawer-item:active { transform: scale(0.97); }
+        .drawer-item.admin-shortcut { background: rgba(212, 175, 55, 0.1); border-color: rgba(212, 175, 55, 0.45); }
         .pro-pill { background: linear-gradient(135deg, #D4AF37, #B48A1E); color: #0A1128; font-size: 0.62rem; font-weight: 900; padding: 2px 6px; border-radius: 5px; letter-spacing: 0.3px; flex-shrink: 0; }
         .drawer-item-logout {
             width: 100%;
@@ -631,14 +753,33 @@
     <div id="loader">Sincronizando...</div>
     <div id="appToast" class="app-toast"></div>
 
-    <!-- MENU LATERAL ESQUERDO (SANDUÍCHE) -->
+    <!-- MENU LATERAL ESQUERDO (PERFIL, TAGS, TEMA E FERRAMENTAS) -->
     <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
     <aside class="side-drawer" id="sideDrawer">
         <div>
-            <div class="drawer-header">
-                <strong style="font-size:1rem;">🛠️ Ferramentas</strong>
-                <button class="btn-cancel" style="padding:4px 10px;" onclick="closeDrawer()">✕</button>
+            <!-- TOPO DO MENU: AVATAR + PRIMEIRO NOME + TAG PLANO + TEMA À DIREITA -->
+            <div class="drawer-profile-header">
+                <div class="drawer-profile-left">
+                    <div class="drawer-avatar" id="drawerUserAvatar">GC</div>
+                    <div class="drawer-user-info">
+                        <span class="drawer-user-name" id="drawerUserFirstName">Olá!</span>
+                        <button type="button" class="plan-tag-btn tag-essencial" id="drawerPlanTag" onclick="closeDrawer(); openMySubModal();">
+                            ⚡ Gestão Essencial
+                        </button>
+                    </div>
+                </div>
+
+                <div class="drawer-top-actions">
+                    <button type="button" class="drawer-icon-btn" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema Claro/Escuro">💡</button>
+                    <button type="button" class="drawer-icon-btn" onclick="closeDrawer()" title="Fechar Menu">✕</button>
+                </div>
             </div>
+
+            <!-- ATALHO EXCLUSIVO ADMIN (EXIBIDO APENAS PARA SUA CONTA) -->
+            <button class="drawer-item admin-shortcut" id="btnDrawerAdmin" style="display: none;" onclick="closeDrawer(); openAdminModal();">
+                <span>👑 Painel Admin (Cortesias & Usuários)</span>
+                <span class="pro-pill">ADMIN</span>
+            </button>
 
             <button class="drawer-item" onclick="closeDrawer(); openAlertsModal();">
                 <span>🔔 Alertas & Notificações</span>
@@ -683,8 +824,8 @@
             <button class="drawer-item-logout" onclick="closeDrawer(); logout();">
                 <span>🚪 Sair da Conta</span>
             </button>
-            <div style="font-size:0.75rem; color:var(--text-sub); text-align:center;">
-                Gestão Completa App
+            <div style="font-size:0.72rem; color:var(--text-sub); text-align:center;">
+                Gestão Completa App • v1.0.48
             </div>
         </div>
     </aside>
@@ -775,13 +916,12 @@
         </div>
     </div>
 
-    <!-- 3. APP PRINCIPAL (CABEÇALHO FIXO + LISTA ROLÁVEL) -->
+    <!-- 3. APP PRINCIPAL (CABEÇALHO LIMPO + LISTA ROLÁVEL) -->
     <div id="appContent">
         <div class="header">
             <div class="header-grid">
                 <div class="header-left">
-                    <button class="btn-hamburger" onclick="openDrawer()" title="Menu de Ferramentas">☰</button>
-                    <button class="btn-admin" id="btnAdminPanel" onclick="openAdminModal()">👑 Admin</button>
+                    <button class="btn-hamburger" onclick="openDrawer()" title="Menu">☰</button>
                     <button class="btn-streak" id="btnStreakBadge" onclick="openStreakModal()"></button>
                 </div>
 
@@ -793,12 +933,10 @@
                 </div>
 
                 <div class="header-right">
-                    <button class="btn-theme" id="btnAlertsHeader" onclick="openAlertsModal()" title="Alertas de Vencimento">
+                    <button class="btn-bell-header" id="btnAlertsHeader" onclick="openAlertsModal()" title="Alertas de Vencimento">
                         🔔
                         <span class="bell-badge" id="headerBellBadge">0</span>
                     </button>
-                    <button class="btn-head" id="btnHeaderPlan" onclick="openMySubModal()">Plano</button>
-                    <button class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema">💡</button>
                 </div>
             </div>
         </div>
@@ -1084,7 +1222,7 @@
                 <p>Oferecemos garantia incondicional de <strong>7 dias no plano Mensal</strong> e <strong>14 dias no plano Anual</strong>. Se você assinar e decidir não continuar dentro desse prazo, basta cancelar pelo app ou solicitar o estorno para receber <strong>100% do valor de volta</strong>, sem burocracia.</p>
 
                 <h4>5. Cancelamento Livre</h4>
-                <p>Você pode cancelar a renovação automática a qualquer momento com 1 clique em <em>"Plano"</em>. Seu acesso permanece ativo até o fim do período já pago e seus dados antigos continuam salvos caso retorne ao plano Essencial.</p>
+                <p>Você pode cancelar a renovação automática a qualquer momento com 1 clique no selo do seu plano no menu lateral. Seu acesso permanece ativo até o fim do período já pago e seus dados antigos continuam salvos caso retorne ao plano Essencial.</p>
             </div>
             <div class="modal-buttons">
                 <button type="button" class="btn-save" onclick="closeModalById('modalLegal')">Entendi</button>
@@ -1328,6 +1466,8 @@
             else document.body.classList.remove('dark-mode');
             var metaTheme = document.getElementById('metaThemeColor');
             if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0F172A' : '#0A1128');
+            var themeBtn = document.getElementById('btnThemeToggle');
+            if (themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
         }
 
         function initAutoTheme() {
@@ -1432,6 +1572,7 @@
         }
 
         function openDrawer() {
+            updateDrawerProfileHeader();
             document.getElementById('lblDrawerShortcut').innerText = isMobileDevice()
                 ? "📲 Criar Atalho na Tela Inicial"
                 : "⭐ Salvar nos Favoritos";
@@ -1442,6 +1583,52 @@
         function closeDrawer() {
             document.getElementById('sideDrawer').classList.remove('open');
             setTimeout(() => document.getElementById('drawerOverlay').style.display = 'none', 260);
+        }
+
+        function updateDrawerProfileHeader() {
+            var adminFlag = isMasterAdmin() || (currentSub && currentSub.is_admin);
+            var isVip = currentSub && currentSub.status === 'courtesy';
+
+            var rawName = (currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentSub?.customer_name || '').trim();
+            if (!rawName && currentUser?.email) {
+                rawName = currentUser.email.split('@')[0].replace(/[._-]/g, ' ');
+            }
+            var firstName = rawName ? rawName.split(/\s+/)[0] : 'Usuário';
+            firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+
+            var parts = rawName.split(/\s+/).filter(Boolean);
+            var initials = parts.length >= 2
+                ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                : firstName.slice(0, 2).toUpperCase();
+
+            document.getElementById('drawerUserFirstName').innerText = 'Olá, ' + firstName;
+            document.getElementById('drawerUserAvatar').innerText = initials || 'GC';
+
+            var tagBtn = document.getElementById('drawerPlanTag');
+            tagBtn.className = 'plan-tag-btn';
+
+            if (adminFlag) {
+                tagBtn.classList.add('tag-admin');
+                tagBtn.innerText = '👑 Admin';
+                tagBtn.onclick = function () { closeDrawer(); openAdminModal(); };
+            } else if (isVip) {
+                tagBtn.classList.add('tag-vip');
+                tagBtn.innerText = '💎 Acesso VIP';
+                tagBtn.onclick = function () { closeDrawer(); openMySubModal(); };
+            } else if (hasProAccess) {
+                tagBtn.classList.add('tag-completo');
+                tagBtn.innerText = '⭐ Gestão Completa';
+                tagBtn.onclick = function () { closeDrawer(); openMySubModal(); };
+            } else {
+                tagBtn.classList.add('tag-essencial');
+                tagBtn.innerText = '⚡ Gestão Essencial';
+                tagBtn.onclick = function () { closeDrawer(); showPaywall(); };
+            }
+
+            var drawerAdminBtn = document.getElementById('btnDrawerAdmin');
+            if (drawerAdminBtn) {
+                drawerAdminBtn.style.display = adminFlag ? 'flex' : 'none';
+            }
         }
 
         function openLegalModal() {
@@ -1628,10 +1815,9 @@
             document.getElementById('appContent').style.display = 'flex';
             document.getElementById('bottomBarActions').style.display = 'flex';
 
-            var adminFlag = isMasterAdmin() || (currentSub && currentSub.is_admin);
-            document.getElementById('btnAdminPanel').style.display = adminFlag ? 'flex' : 'none';
-            document.getElementById('btnHeaderPlan').innerText = hasProAccess ? 'Completo' : 'Essencial';
+            updateDrawerProfileHeader();
 
+            var adminFlag = isMasterAdmin() || (currentSub && currentSub.is_admin);
             var streakBtn = document.getElementById('btnStreakBadge');
             if (!adminFlag && hasProAccess && currentSub && currentSub.streak_months > 0) {
                 var info = getStreakBadgeInfo(currentSub.streak_months);
@@ -1664,7 +1850,7 @@
         }
 
         // =========================================================================
-        // CENTRAL DE ALERTAS & NOTIFICAÇÕES DE VENCIMENTO (PASSO 3)
+        // CENTRAL DE ALERTAS & NOTIFICAÇÕES DE VENCIMENTO
         // =========================================================================
         function getNotifLeadDays() {
             var saved = localStorage.getItem('notif_lead_days');
@@ -1833,7 +2019,7 @@
         }
 
         // =========================================================================
-        // LEITOR DE CÓDIGO DE BARRAS / QR CODE PELA CÂMERA (PASSO 3)
+        // LEITOR DE CÓDIGO DE BARRAS / QR CODE PELA CÂMERA
         // =========================================================================
         function identifyBankByCode(code3) {
             var banks = {
@@ -1870,7 +2056,6 @@
 
         function parseFebrabanFactorDate(factor) {
             if (!factor || factor < 1000) return null;
-            // Ciclo FEBRABAN pós-22/02/2025: fator 1000 = 22/02/2025
             var base = new Date(2025, 1, 22, 12, 0, 0);
             base.setDate(base.getDate() + (factor - 1000));
             if (base.getFullYear() >= 2025 && base.getFullYear() <= 2040) {
@@ -1883,7 +2068,6 @@
             var clean = (rawText || '').trim();
             var digits = clean.replace(/\D/g, '');
 
-            // 1. Boleto Bancário (47 dígitos linha digitável ou 44 dígitos código de barras)
             if ((digits.length === 47 || digits.length === 44) && !digits.startsWith('8')) {
                 var factor = 0, valCents = 0, bankCode = digits.slice(0, 3);
                 if (digits.length === 47) {
@@ -1902,7 +2086,6 @@
                 };
             }
 
-            // 2. Boleto de Concessionária / Arrecadação (48 dígitos linha digitável ou 44 dígitos)
             if ((digits.length === 48 || digits.length === 44) && digits.startsWith('8')) {
                 var bar44 = digits;
                 if (digits.length === 48) {
@@ -1928,7 +2111,6 @@
                 };
             }
 
-            // 3. QR Code de Nota Fiscal (NFC-e URL com parâmetro vNF ou valor)
             if (/^https?:\/\//i.test(clean)) {
                 var vnfMatch = clean.match(/[?&](?:vNF|valor|vPag)=([\d.,]+)/i);
                 var amountNf = '';
@@ -3329,21 +3511,25 @@
             var cancelArea = document.getElementById('cancelSubArea');
             var upgradeArea = document.getElementById('upgradeSubArea');
 
-            if (isMasterAdmin() || currentSub?.status === 'courtesy' || currentSub?.is_admin) {
-                txt.innerHTML = "Plano Atual: <strong>Gestão Completa (Cortesia / Admin)</strong>";
+            if (isMasterAdmin() || currentSub?.is_admin) {
+                txt.innerHTML = "Perfil Atual: <strong>👑 Admin (Gestão Completa Vitalício)</strong>";
+                cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'none';
+            } else if (currentSub?.status === 'courtesy') {
+                txt.innerHTML = "Plano Atual: <strong>💎 Acesso VIP (Cortesia — Gestão Completa)</strong>";
                 cancelArea.style.display = 'none';
                 upgradeArea.style.display = 'none';
             } else if (!hasProAccess) {
-                txt.innerHTML = `Plano Atual: <strong>Essencial (Grátis)</strong><br>• Até ${FREE_LIMIT_BILLS} lançamentos financeiros/mês<br>• Até ${FREE_LIMIT_VEHICLES} registros de veículo/mês<br><br>Faça upgrade para liberar recursos ilimitados, Leitor de Boleto e Cobrança Pix.`;
+                txt.innerHTML = `Plano Atual: <strong>⚡ Gestão Essencial (Grátis)</strong><br>• Até ${FREE_LIMIT_BILLS} lançamentos financeiros/mês<br>• Até ${FREE_LIMIT_VEHICLES} registros de veículo/mês<br><br>Faça upgrade para liberar recursos ilimitados, Leitor de Boleto e Cobrança Pix.`;
                 cancelArea.style.display = 'none';
                 upgradeArea.style.display = 'block';
             } else if (currentSub?.status === 'canceled') {
-                txt.innerHTML = `Plano Atual: <strong>Gestão Completa (Cancelamento Agendado)</strong><br>Acesso completo ativo até <strong>${formatDateBR(currentSub.current_period_end)}</strong> (+3 dias de tolerância).`;
+                txt.innerHTML = `Plano Atual: <strong>⭐ Gestão Completa (Cancelamento Agendado)</strong><br>Acesso completo ativo até <strong>${formatDateBR(currentSub.current_period_end)}</strong> (+3 dias de tolerância).`;
                 cancelArea.style.display = 'none';
                 upgradeArea.style.display = 'none';
             } else {
                 var ciclo = currentSub?.plan_months === 12 ? 'Anual (R$ 69,90)' : 'Mensal (R$ 9,90)';
-                txt.innerHTML = `Plano Atual: <strong>Gestão Completa — ${ciclo}</strong><br>Próxima renovação: <strong>${formatDateBR(currentSub?.current_period_end)}</strong><br><small style="color:var(--text-sub);">Novas funcionalidades inclusas sem custo extra durante sua vigência.</small>`;
+                txt.innerHTML = `Plano Atual: <strong>⭐ Gestão Completa — ${ciclo}</strong><br>Próxima renovação: <strong>${formatDateBR(currentSub?.current_period_end)}</strong><br><small style="color:var(--text-sub);">Novas funcionalidades inclusas sem custo extra durante sua vigência.</small>`;
                 cancelArea.style.display = 'block';
                 upgradeArea.style.display = 'none';
             }
@@ -3369,10 +3555,11 @@
             (data || []).forEach(u => {
                 var btn = (u.is_admin || u.email === ADMIN_EMAIL) ? 'ADMIN' : (
                     u.status === 'courtesy'
-                    ? `<button class="btn-link" style="color:#EF4444;" onclick="revokeCourtesy('${u.email}')">Remover</button>`
-                    : `<button class="btn-link" onclick="grantCourtesy('${u.email}')">Dar Cortesia</button>`
+                    ? `<button class="btn-link" style="color:#EF4444;" onclick="revokeCourtesy('${u.email}')">Remover VIP</button>`
+                    : `<button class="btn-link" onclick="grantCourtesy('${u.email}')">Dar Acesso VIP</button>`
                 );
-                list.innerHTML += `<div class="admin-list-item"><div><strong>${u.email}</strong> (${u.status})</div><div>${btn}</div></div>`;
+                var statusLabel = u.status === 'courtesy' ? 'Acesso VIP' : u.status;
+                list.innerHTML += `<div class="admin-list-item"><div><strong>${u.email}</strong> (${statusLabel})</div><div>${btn}</div></div>`;
             });
         }
 
@@ -3382,13 +3569,13 @@
             await _supabase.from('assinaturas').upsert({ email: email, status: 'courtesy', suspended_at: null, purge_at: null }, { onConflict: 'email' });
             document.getElementById('adminTargetEmail').value = '';
             openAdminModal();
-            showToast("Cortesia liberada!");
+            showToast("Acesso VIP liberado!");
         }
 
         async function revokeCourtesy(email) {
             await _supabase.from('assinaturas').update({ status: 'inactive' }).eq('email', email);
             openAdminModal();
-            showToast("Cortesia removida.");
+            showToast("Acesso VIP removido.");
         }
 
         async function loginProvider(provider) {
