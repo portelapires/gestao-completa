@@ -1204,6 +1204,36 @@
             white-space: nowrap;
         }
         .app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Refinamento visual exclusivo do cadastro Pix. */
+        #modalPixConfig .pix-close-icon,
+        #modalPixConfig .pix-delete-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            padding: 0;
+            border: 0;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #modalPixConfig .pix-close-icon {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            color: var(--text-sub);
+        }
+        #modalPixConfig .pix-delete-icon { color: var(--text-sub); flex: 0 0 44px; }
+        #modalPixConfig .pix-close-icon:hover { background: var(--border-color); color: var(--text-main); }
+        #modalPixConfig .pix-delete-icon:hover,
+        #modalPixConfig .pix-delete-icon:active { background: rgba(239, 68, 68, 0.10); color: #EF4444; }
+        #modalPixConfig .pix-close-icon:focus-visible,
+        #modalPixConfig .pix-delete-icon:focus-visible { outline: 2px solid var(--text-sub); outline-offset: 2px; }
     </style>
 </head>
 <body>
@@ -1591,8 +1621,9 @@
 
     <!-- MODAL: CONFIGURAR MINHA CHAVE PIX -->
     <div class="modal" id="modalPixConfig" onclick="if(event.target === this) closeModalById('modalPixConfig')">
-        <div class="modal-content">
-            <h3>🔑 Minha Chave Pix (Recebimentos)</h3>
+        <div class="modal-content" style="position:relative;">
+            <button type="button" class="pix-close-icon" onclick="closeModalById('modalPixConfig')" aria-label="Fechar" title="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+            <h3 style="padding-right:32px;">🔑 Minha Chave Pix (Recebimentos)</h3>
             <p style="font-size:0.83rem; color:var(--text-sub); margin-top:0; line-height:1.45;">
                 Cadastre sua chave Pix para gerar QR Codes de cobrança nos seus lançamentos <strong>A Receber</strong>. O dinheiro cai direto na sua conta bancária, sem taxas intermediárias.
             </p>
@@ -1610,10 +1641,9 @@
             <input type="text" id="pixMerchantName" placeholder="EX: JOAO SILVA" maxlength="25">
             <label>Sua Cidade</label>
             <input type="text" id="pixMerchantCity" placeholder="EX: GOIANIA" maxlength="15">
-            <div class="modal-buttons">
-                <button type="button" class="btn-cancel" style="color:#EF4444;" onclick="clearPixConfig()">Apagar cadastro Pix</button>
-                <button type="button" class="btn-cancel" onclick="closeModalById('modalPixConfig')">Cancelar</button>
-                <button type="button" class="btn-save" onclick="savePixConfig()">Salvar Chave Pix</button>
+            <div class="modal-buttons" style="display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between;">
+                <button type="button" class="pix-delete-icon" onclick="clearPixConfig()" aria-label="Apagar cadastro Pix" title="Apagar cadastro Pix"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M5 6l1 14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1l1-14M10 10v7M14 10v7"/></svg></button>
+                <button type="button" class="btn-save" style="flex:0 1 auto;" onclick="savePixConfig()">Salvar Chave Pix</button>
             </div>
         </div>
     </div>
