@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Gestão Completa">
-    <title>Gestão Completa — Financeiro & Veículo</title>
+    <title>Gestão Completa App — Simples Assim</title>
 
     <!-- SDKs Externos -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -646,13 +646,16 @@
         .page-turn-next { animation: bookPageNext 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
         .page-turn-prev { animation: bookPagePrev 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
 
-        /* CARDS DE RESUMO */
+        /* CARDS DE RESUMO (DASHBOARD 2X2 NO FINANCEIRO / 3 COLUNAS NO VEÍCULO) */
         .summary-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             margin-bottom: 8px;
             flex-shrink: 0;
+        }
+        .summary-container.three-cols {
+            grid-template-columns: repeat(3, 1fr);
         }
 
         .summary-card {
@@ -673,18 +676,19 @@
             letter-spacing: 0.3px;
         }
         .summary-card strong {
-            font-size: 0.88rem;
+            font-size: 0.92rem;
             font-weight: 900;
             margin-top: 3px;
             white-space: nowrap;
         }
         .summary-card small {
-            font-size: 0.64rem;
+            font-size: 0.65rem;
             color: var(--text-sub);
             margin-top: 2px;
         }
         .receivable-card strong { color: #10B981; }
         .payable-card strong { color: #EF4444; }
+        .expense-card strong { color: #F97316; }
         .balance-card strong { color: var(--text-main); }
 
         /* BUSCA E CHIPS DE FILTRO */
@@ -835,8 +839,22 @@
             z-index: 2;
         }
         .card.receivable { border-left-color: #10B981; }
-        .card.gasto-card { border-left-color: #F59E0B; }
+        .card.gasto-card, .card.expense { border-left-color: #F97316; }
+        .card.overdue { border-left-color: #DC2626; }
+        .card.warning { border-left-color: #F59E0B; }
         .card.vehicle-card { border-left-color: #EF4444; }
+        .expense-dot-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            background: rgba(249, 115, 22, 0.14);
+            color: #F97316;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.84rem;
+            flex-shrink: 0;
+        }
         .card.paid {
             opacity: 0.65;
             border-left-color: #94A3B8;
@@ -897,7 +915,7 @@
         }
         .tag-pagar { background: rgba(239, 68, 68, 0.12); color: #EF4444; }
         .tag-receber { background: rgba(16, 185, 129, 0.12); color: #10B981; }
-        .tag-gasto { background: rgba(245, 158, 11, 0.15); color: #D97706; }
+        .tag-gasto, .expense-tag { background: rgba(249, 115, 22, 0.14); color: #F97316; }
         .tag-tipo { background: rgba(100, 116, 139, 0.12); color: var(--text-sub); }
         .tag-km { background: rgba(56, 189, 248, 0.14); color: #0284C7; }
         body.dark-mode .tag-km { color: #38BDF8; }
@@ -912,7 +930,7 @@
             color: #EF4444;
         }
         .value-col .value.income { color: #10B981; }
-        .value-col .value.gasto-val { color: #D97706; }
+        .value-col .value.gasto-val, .value-col .value.expense-val { color: #F97316; }
 
         .btn-pix-mini {
             margin-top: 4px;
@@ -1040,20 +1058,22 @@
             padding: 9px 4px;
             border-radius: 11px;
             font-weight: 800;
-            font-size: 0.76rem;
+            font-size: 0.74rem;
+            line-height: 1.25;
             cursor: pointer;
             text-align: center;
             transition: all 0.18s ease;
         }
+        .nature-btn:active { transform: scale(0.96); }
         .nature-btn.active-pagar {
             border-color: #EF4444;
             background: rgba(239, 68, 68, 0.12);
             color: #EF4444;
         }
         .nature-btn.active-gasto {
-            border-color: #F59E0B;
-            background: rgba(245, 158, 11, 0.15);
-            color: #D97706;
+            border-color: #F97316;
+            background: rgba(249, 115, 22, 0.14);
+            color: #F97316;
         }
         .nature-btn.active-receber {
             border-color: #10B981;
@@ -1379,14 +1399,18 @@
                         <span id="lblSummary1">A RECEBER</span>
                         <strong id="valSummary1">R$ 0,00</strong>
                     </div>
-                    <div class="summary-card payable-card" id="sumCard2">
-                        <span id="lblSummary2">A PAGAR / GASTOS</span>
+                    <div class="summary-card balance-card" id="sumCard2">
+                        <span id="lblSummary2">SALDO PREVISTO</span>
                         <strong id="valSummary2">R$ 0,00</strong>
+                        <small id="subSummary2">Realizado: R$ 0,00</small>
                     </div>
-                    <div class="summary-card balance-card" id="sumCard3">
-                        <span id="lblSummary3">SALDO</span>
+                    <div class="summary-card payable-card" id="sumCard3">
+                        <span id="lblSummary3">CONTAS A PAGAR</span>
                         <strong id="valSummary3">R$ 0,00</strong>
-                        <small id="subSummary3">Realizado: R$ 0,00</small>
+                    </div>
+                    <div class="summary-card expense-card" id="sumCard4">
+                        <span id="lblSummary4">GASTOS DO MÊS</span>
+                        <strong id="valSummary4">R$ 0,00</strong>
                     </div>
                 </div>
 
@@ -1430,9 +1454,9 @@
             <input type="hidden" id="editBillTipoOrig">
 
             <div class="nature-switch" id="natureSwitch">
-                <button type="button" class="nature-btn active-pagar" id="btnNatPagar" onclick="setNature('pagar')">🔴 A Pagar</button>
-                <button type="button" class="nature-btn" id="btnNatGasto" onclick="setNature('gasto')">🟠 Gasto Avulso</button>
-                <button type="button" class="nature-btn" id="btnNatReceber" onclick="setNature('receber')">🟢 A Receber</button>
+                <button type="button" class="nature-btn active-pagar" id="btnNatPagar" onclick="setNature('pagar')">💸 Conta<br>a Pagar</button>
+                <button type="button" class="nature-btn" id="btnNatGasto" onclick="setNature('gasto')">🛒 Gasto /<br>Despesa</button>
+                <button type="button" class="nature-btn" id="btnNatReceber" onclick="setNature('receber')">💰 Valor<br>a Receber</button>
             </div>
 
             <div class="quick-parse-box" id="quickParseBox">
@@ -2270,7 +2294,7 @@
                     { id: 'todos', label: 'Todos' },
                     { id: 'pendentes', label: 'Pendentes' },
                     { id: 'pagar', label: 'A Pagar' },
-                    { id: 'gasto', label: 'Gastos Avulsos' },
+                    { id: 'gasto', label: 'Gastos / Despesas' },
                     { id: 'receber', label: 'A Receber' },
                     { id: 'concluidos', label: 'Pagos / Recebidos' }
                   ]
@@ -2348,44 +2372,70 @@
 
         function renderBills() {
             updateOverdueCounters();
+
+            var sumGrid = document.getElementById('summaryContainer');
+            sumGrid.classList.remove('three-cols');
+            document.getElementById('sumCard4').style.display = 'flex';
+
             var monthBills = getBillsForViewMonth();
 
             var totalReceber = 0;
-            var totalPagarEGastos = 0;
-            var realizadoReceber = 0;
-            var realizadoPagarEGastos = 0;
+            var totalPagar = 0;
+            var totalGastos = 0;
+            var recebidoReal = 0;
+            var pagoReal = 0;
 
             monthBills.forEach(b => {
                 var val = parseFloat(b.valor || 0);
-                if (b.natureza === 'receber') {
+                var nat = b.natureza || 'pagar';
+                if (nat === 'receber') {
                     totalReceber += val;
-                    if (b.isPaidView) realizadoReceber += val;
-                } else if (b.natureza === 'gasto') {
-                    totalPagarEGastos += val;
-                    realizadoPagarEGastos += val;
+                    if (b.isPaidView) recebidoReal += val;
+                } else if (nat === 'gasto') {
+                    totalGastos += val;
                 } else {
-                    totalPagarEGastos += val;
-                    if (b.isPaidView) realizadoPagarEGastos += val;
+                    totalPagar += val;
+                    if (b.isPaidView) pagoReal += val;
                 }
             });
 
-            var saldoPrevisto = totalReceber - totalPagarEGastos;
-            var saldoRealizado = realizadoReceber - realizadoPagarEGastos;
+            var saldoPrevisto = totalReceber - (totalPagar + totalGastos);
+            var saldoRealizado = recebidoReal - (pagoReal + totalGastos);
 
+            var c1 = document.getElementById('sumCard1');
+            c1.className = 'summary-card receivable-card';
             document.getElementById('lblSummary1').innerText = 'A RECEBER';
             document.getElementById('valSummary1').innerText = formatCurrency(totalReceber);
-            document.getElementById('lblSummary2').innerText = 'A PAGAR / GASTOS';
-            document.getElementById('valSummary2').innerText = formatCurrency(totalPagarEGastos);
-            document.getElementById('lblSummary3').innerText = 'SALDO PREVISTO';
-            document.getElementById('valSummary3').innerText = formatCurrency(saldoPrevisto);
-            document.getElementById('valSummary3').style.color = saldoPrevisto >= 0 ? '#10B981' : '#EF4444';
-            document.getElementById('subSummary3').innerText = 'Realizado: ' + formatCurrency(saldoRealizado);
+            document.getElementById('valSummary1').style.color = '';
+
+            var c2 = document.getElementById('sumCard2');
+            c2.className = 'summary-card balance-card';
+            document.getElementById('lblSummary2').innerText = 'SALDO PREVISTO';
+            document.getElementById('valSummary2').innerText = formatCurrency(saldoPrevisto);
+            document.getElementById('valSummary2').style.color = saldoPrevisto >= 0 ? '#10B981' : '#EF4444';
+            var subSum2 = document.getElementById('subSummary2');
+            subSum2.style.display = 'block';
+            subSum2.innerText = 'Realizado: ' + formatCurrency(saldoRealizado);
+
+            var c3 = document.getElementById('sumCard3');
+            c3.className = 'summary-card payable-card';
+            document.getElementById('lblSummary3').innerText = 'CONTAS A PAGAR';
+            document.getElementById('valSummary3').innerText = formatCurrency(totalPagar);
+            document.getElementById('valSummary3').style.color = '';
+            var subSum3 = document.getElementById('subSummary3');
+            if (subSum3) subSum3.style.display = 'none';
+
+            var c4 = document.getElementById('sumCard4');
+            c4.className = 'summary-card expense-card';
+            document.getElementById('lblSummary4').innerText = 'GASTOS DO MÊS';
+            document.getElementById('valSummary4').innerText = formatCurrency(totalGastos);
 
             var filtered = monthBills.filter(b => {
-                if (activeFilterChip === 'pendentes' && (b.isPaidView || b.natureza === 'gasto')) return false;
-                if (activeFilterChip === 'pagar' && b.natureza !== 'pagar' && b.natureza) return false;
-                if (activeFilterChip === 'gasto' && b.natureza !== 'gasto') return false;
-                if (activeFilterChip === 'receber' && b.natureza !== 'receber') return false;
+                var nat = b.natureza || 'pagar';
+                if (activeFilterChip === 'pendentes' && (b.isPaidView || nat === 'gasto')) return false;
+                if (activeFilterChip === 'pagar' && nat !== 'pagar') return false;
+                if (activeFilterChip === 'gasto' && nat !== 'gasto') return false;
+                if (activeFilterChip === 'receber' && nat !== 'receber') return false;
                 if (activeFilterChip === 'concluidos' && !b.isPaidView) return false;
 
                 if (searchFilterQuery) {
@@ -2395,29 +2445,49 @@
                 return true;
             });
 
+            filtered.sort((a, b) => {
+                var aDone = (a.natureza === 'gasto') ? false : a.isPaidView;
+                var bDone = (b.natureza === 'gasto') ? false : b.isPaidView;
+                if (aDone !== bDone) return aDone ? 1 : -1;
+                return (a.displayData || '').localeCompare(b.displayData || '');
+            });
+
             var container = document.getElementById('listContainer');
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state">Nenhum lançamento encontrado neste período.<br>Toque em <strong>+ Novo Lançamento</strong> abaixo para começar.</div>';
+                var emptyMsg = monthBills.length === 0
+                    ? 'Nenhum lançamento encontrado neste período.<br>Toque em <strong>+ Novo Lançamento</strong> abaixo para começar.'
+                    : 'Nenhum lançamento encontrado para este filtro.';
+                container.innerHTML = '<div class="empty-state">' + emptyMsg + '</div>';
                 return;
             }
 
             container.innerHTML = '';
             filtered.forEach((bill, idx) => {
-                var isReceber = bill.natureza === 'receber';
-                var isGasto = bill.natureza === 'gasto';
+                var nat = bill.natureza || 'pagar';
+                var isReceber = nat === 'receber';
+                var isGasto = nat === 'gasto';
                 var dateFormatted = formatDateBR(bill.displayData);
                 var delay = Math.min(idx * 0.03, 0.25);
 
                 var statusClass = isGasto
-                    ? 'gasto-card'
-                    : (isReceber ? 'receivable' : '') + (bill.isPaidView ? ' paid' : '');
+                    ? 'expense'
+                    : (bill.isPaidView ? 'paid' : (isReceber ? 'receivable' : ''));
 
-                var swipeRightLabel = isGasto
-                    ? '🟠 Gasto Registrado'
-                    : (bill.isPaidView ? '↩ Reabrir' : (isReceber ? '✓ Recebido' : '✓ Pagar'));
+                if (!isGasto && !bill.isPaidView && !isReceber && bill.displayData) {
+                    var parts = bill.displayData.split('-');
+                    var bDate = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+                    var today = new Date(); today.setHours(12, 0, 0, 0);
+                    var diffDays = Math.ceil((bDate - today) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0) statusClass = 'overdue';
+                    else if (diffDays <= 2) statusClass = 'warning';
+                }
+
+                var swipeRightBg = isGasto
+                    ? ''
+                    : '<div class="swipe-bg right-action">' + (bill.isPaidView ? '↩ Reabrir' : (isReceber ? '✓ Recebido' : '✓ Pagar')) + '</div>';
 
                 var natTag = isGasto
-                    ? '<span class="tag-pill tag-gasto">GASTO AVULSO</span>'
+                    ? '<span class="tag-pill expense-tag">GASTO / DESPESA</span>'
                     : (isReceber ? '<span class="tag-pill tag-receber">A RECEBER</span>' : '<span class="tag-pill tag-pagar">A PAGAR</span>');
 
                 var tipoLabel = isGasto
@@ -2425,28 +2495,28 @@
                     : (bill.tipo === 'Parcelada' && bill.parcela ? 'Parcela ' + bill.parcela : bill.tipo);
                 var tipoTag = '<span class="tag-pill tag-tipo">' + tipoLabel + '</span>';
 
-                var pixBtnHtml = isReceber
+                var pixBtnHtml = (isReceber && !bill.isPaidView)
                     ? '<div><button type="button" class="btn-pix-mini" onclick="event.stopPropagation(); openPixChargeForBill(\'' + bill.id + '\')">📲 Cobrar Pix</button></div>'
                     : '';
 
-                var checkboxHtml = isGasto
-                    ? '<span style="font-size:1.1rem; flex-shrink:0;" title="Gasto já pago">🧾</span>'
+                var leftControlHtml = isGasto
+                    ? '<div class="expense-dot-icon" title="Gasto realizado">🛒</div>'
                     : '<input type="checkbox" class="card-checkbox" ' + (bill.isPaidView ? 'checked' : '') + ' onclick="event.stopPropagation()" onchange="togglePaid(\'' + bill.id + '\')">';
 
-                var datePrefix = isGasto ? 'Data do Gasto' : (isReceber ? 'Recebimento' : 'Vencimento');
+                var datePrefix = isGasto ? 'Data do gasto' : (isReceber ? 'Recebimento' : 'Vencimento');
                 var pagadorExtra = (isReceber && bill.pagador) ? ' • ' + bill.pagador : '';
-                var valClass = isGasto ? 'gasto-val' : (isReceber ? 'income' : '');
+                var valClass = isGasto ? 'expense-val' : (isReceber ? 'income' : '');
                 var valPrefix = isReceber ? '+ ' : '';
 
                 container.innerHTML += `
                     <div class="swipe-wrapper" style="animation-delay:${delay}s;">
-                        <div class="swipe-bg right-action">${swipeRightLabel}</div>
+                        ${swipeRightBg}
                         <div class="swipe-bg left-action">🗑️ Excluir</div>
-                        <div class="card swipe-card ${statusClass}" data-id="${bill.id}" data-natureza="${bill.natureza || 'pagar'}" data-module="financeiro" onclick="openEditBill('${bill.id}')">
+                        <div class="card swipe-card ${statusClass}" data-id="${bill.id}" data-natureza="${nat}" data-module="financeiro" onclick="openEditBill('${bill.id}')">
                             <button type="button" class="btn-trash-classic" title="Excluir lançamento" onclick="event.stopPropagation(); requestDeleteBill('${bill.id}')">
                                 ${TRASH_ICON_SVG}
                             </button>
-                            ${checkboxHtml}
+                            ${leftControlHtml}
                             <div class="info">
                                 <strong>${bill.nome}</strong>
                                 <span>${datePrefix}: ${dateFormatted}${pagadorExtra}</span>
@@ -2797,6 +2867,14 @@
         }
 
         function renderVehicles() {
+            var sumGrid = document.getElementById('summaryContainer');
+            sumGrid.classList.add('three-cols');
+            document.getElementById('sumCard4').style.display = 'none';
+            var subSum2 = document.getElementById('subSummary2');
+            if (subSum2) subSum2.style.display = 'none';
+            var subSum3 = document.getElementById('subSummary3');
+            if (subSum3) subSum3.style.display = 'block';
+
             var monthVeh = getVehiclesForViewMonth();
             var effMap = computeVehicleEfficiencyMap();
 
@@ -3406,16 +3484,34 @@
             }
             document.getElementById('geminiCopyHint').style.display = 'none';
             var bills = getBillsForViewMonth();
+
+            var totalRec = 0, totalPag = 0, totalGas = 0;
             var linhas = bills.map(b => {
-                var tag = b.natureza === 'receber' ? 'RECEBER' : (b.natureza === 'gasto' ? 'GASTO AVULSO' : 'PAGAR');
-                return '- [' + tag + '] ' + b.nome + ': ' + formatCurrency(b.valor) + ' (Dia ' + b.displayData.split('-')[2] + ') - ' + (b.isPaidView ? 'Concluído' : 'Pendente');
+                var val = parseFloat(b.valor || 0);
+                var nat = b.natureza || 'pagar';
+                if (nat === 'receber') totalRec += val;
+                else if (nat === 'gasto') totalGas += val;
+                else totalPag += val;
+
+                var tag = nat === 'receber' ? 'A RECEBER' : (nat === 'gasto' ? 'GASTO / DESPESA' : 'CONTA A PAGAR');
+                var status = nat === 'gasto' ? 'Pago no ato' : (b.isPaidView ? 'Concluído' : 'Pendente');
+                return '- [' + tag + '] ' + b.nome + ': ' + formatCurrency(val) + ' (Dia ' + b.displayData.split('-')[2] + ') - ' + status;
             });
+
             var semData = globalData.bills
                 .filter(b => b.sem_data && !b.pago && b.natureza !== 'gasto')
                 .map(b => '- [ATRASADA SEM DATA] ' + b.nome + ': ' + formatCurrency(b.valor));
 
+            var resumoCabecalho = "Resumo de " + monthNames[viewMonth] + "/" + viewYear + ":\n" +
+                "- Total a Receber: " + formatCurrency(totalRec) + "\n" +
+                "- Contas a Pagar (compromissos): " + formatCurrency(totalPag) + "\n" +
+                "- Gastos do Dia a Dia / Notas Fiscais: " + formatCurrency(totalGas) + "\n" +
+                "- Saldo Previsto Final: " + formatCurrency(totalRec - (totalPag + totalGas));
+
             var prompt = "Analise meu planejamento financeiro de " + monthNames[viewMonth] + "/" + viewYear +
-                " e sugira prioridades de pagamento e economia:\n\nLançamentos do mês:\n" +
+                " e sugira prioridades de pagamento e economia:\n\n" +
+                resumoCabecalho +
+                "\n\nDetalhamento dos lançamentos do mês:\n" +
                 (linhas.join("\n") || "Nenhum") +
                 "\n\nContas atrasadas sem data:\n" +
                 (semData.join("\n") || "Nenhuma");
@@ -3450,29 +3546,131 @@
                 promptUpgrade("Exportação de Relatórios em PDF");
                 return;
             }
-            var doc = new window.jspdf.jsPDF();
             var currentBills = getBillsForViewMonth();
             if (currentBills.length === 0) {
                 appAlert("Nenhum lançamento encontrado neste mês para gerar PDF.", "Relatório Vazio");
                 return;
             }
+
+            var doc = new window.jspdf.jsPDF();
+
+            var totalReceber = 0, totalPagar = 0, totalGastos = 0;
+            var recebidoReal = 0, pagoReal = 0;
+            var compromissos = [];
+            var gastosList = [];
+
+            currentBills.forEach(b => {
+                var val = parseFloat(b.valor) || 0;
+                var nat = b.natureza || 'pagar';
+                if (nat === 'receber') {
+                    totalReceber += val;
+                    if (b.isPaidView) recebidoReal += val;
+                    compromissos.push(b);
+                } else if (nat === 'gasto') {
+                    totalGastos += val;
+                    gastosList.push(b);
+                } else {
+                    totalPagar += val;
+                    if (b.isPaidView) pagoReal += val;
+                    compromissos.push(b);
+                }
+            });
+
+            var saldoPrevisto = totalReceber - (totalPagar + totalGastos);
+            var saldoRealizado = recebidoReal - (pagoReal + totalGastos);
+
             doc.setFontSize(15);
-            doc.text("Relatório Financeiro - " + monthNames[viewMonth] + " " + viewYear, 14, 20);
-            var tableData = currentBills.map(b => {
-                var tag = b.natureza === 'receber' ? '[RECEBER] ' : (b.natureza === 'gasto' ? '[GASTO] ' : '[PAGAR] ');
-                return [
-                    tag + b.nome,
+            doc.setTextColor(10, 17, 40);
+            doc.text("Relatório Financeiro — " + monthNames[viewMonth] + " " + viewYear, 14, 18);
+
+            doc.setFontSize(9);
+            doc.setTextColor(100, 116, 139);
+            doc.text("Gerado pelo Gestão Completa App em " + formatDateBR(new Date().toISOString().split('T')[0]), 14, 24);
+
+            // BLOCO 1: Quadro Resumo Executivo
+            doc.autoTable({
+                startY: 29,
+                head: [['A Receber (Entradas)', 'Contas a Pagar', 'Gastos do Dia a Dia', 'Saldo Previsto (Realizado)']],
+                body: [[
+                    formatCurrency(totalReceber),
+                    formatCurrency(totalPagar),
+                    formatCurrency(totalGastos),
+                    formatCurrency(saldoPrevisto) + ' (' + formatCurrency(saldoRealizado) + ')'
+                ]],
+                theme: 'grid',
+                headStyles: { fillColor: [10, 17, 40], textColor: [212, 175, 55], fontSize: 8.5, halign: 'center' },
+                bodyStyles: { fontStyle: 'bold', fontSize: 9.5, halign: 'center', textColor: [15, 23, 42] }
+            });
+
+            var nextY = doc.lastAutoTable.finalY + 10;
+
+            // BLOCO 2: Entradas e Contas a Pagar (Compromissos)
+            doc.setFontSize(11);
+            doc.setTextColor(10, 17, 40);
+            doc.text("1. Entradas e Contas a Pagar (Compromissos)", 14, nextY);
+
+            if (compromissos.length > 0) {
+                compromissos.sort((a, b) => (a.displayData || '').localeCompare(b.displayData || ''));
+                var compBody = compromissos.map(b => [
+                    b.natureza === 'receber' ? 'A RECEBER' : 'CONTA A PAGAR',
+                    b.nome + (b.pagador ? ' (' + b.pagador + ')' : '') + (b.parcela ? ' [' + b.parcela + ']' : ''),
                     formatDateBR(b.displayData),
                     formatCurrency(b.valor),
                     b.isPaidView ? 'CONCLUÍDO' : 'PENDENTE'
-                ];
-            });
-            doc.autoTable({
-                startY: 28,
-                head: [['Descrição', 'Data', 'Valor', 'Status']],
-                body: tableData,
-                headStyles: { fillColor: [10, 17, 40], textColor: [212, 175, 55] }
-            });
+                ]);
+
+                doc.autoTable({
+                    startY: nextY + 4,
+                    head: [['Tipo', 'Descrição', 'Vencimento', 'Valor', 'Status']],
+                    body: compBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [30, 41, 59], fontSize: 8.5 },
+                    bodyStyles: { fontSize: 8.5 }
+                });
+                nextY = doc.lastAutoTable.finalY + 10;
+            } else {
+                doc.setFontSize(9);
+                doc.setTextColor(100, 116, 139);
+                doc.text("Nenhuma entrada ou conta agendada neste mês.", 14, nextY + 6);
+                nextY += 14;
+            }
+
+            // BLOCO 3: Extrato de Gastos & Notas Fiscais
+            if (nextY > 255) {
+                doc.addPage();
+                nextY = 20;
+            }
+
+            doc.setFontSize(11);
+            doc.setTextColor(10, 17, 40);
+            doc.text("2. Extrato de Gastos & Notas Fiscais", 14, nextY);
+
+            if (gastosList.length > 0) {
+                gastosList.sort((a, b) => (a.displayData || '').localeCompare(b.displayData || ''));
+                var gastosBody = gastosList.map(g => [
+                    formatDateBR(g.displayData),
+                    g.nome,
+                    formatCurrency(g.valor)
+                ]);
+                gastosBody.push([
+                    { content: 'SUBTOTAL DE GASTOS DO MÊS', colSpan: 2, styles: { fontStyle: 'bold', halign: 'right', fillColor: [254, 243, 199] } },
+                    { content: formatCurrency(totalGastos), styles: { fontStyle: 'bold', fillColor: [254, 243, 199] } }
+                ]);
+
+                doc.autoTable({
+                    startY: nextY + 4,
+                    head: [['Data', 'Descrição do Gasto / Compra', 'Valor']],
+                    body: gastosBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [180, 83, 9], fontSize: 8.5 },
+                    bodyStyles: { fontSize: 8.5 }
+                });
+            } else {
+                doc.setFontSize(9);
+                doc.setTextColor(100, 116, 139);
+                doc.text("Nenhum gasto variável registrado neste mês.", 14, nextY + 6);
+            }
+
             doc.save("Financeiro_" + monthNames[viewMonth] + "_" + viewYear + ".pdf");
         }
 
