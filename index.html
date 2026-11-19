@@ -1277,7 +1277,7 @@
                     <span class="plan-ribbon">Mais Escolhido • 41% OFF</span>
                     <div class="plan-left">
                         <strong>Gestão Completa — Anual</strong>
-                        <span>12 meses de acesso total • Cancele quando quiser • Solicitação de reembolso em até 14 dias</span>
+                        <span>12 meses de acesso total • Garantia de 14 dias • Preço protegido por 1 ano</span>
                     </div>
                     <div class="plan-right">
                         <span class="plan-badge">R$ 5,82/mês</span>
@@ -1289,7 +1289,7 @@
                 <div class="plan-option" data-months="1" onclick="selectPlan(1, this)">
                     <div class="plan-left">
                         <strong>Gestão Completa — Mensal</strong>
-                        <span>Renovação mensal • Cancele quando quiser • Solicitação de reembolso em até 7 dias</span>
+                        <span>Renovação mensal • Garantia de 7 dias • Cancele com 1 clique</span>
                     </div>
                     <div class="plan-right">
                         <strong>R$ 9,90</strong>
@@ -1303,7 +1303,7 @@
 
             <label class="terms-check-row">
                 <input type="checkbox" id="chkAcceptTerms" checked>
-                <span>Li e concordo com os <button type="button" class="btn-link" style="font-size:0.76rem;" onclick="openLegalModal()">Termos de Uso e Política de Reembolso</button> (solicitação em até 7 dias no Mensal ou 14 dias no Anual).</span>
+                <span>Li e concordo com os <button type="button" class="btn-link" style="font-size:0.76rem;" onclick="openLegalModal()">Termos de Uso e Política de Reembolso</button> (7 dias no Mensal / 14 dias no Anual).</span>
             </label>
 
             <button type="button" class="btn-primary" onclick="startAsaasSubscription()">Assinar Gestão Completa</button>
@@ -1810,8 +1810,8 @@
                 <p>Todos os lançamentos financeiros e registros de veículos pertencem exclusivamente a você. Nós <strong>não vendemos, não alugamos e não compartilhamos</strong> seus dados com terceiros.</p>
                 <h4>2. Planos: Essencial e Gestão Completa</h4>
                 <p>O plano <strong>Essencial</strong> é gratuito e permite até 15 lançamentos financeiros e 3 registros de veículo por mês. O plano <strong>Gestão Completa</strong> libera uso ilimitado e ferramentas avançadas mediante assinatura Mensal (R$ 9,90/mês) ou Anual (R$ 69,90/ano).</p>
-                <h4>3. Política de Reembolso</h4>
-                <p>Solicitações de reembolso podem ser feitas pelo suporte em até <strong>7 dias após a contratação do plano Mensal</strong> ou em até <strong>14 dias após a contratação do plano Anual</strong>. O reembolso, quando aprovado, é processado manualmente pelo suporte e pode levar alguns dias úteis para refletir conforme o meio de pagamento utilizado.</p>
+                <h4>3. Política de Reembolso (Garantia Risco Zero)</h4>
+                <p>Oferecemos garantia incondicional de <strong>7 dias no plano Mensal</strong> e <strong>14 dias no plano Anual</strong> com estorno de 100% do valor.</p>
             </div>
             <div class="modal-buttons">
                 <button type="button" class="btn-save" onclick="closeModalById('modalLegal')">Entendi</button>
@@ -2570,4 +2570,1380 @@
         function setNature(nat) {
             currentNature = nat;
             document.getElementById('btnNatPagar').className = 'nature-btn' + (nat === 'pagar' ? ' active-pagar' : '');
-   
+            document.getElementById('btnNatGasto').className = 'nature-btn' + (nat === 'gasto' ? ' active-gasto' : '');
+            document.getElementById('btnNatReceber').className = 'nature-btn' + (nat === 'receber' ? ' active-receber' : '');
+
+            document.getElementById('divPagador').style.display = nat === 'receber' ? 'block' : 'none';
+            document.getElementById('btnModalCobrarPix').style.display = nat === 'receber' ? 'inline-block' : 'none';
+            document.getElementById('divSemDataCheck').style.display = nat === 'pagar' ? 'block' : 'none';
+
+            if (nat === 'receber') {
+                document.getElementById('lblBillName').innerText = 'Descrição do Recebimento';
+                document.getElementById('billName').placeholder = 'EX: SALÁRIO / SERVIÇO CLIENTE';
+                document.getElementById('lblBillDate').innerText = 'Data Prevista de Recebimento';
+                document.getElementById('chkSemData').checked = false;
+                document.getElementById('divBillDate').style.display = 'block';
+                document.getElementById('divBillType').style.display = 'block';
+            } else if (nat === 'gasto') {
+                document.getElementById('lblBillName').innerText = 'Descrição do Gasto / Compra';
+                document.getElementById('billName').placeholder = 'EX: SUPERMERCADO / ALMOÇO / NFC-E';
+                document.getElementById('lblBillDate').innerText = 'Data do Gasto';
+                document.getElementById('chkSemData').checked = false;
+                document.getElementById('divBillDate').style.display = 'block';
+                document.getElementById('divBillType').style.display = 'none';
+                document.getElementById('billType').value = 'Unica';
+                document.getElementById('installmentDiv').style.display = 'none';
+            } else {
+                document.getElementById('lblBillName').innerText = 'Descrição da Conta';
+                document.getElementById('billName').placeholder = 'EX: ENERGIA / INTERNET / ALUGUEL';
+                document.getElementById('lblBillDate').innerText = 'Data de Vencimento';
+                toggleSemDataField();
+            }
+        }
+
+        function toggleSemDataField() {
+            var semData = document.getElementById('chkSemData').checked;
+            document.getElementById('divBillDate').style.display = semData ? 'none' : 'block';
+            document.getElementById('divBillType').style.display = semData ? 'none' : 'block';
+            if (semData) {
+                document.getElementById('billType').value = 'Unica';
+                document.getElementById('installmentDiv').style.display = 'none';
+            }
+        }
+
+        function toggleInstallments() {
+            var tipo = document.getElementById('billType').value;
+            document.getElementById('installmentDiv').style.display = tipo === 'Parcelada' ? 'block' : 'none';
+        }
+
+        function applyQuickParse() {
+            var raw = document.getElementById('quickParseInput').value.trim();
+            if (!raw) return;
+            var valMatch = raw.match(/(\d+[.,]\d{1,2}|\d+)/);
+            if (valMatch) {
+                var num = parseFloat(valMatch[1].replace(',', '.'));
+                document.getElementById('billValue').value = num.toFixed(2);
+                raw = raw.replace(valMatch[0], '').trim();
+            }
+            if (/hoje/i.test(raw)) {
+                document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
+                raw = raw.replace(/hoje/ig, '').trim();
+            }
+            if (raw) document.getElementById('billName').value = raw.toUpperCase();
+            showToast("Campos preenchidos!");
+        }
+
+        async function safeInsertContas(records) {
+            const { error } = await _supabase.from('contas').insert(records);
+            if (error) {
+                var fallback = records.map(r => {
+                    var copy = Object.assign({}, r);
+                    delete copy.pagador;
+                    delete copy.grupo_parcela;
+                    delete copy.sem_data;
+                    return copy;
+                });
+                await _supabase.from('contas').insert(fallback);
+            }
+        }
+
+        async function saveBill() {
+            var editId = document.getElementById('editBillId').value;
+            var nome = document.getElementById('billName').value.trim().toUpperCase();
+            var pagador = document.getElementById('billPagador').value.trim().toUpperCase();
+            var valor = parseFloat(document.getElementById('billValue').value);
+            var semData = (currentNature === 'pagar') && document.getElementById('chkSemData').checked;
+            var dataStr = semData ? null : document.getElementById('billDate').value;
+            var tipo = (currentNature === 'gasto' || semData) ? 'Unica' : document.getElementById('billType').value;
+            var installments = parseInt(document.getElementById('billInstallments').value || '2', 10);
+
+            if (!nome) { appAlert("Informe a descrição do lançamento!", "Campo Obrigatório"); return; }
+            if (isNaN(valor) || valor <= 0) { appAlert("Informe um valor válido maior que zero!", "Valor Inválido"); return; }
+            if (!semData && !dataStr) { appAlert("Informe a data!", "Data Obrigatória"); return; }
+
+            closeModalById('modalFinanceiro');
+            showLoader();
+
+            if (editId) {
+                var scope = document.getElementById('editParcelScope').value;
+                var grupo = document.getElementById('editBillGrupo').value;
+                var payload = {
+                    nome: nome,
+                    valor: valor,
+                    data: dataStr,
+                    natureza: currentNature,
+                    pagador: currentNature === 'receber' ? pagador : null,
+                    sem_data: semData,
+                    pago: currentNature === 'gasto' ? true : undefined
+                };
+                if (payload.pago === undefined) delete payload.pago;
+
+                if (scope === 'all' && grupo) {
+                    var groupPayload = { nome: nome, valor: valor, natureza: currentNature, pagador: payload.pagador };
+                    await _supabase.from('contas').update(groupPayload).eq('grupo_parcela', grupo);
+                } else {
+                    await _supabase.from('contas').update(payload).eq('id', editId);
+                }
+            } else if (currentNature === 'gasto') {
+                await safeInsertContas([{
+                    user_id: currentUser.id,
+                    nome: nome,
+                    valor: valor,
+                    data: dataStr,
+                    tipo: 'Unica',
+                    pago: true,
+                    natureza: 'gasto',
+                    sem_data: false
+                }]);
+            } else if (tipo === 'Unica' || tipo === 'Mensal') {
+                await safeInsertContas([{
+                    user_id: currentUser.id,
+                    nome: nome,
+                    valor: valor,
+                    data: dataStr,
+                    tipo: tipo,
+                    pago: false,
+                    natureza: currentNature,
+                    pagador: currentNature === 'receber' ? pagador : null,
+                    sem_data: semData
+                }]);
+            } else if (tipo === 'Parcelada') {
+                var baseDate = new Date(dataStr + "T12:00:00");
+                var qty = Math.max(2, installments);
+                var grupoId = 'grp_' + Date.now();
+                var newRecords = [];
+                for (var i = 0; i < qty; i++) {
+                    var d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, baseDate.getDate(), 12, 0, 0);
+                    var formattedDate = d.toISOString().split('T')[0];
+                    newRecords.push({
+                        user_id: currentUser.id,
+                        nome: nome,
+                        valor: valor,
+                        data: formattedDate,
+                        tipo: 'Parcelada',
+                        pago: false,
+                        parcela: (i + 1) + "/" + qty,
+                        grupo_parcela: grupoId,
+                        natureza: currentNature,
+                        pagador: currentNature === 'receber' ? pagador : null,
+                        sem_data: false
+                    });
+                }
+                await safeInsertContas(newRecords);
+            }
+
+            await loadUserData();
+            showToast(editId ? "Lançamento atualizado!" : "Lançamento salvo!");
+        }
+
+        function openEditBill(id) {
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item) return;
+
+            document.getElementById('modalFinTitle').innerText = "Editar Lançamento";
+            document.getElementById('editBillId').value = item.id;
+            document.getElementById('editBillGrupo').value = item.grupo_parcela || "";
+            document.getElementById('editBillTipoOrig').value = item.tipo || "Unica";
+            document.getElementById('quickParseBox').style.display = "none";
+            document.getElementById('natureSwitch').style.display = "grid";
+
+            setNature(item.natureza || 'pagar');
+            document.getElementById('billName').value = item.nome || "";
+            document.getElementById('billPagador').value = item.pagador || "";
+            document.getElementById('billValue').value = item.valor || "";
+            document.getElementById('chkSemData').checked = !!item.sem_data;
+            toggleSemDataField();
+            if (item.data) document.getElementById('billDate').value = item.data;
+
+            document.getElementById('divBillType').style.display = "none";
+            document.getElementById('installmentDiv').style.display = "none";
+            document.getElementById('divEditParcelScope').style.display = (item.tipo === 'Parcelada' && item.grupo_parcela) ? "block" : "none";
+            document.getElementById('editParcelScope').value = "one";
+
+            openModalById('modalFinanceiro');
+        }
+
+        async function togglePaid(id) {
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item || item.natureza === 'gasto') return;
+            showLoader();
+            if (item.tipo === 'Mensal') {
+                var mesAnoKey = getViewMonthKey();
+                var existing = globalData.pagamentosMensais.find(p => p.conta_id === id && p.mes_ano === mesAnoKey);
+                if (existing) await _supabase.from('pagamentos_mensais').update({ pago: !existing.pago }).eq('id', existing.id);
+                else await _supabase.from('pagamentos_mensais').insert([{ user_id: currentUser.id, conta_id: id, mes_ano: mesAnoKey, pago: true }]);
+            } else {
+                await _supabase.from('contas').update({ pago: !item.pago }).eq('id', id);
+            }
+            await loadUserData();
+        }
+
+        async function requestDeleteBill(id) {
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item) return;
+            if (item.tipo === 'Parcelada' && item.grupo_parcela) {
+                pendingDeleteBill = item;
+                openModalById('modalDeleteParcel');
+                return;
+            }
+            var ok = await appConfirm('Deseja realmente excluir "' + item.nome + '"?', 'Excluir Lançamento', 'Excluir', true);
+            if (!ok) return;
+            await deleteSingleBill(id);
+        }
+
+        async function deleteSingleBill(id) {
+            showLoader();
+            await _supabase.from('contas').delete().eq('id', id);
+            await loadUserData();
+            showToast("Lançamento excluído.");
+        }
+
+        async function confirmDeleteParcel(mode) {
+            closeModalById('modalDeleteParcel');
+            if (!pendingDeleteBill) return;
+            showLoader();
+            if (mode === 'all' && pendingDeleteBill.grupo_parcela) {
+                await _supabase.from('contas').delete().eq('grupo_parcela', pendingDeleteBill.grupo_parcela);
+            } else {
+                await _supabase.from('contas').delete().eq('id', pendingDeleteBill.id);
+            }
+            pendingDeleteBill = null;
+            await loadUserData();
+            showToast("Parcelas excluídas.");
+        }
+
+        // =========================================================================
+        // LEITOR DE QR CODE (NFC-E / BOLETO) -> PREENCHE GASTO AVULSO
+        // =========================================================================
+        function openQrScanner() {
+            openModalById('modalQrScanner');
+            if (!window.Html5Qrcode) {
+                appAlert("Leitor de câmera indisponível neste navegador.", "Aviso");
+                return;
+            }
+            html5QrScannerInstance = new Html5Qrcode("qrReaderContainer");
+            html5QrScannerInstance.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 230, height: 230 } },
+                (decodedText) => {
+                    closeQrScanner();
+                    handleScannedQrPayload(decodedText);
+                },
+                () => {}
+            ).catch(err => {
+                closeQrScanner();
+                appAlert("Não foi possível acessar a câmera: " + err, "Permissão de Câmera");
+            });
+        }
+
+        function closeQrScanner() {
+            closeModalById('modalQrScanner');
+            if (html5QrScannerInstance) {
+                html5QrScannerInstance.stop().then(() => {
+                    html5QrScannerInstance.clear();
+                    html5QrScannerInstance = null;
+                }).catch(() => { html5QrScannerInstance = null; });
+            }
+        }
+
+        function handleScannedQrPayload(text) {
+            openModal();
+            setNature('gasto');
+            document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
+
+            var valMatch = text.match(/vNF=([0-9]+\.[0-9]{2})/i) || text.match(/valor=([0-9]+[.,][0-9]{2})/i);
+            if (valMatch) {
+                document.getElementById('billValue').value = parseFloat(valMatch[1].replace(',', '.')).toFixed(2);
+            }
+
+            if (/nfce|sefaz|fazenda/i.test(text)) {
+                document.getElementById('billName').value = 'COMPRA NFC-E (QR CODE)';
+            } else {
+                document.getElementById('billName').value = 'PAGAMENTO QR CODE';
+            }
+            showToast("QR Code lido! Confira os dados e salve.");
+        }
+
+        // =========================================================================
+        // MÓDULO VEÍCULO (COM MÉDIA KM/L E CUSTO POR KM)
+        // =========================================================================
+        function getVehiclesForViewMonth() {
+            return globalData.veiculos.filter(v => {
+                if (!v.data) return false;
+                var parts = v.data.split('-');
+                return parseInt(parts[0], 10) === viewYear && (parseInt(parts[1], 10) - 1) === viewMonth;
+            });
+        }
+
+        function computeVehicleEfficiencyMap() {
+            var map = {};
+            var fuelRecords = globalData.veiculos
+                .filter(v => v.tipo_registro === 'Abastecimento' && v.km && parseFloat(v.km) > 0)
+                .sort((a, b) => {
+                    var kmDiff = parseFloat(a.km) - parseFloat(b.km);
+                    return kmDiff !== 0 ? kmDiff : new Date(a.data) - new Date(b.data);
+                });
+
+            for (var i = 1; i < fuelRecords.length; i++) {
+                var prev = fuelRecords[i - 1];
+                var curr = fuelRecords[i];
+                var dist = parseFloat(curr.km) - parseFloat(prev.km);
+                var litrosMatch = String(curr.detalhes || '').match(/([\d.,]+)\s*L/i);
+                var litros = litrosMatch ? parseFloat(litrosMatch[1].replace(',', '.')) : 0;
+
+                if (dist > 0 && dist < 3000) {
+                    var kml = litros > 0 ? (dist / litros) : null;
+                    var costKm = parseFloat(curr.valor || 0) / dist;
+                    map[curr.id] = { dist: dist, kml: kml, costKm: costKm };
+                }
+            }
+            return map;
+        }
+
+        function renderVehicles() {
+            var sumGrid = document.getElementById('summaryContainer');
+            sumGrid.classList.add('three-cols');
+            document.getElementById('sumCard4').style.display = 'none';
+            var subSum2 = document.getElementById('subSummary2');
+            if (subSum2) subSum2.style.display = 'none';
+            var subSum3 = document.getElementById('subSummary3');
+            if (subSum3) subSum3.style.display = 'block';
+
+            var monthVeh = getVehiclesForViewMonth();
+            var effMap = computeVehicleEfficiencyMap();
+
+            var totalComb = 0;
+            var totalManut = 0;
+            var kmlSum = 0;
+            var kmlCount = 0;
+
+            monthVeh.forEach(v => {
+                var val = parseFloat(v.valor || 0);
+                if (v.tipo_registro === 'Abastecimento') totalComb += val;
+                else totalManut += val;
+
+                if (effMap[v.id] && effMap[v.id].kml) {
+                    kmlSum += effMap[v.id].kml;
+                    kmlCount++;
+                }
+            });
+
+            var totalGeral = totalComb + totalManut;
+            var avgKml = kmlCount > 0 ? (kmlSum / kmlCount).toFixed(1) + ' Km/L' : '—';
+
+            document.getElementById('lblSummary1').innerText = 'COMBUSTÍVEL';
+            document.getElementById('valSummary1').innerText = formatCurrency(totalComb);
+            document.getElementById('valSummary1').style.color = '#F59E0B';
+            document.getElementById('lblSummary2').innerText = 'MANUT. / DOCS';
+            document.getElementById('valSummary2').innerText = formatCurrency(totalManut);
+            document.getElementById('lblSummary3').innerText = 'TOTAL VEÍCULO';
+            document.getElementById('valSummary3').innerText = formatCurrency(totalGeral);
+            document.getElementById('valSummary3').style.color = 'var(--text-main)';
+            document.getElementById('subSummary3').innerText = 'Média: ' + avgKml;
+
+            var filtered = monthVeh.filter(v => {
+                if (activeFilterChip !== 'todos' && v.tipo_registro !== activeFilterChip) return false;
+                if (searchFilterQuery) {
+                    var hay = ((v.nome || '') + ' ' + (v.detalhes || '') + ' ' + (v.km || '')).toLowerCase();
+                    if (!hay.includes(searchFilterQuery)) return false;
+                }
+                return true;
+            });
+
+            var container = document.getElementById('listContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum registro de veículo neste mês.<br>Toque em <strong>+ Novo Registro Veículo</strong> para lançar.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach((v, idx) => {
+                var delay = Math.min(idx * 0.03, 0.25);
+                var eff = effMap[v.id];
+                var kmTag = v.km ? '<span class="tag-pill tag-km">' + Number(v.km).toLocaleString('pt-BR') + ' Km</span>' : '';
+                var effTag = (eff && eff.kml)
+                    ? '<span class="tag-pill tag-receber">' + eff.kml.toFixed(1) + ' Km/L • ' + formatCurrency(eff.costKm) + '/Km</span>'
+                    : '';
+                var tipoTag = '<span class="tag-pill tag-tipo">' + v.tipo_registro + '</span>';
+
+                container.innerHTML += `
+                    <div class="swipe-wrapper" style="animation-delay:${delay}s;">
+                        <div class="swipe-bg right-action">✏️ Editar</div>
+                        <div class="swipe-bg left-action">🗑️ Excluir</div>
+                        <div class="card swipe-card vehicle-card" data-id="${v.id}" data-module="veiculo" onclick="openEditVehicle('${v.id}')">
+                            <button type="button" class="btn-trash-classic" title="Excluir registro" onclick="event.stopPropagation(); deleteVehicleItem('${v.id}')">
+                                ${TRASH_ICON_SVG}
+                            </button>
+                            <div class="info">
+                                <strong>${v.nome}</strong>
+                                <span>Data: ${formatDateBR(v.data)}${v.detalhes ? ' • ' + v.detalhes : ''}</span>
+                                ${tipoTag}${kmTag}${effTag}
+                            </div>
+                            <div class="value-col">
+                                <div class="value">${formatCurrency(v.valor)}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            attachCardSwipeHandlers();
+        }
+
+        function toggleVehFields() {
+            var tipo = document.getElementById('vehType').value;
+            var isAbast = tipo === 'Abastecimento';
+            document.getElementById('divAbastecimentoFields').style.display = isAbast ? 'block' : 'none';
+            document.getElementById('divManutencaoName').style.display = isAbast ? 'none' : 'block';
+            document.getElementById('divLitros').style.display = isAbast ? 'block' : 'none';
+            document.getElementById('divManutencaoDetalhes').style.display = isAbast ? 'none' : 'block';
+        }
+
+        async function saveVehicle() {
+            var editId = document.getElementById('editVehId').value;
+            var tipo = document.getElementById('vehType').value;
+            var nome, detalhes;
+
+            if (tipo === 'Abastecimento') {
+                var g = document.getElementById('chkGasolina').checked;
+                var e = document.getElementById('chkEtanol').checked;
+                if (!g && !e) { appAlert("Selecione pelo menos um combustível!", "Combustível"); return; }
+                var comb = [];
+                if (g) comb.push("GASOLINA");
+                if (e) comb.push("ETANOL");
+                nome = comb.join(" + ");
+                var litros = document.getElementById('vehLitros').value;
+                detalhes = litros ? litros + ' L' : '';
+            } else {
+                nome = document.getElementById('vehServiceName').value.trim().toUpperCase();
+                detalhes = document.getElementById('vehDetails').value.trim();
+                if (!nome) { appAlert("Informe o nome do serviço ou despesa!", "Campo Obrigatório"); return; }
+            }
+
+            var km = document.getElementById('vehKm').value || null;
+            var valor = parseFloat(document.getElementById('vehValue').value || '0');
+            var dataStr = document.getElementById('vehDate').value;
+            if (!dataStr) { appAlert("Informe a data!", "Data Obrigatória"); return; }
+
+            closeModalById('modalVeiculo');
+            showLoader();
+
+            var payload = {
+                user_id: currentUser.id,
+                tipo_registro: tipo,
+                nome: nome,
+                km: km,
+                valor: valor,
+                data: dataStr,
+                detalhes: detalhes
+            };
+
+            if (editId) {
+                await _supabase.from('veiculos').update(payload).eq('id', editId);
+            } else {
+                await _supabase.from('veiculos').insert([payload]);
+            }
+
+            await loadUserData();
+            showToast(editId ? "Registro atualizado!" : "Registro salvo!");
+        }
+
+        function openEditVehicle(id) {
+            var v = globalData.veiculos.find(x => x.id === id);
+            if (!v) return;
+            document.getElementById('modalVehTitle').innerText = "Editar Registro Veículo";
+            document.getElementById('editVehId').value = v.id;
+            document.getElementById('vehType').value = v.tipo_registro;
+            toggleVehFields();
+
+            if (v.tipo_registro === 'Abastecimento') {
+                document.getElementById('chkGasolina').checked = (v.nome || '').includes('GASOLINA');
+                document.getElementById('chkEtanol').checked = (v.nome || '').includes('ETANOL');
+                var lMatch = String(v.detalhes || '').match(/([\d.]+)/);
+                document.getElementById('vehLitros').value = lMatch ? lMatch[1] : '';
+            } else {
+                document.getElementById('vehServiceName').value = v.nome || '';
+                document.getElementById('vehDetails').value = v.detalhes || '';
+            }
+
+            document.getElementById('vehKm').value = v.km || '';
+            document.getElementById('vehValue').value = v.valor || '';
+            document.getElementById('vehDate').value = v.data || '';
+            openModalById('modalVeiculo');
+        }
+
+        async function deleteVehicleItem(id) {
+            var ok = await appConfirm("Deseja realmente excluir este registro do veículo?", "Excluir Registro", "Excluir", true);
+            if (!ok) return;
+            showLoader();
+            await _supabase.from('veiculos').delete().eq('id', id);
+            await loadUserData();
+            showToast("Registro excluído.");
+        }
+
+        // =========================================================================
+        // GESTOS DE SWIPE NOS CARDS
+        // =========================================================================
+        function attachCardSwipeHandlers() {
+            document.querySelectorAll('.swipe-card').forEach(card => {
+                var startX = 0, currentX = 0, isDragging = false;
+
+                card.addEventListener('touchstart', e => {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                    card.style.transition = 'none';
+                }, { passive: true });
+
+                card.addEventListener('touchmove', e => {
+                    if (!isDragging) return;
+                    currentX = e.touches[0].clientX - startX;
+                    if (Math.abs(currentX) > 10) {
+                        var clamped = Math.max(-110, Math.min(110, currentX));
+                        card.style.transform = 'translateX(' + clamped + 'px)';
+                    }
+                }, { passive: true });
+
+                card.addEventListener('touchend', () => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    card.style.transition = 'transform 0.2s ease';
+                    var id = card.getAttribute('data-id');
+                    var mod = card.getAttribute('data-module');
+                    var nat = card.getAttribute('data-natureza');
+
+                    if (currentX > 75) {
+                        card.style.transform = 'translateX(0)';
+                        if (mod === 'financeiro' && nat !== 'gasto') togglePaid(id);
+                        else if (mod === 'veiculo') openEditVehicle(id);
+                    } else if (currentX < -75) {
+                        card.style.transform = 'translateX(0)';
+                        if (mod === 'financeiro') requestDeleteBill(id);
+                        else deleteVehicleItem(id);
+                    } else {
+                        card.style.transform = 'translateX(0)';
+                    }
+                    currentX = 0;
+                });
+            });
+        }
+
+        // =========================================================================
+        // ABERTURA DOS MODAIS PRINCIPAIS
+        // =========================================================================
+        function openModal() {
+            if (currentMode === 'financeiro') {
+                if (!hasProAccess && getBillsForViewMonth().length >= FREE_LIMIT_BILLS) {
+                    promptUpgrade('Mais de ' + FREE_LIMIT_BILLS + ' lançamentos no mês');
+                    return;
+                }
+                document.getElementById('modalFinTitle').innerText = "Novo Lançamento";
+                document.getElementById('editBillId').value = "";
+                document.getElementById('editBillGrupo').value = "";
+                document.getElementById('editBillTipoOrig').value = "";
+                document.getElementById('quickParseBox').style.display = "block";
+                document.getElementById('quickParseInput').value = "";
+                document.getElementById('natureSwitch').style.display = "grid";
+                setNature('pagar');
+                document.getElementById('billName').value = "";
+                document.getElementById('billPagador').value = "";
+                document.getElementById('billValue').value = "";
+                document.getElementById('chkSemData').checked = false;
+                toggleSemDataField();
+                document.getElementById('billDate').value = new Date(viewYear, viewMonth, currentDate.getDate()).toISOString().split('T')[0];
+                document.getElementById('divBillType').style.display = "block";
+                document.getElementById('billType').value = "Unica";
+                document.getElementById('installmentDiv').style.display = "none";
+                document.getElementById('divEditParcelScope').style.display = "none";
+                openModalById('modalFinanceiro');
+            } else {
+                if (!hasProAccess && getVehiclesForViewMonth().length >= FREE_LIMIT_VEHICLES) {
+                    promptUpgrade('Mais de ' + FREE_LIMIT_VEHICLES + ' registros de veículo no mês');
+                    return;
+                }
+                document.getElementById('modalVehTitle').innerText = "Registro do Veículo";
+                document.getElementById('editVehId').value = "";
+                document.getElementById('vehType').value = "Abastecimento";
+                document.getElementById('chkGasolina').checked = true;
+                document.getElementById('chkEtanol').checked = false;
+                document.getElementById('vehServiceName').value = "";
+                document.getElementById('vehKm').value = "";
+                document.getElementById('vehValue').value = "";
+                document.getElementById('vehLitros').value = "";
+                document.getElementById('vehDetails').value = "";
+                toggleVehFields();
+                document.getElementById('vehDate').value = currentDate.toISOString().split('T')[0];
+                openModalById('modalVeiculo');
+            }
+        }
+
+        // =========================================================================
+        // MÓDULO PIX EMV (PADRÃO BANCO CENTRAL)
+        // =========================================================================
+        function getSavedPixConfig() {
+            try {
+                return JSON.parse(localStorage.getItem('user_pix_config_' + currentUser.id)) || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function openPixConfigModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Cobrança Pix Direta com QR Code");
+                return;
+            }
+            var cfg = getSavedPixConfig() || {};
+            document.getElementById('pixKeyType').value = cfg.keyType || 'cpf';
+            document.getElementById('pixKeyValue').value = cfg.keyValue || '';
+            document.getElementById('pixMerchantName').value = cfg.merchantName || '';
+            document.getElementById('pixMerchantCity').value = cfg.merchantCity || '';
+            openModalById('modalPixConfig');
+        }
+
+        function savePixConfig() {
+            var keyType = document.getElementById('pixKeyType').value;
+            var keyValue = document.getElementById('pixKeyValue').value.trim();
+            var merchantName = document.getElementById('pixMerchantName').value.trim();
+            var merchantCity = document.getElementById('pixMerchantCity').value.trim() || 'BRASIL';
+
+            if (!keyValue || !merchantName) {
+                appAlert("Preencha sua chave Pix e seu nome/empresa.", "Dados Obrigatórios");
+                return;
+            }
+
+            localStorage.setItem('user_pix_config_' + currentUser.id, JSON.stringify({
+                keyType: keyType,
+                keyValue: keyValue,
+                merchantName: merchantName,
+                merchantCity: merchantCity
+            }));
+            closeModalById('modalPixConfig');
+            showToast("Chave Pix salva com sucesso!");
+        }
+
+        async function clearPixConfig() {
+            if (!currentUser) return;
+            var ok = await appConfirm("Apagar a chave Pix e os dados do recebedor salvos neste navegador? Isso não altera sua chave no banco.", "Apagar cadastro Pix", "Apagar", true);
+            if (!ok) return;
+            localStorage.removeItem('user_pix_config_' + currentUser.id);
+            document.getElementById('pixKeyType').value = 'cpf';
+            ['pixKeyValue', 'pixMerchantName', 'pixMerchantCity', 'pixPayloadBox'].forEach(function(id) {
+                var field = document.getElementById(id);
+                if (field) field.value = '';
+            });
+            var qr = document.getElementById('pixQrCanvas');
+            if (qr) qr.innerHTML = '';
+            activePixChargeContext = null;
+            closeModalById('modalPixConfig');
+            showToast("Cadastro Pix apagado deste navegador.");
+        }
+
+        function normalizePixText(str, maxLen) {
+            return String(str || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9 ]/g, '')
+                .trim()
+                .toUpperCase()
+                .slice(0, maxLen);
+        }
+
+        function emvField(id, value) {
+            var len = String(value.length).padStart(2, '0');
+            return id + len + value;
+        }
+
+        function crc16Ccitt(payload) {
+            var crc = 0xFFFF;
+            for (var i = 0; i < payload.length; i++) {
+                crc ^= payload.charCodeAt(i) << 8;
+                for (var j = 0; j < 8; j++) {
+                    if ((crc & 0x8000) !== 0) crc = (crc << 1) ^ 0x1021;
+                    else crc <<= 1;
+                }
+            }
+            return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function buildPixBrCode(cfg, amount, txid) {
+            var key = cfg.keyValue.trim();
+            if (cfg.keyType === 'cpf' || cfg.keyType === 'cnpj') key = key.replace(/\D/g, '');
+            if (cfg.keyType === 'celular') {
+                var digits = key.replace(/\D/g, '');
+                key = digits.startsWith('55') ? '+' + digits : '+55' + digits;
+            }
+
+            var merchantAccount = emvField('00', 'BR.GOV.BCB.PIX') + emvField('01', key);
+            var merchantName = normalizePixText(cfg.merchantName, 25) || 'RECEBEDOR';
+            var merchantCity = normalizePixText(cfg.merchantCity, 15) || 'BRASIL';
+            var cleanTxid = normalizePixText(txid || 'GCAPP', 25).replace(/\s+/g, '') || '***';
+
+            var payload =
+                emvField('00', '01') +
+                emvField('26', merchantAccount) +
+                emvField('52', '0000') +
+                emvField('53', '986') +
+                (amount > 0 ? emvField('54', Number(amount).toFixed(2)) : '') +
+                emvField('58', 'BR') +
+                emvField('59', merchantName) +
+                emvField('60', merchantCity) +
+                emvField('62', emvField('05', cleanTxid)) +
+                '6304';
+
+            return payload + crc16Ccitt(payload);
+        }
+
+        function openPixChargeForBill(id) {
+            if (!hasProAccess) {
+                promptUpgrade("Cobrança Pix com QR Code");
+                return;
+            }
+            var cfg = getSavedPixConfig();
+            if (!cfg || !cfg.keyValue) {
+                appConfirm("Cadastre sua chave Pix primeiro para gerar QR Codes de cobrança.", "Chave Pix Não Configurada", "Cadastrar Agora", false)
+                    .then(ok => { if (ok) openPixConfigModal(); });
+                return;
+            }
+            var bill = globalData.bills.find(b => b.id === id);
+            if (!bill) return;
+            renderPixChargeModal(cfg, bill.nome, parseFloat(bill.valor || 0), bill.pagador);
+        }
+
+        function openPixChargeFromModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Cobrança Pix com QR Code");
+                return;
+            }
+            var cfg = getSavedPixConfig();
+            if (!cfg || !cfg.keyValue) {
+                openPixConfigModal();
+                return;
+            }
+            var nome = document.getElementById('billName').value.trim() || 'Cobrança';
+            var valor = parseFloat(document.getElementById('billValue').value || '0');
+            var pagador = document.getElementById('billPagador').value.trim();
+            renderPixChargeModal(cfg, nome, valor, pagador);
+        }
+
+        function renderPixChargeModal(cfg, desc, amount, pagador) {
+            var payload = buildPixBrCode(cfg, amount, 'GC' + Date.now().toString().slice(-8));
+            activePixChargeContext = { desc: desc, amount: amount, pagador: pagador, payload: payload };
+
+            document.getElementById('pixChargeSubtitle').innerText = desc + (pagador ? ' • ' + pagador : '');
+            document.getElementById('pixChargeAmount').innerText = formatCurrency(amount);
+            document.getElementById('pixPayloadBox').value = payload;
+
+            var qrContainer = document.getElementById('pixQrCanvas');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: payload,
+                width: 190,
+                height: 190,
+                colorDark: "#0A1128",
+                colorLight: "#FFFFFF"
+            });
+
+            openModalById('modalPixCharge');
+        }
+
+        function copyPixPayload() {
+            var box = document.getElementById('pixPayloadBox');
+            box.select();
+            navigator.clipboard.writeText(box.value);
+            showToast("Código Pix Copia e Cola copiado!");
+        }
+
+        function sharePixWhatsApp() {
+            if (!activePixChargeContext) return;
+            var msg = "Olá" + (activePixChargeContext.pagador ? " " + activePixChargeContext.pagador : "") +
+                "! Segue o Pix referente a *" + activePixChargeContext.desc + "* no valor de *" +
+                formatCurrency(activePixChargeContext.amount) + "*:\n\n" + activePixChargeContext.payload;
+            window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank", "noopener,noreferrer");
+        }
+
+        // =========================================================================
+        // CONTAS ATRASADAS SEM DATA & RENEGOCIAÇÃO
+        // =========================================================================
+        function openOverdueModal() {
+            var list = globalData.bills.filter(b => b.sem_data && !b.pago && b.natureza !== 'gasto');
+            var container = document.getElementById('overdueItemsContainer');
+            container.innerHTML = '';
+            if (list.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); font-size:0.86rem;">Nenhuma conta atrasada sem data pendente.</p>';
+            } else {
+                list.forEach(item => {
+                    container.innerHTML += `
+                        <div class="admin-list-item" style="flex-direction:column; align-items:stretch; gap:8px;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>${item.nome}</strong>
+                                <strong style="color:#EF4444;">${formatCurrency(item.valor)}</strong>
+                            </div>
+                            <div style="display:flex; gap:6px; justify-content:flex-end;">
+                                <button type="button" class="btn-save" style="padding:6px 10px; font-size:0.76rem; background:#10B981; color:#FFF;" onclick="payOverdueItem('${item.id}')">✓ Dar Baixa</button>
+                                <button type="button" class="btn-save" style="padding:6px 10px; font-size:0.76rem;" onclick="openConvertParcelModal('${item.id}')">🔄 Parcelar</button>
+                                <button type="button" class="btn-cancel" style="padding:6px 10px; font-size:0.76rem; display:flex; align-items:center;" onclick="confirmDeleteOverdueItem('${item.id}')">${TRASH_ICON_SVG}</button>
+                            </div>
+                        </div>`;
+                });
+            }
+            openModalById('modalOverdueList');
+        }
+
+        async function confirmDeleteOverdueItem(id) {
+            var ok = await appConfirm("Excluir esta conta atrasada?", "Excluir Pendência", "Excluir", true);
+            if (!ok) return;
+            closeModalById('modalOverdueList');
+            await deleteSingleBill(id);
+        }
+
+        function openNewOverdueModal() {
+            openModal();
+            setNature('pagar');
+            document.getElementById('chkSemData').checked = true;
+            toggleSemDataField();
+        }
+
+        async function payOverdueItem(id) {
+            closeModalById('modalOverdueList');
+            showLoader();
+            await _supabase.from('contas').update({ pago: true, sem_data: false, data: new Date().toISOString().split('T')[0] }).eq('id', id);
+            await loadUserData();
+            showToast("Conta baixada como paga!");
+        }
+
+        function openConvertParcelModal(id) {
+            if (!hasProAccess) {
+                closeModalById('modalOverdueList');
+                promptUpgrade("Renegociação e Parcelamento de Dívidas");
+                return;
+            }
+            var item = globalData.bills.find(b => b.id === id);
+            if (!item) return;
+            closeModalById('modalOverdueList');
+            document.getElementById('convertBillId').value = item.id;
+            document.getElementById('convertName').value = item.nome;
+            document.getElementById('convertParcelValue').value = item.valor;
+            document.getElementById('convertQty').value = 2;
+            document.getElementById('convertFirstDate').value = new Date().toISOString().split('T')[0];
+            openModalById('modalConvertParcel');
+        }
+
+        async function executeConvertToParcel() {
+            var oldId = document.getElementById('convertBillId').value;
+            var nome = document.getElementById('convertName').value.trim().toUpperCase();
+            var parcelVal = parseFloat(document.getElementById('convertParcelValue').value);
+            var qty = parseInt(document.getElementById('convertQty').value || '2', 10);
+            var firstDate = document.getElementById('convertFirstDate').value;
+
+            if (!nome || isNaN(parcelVal) || parcelVal <= 0 || qty < 2 || !firstDate) {
+                appAlert("Preencha todos os dados do parcelamento.", "Dados Incompletos");
+                return;
+            }
+
+            closeModalById('modalConvertParcel');
+            showLoader();
+
+            var baseDate = new Date(firstDate + "T12:00:00");
+            var grupoId = 'grp_' + Date.now();
+            var newRecords = [];
+            for (var i = 0; i < qty; i++) {
+                var d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, baseDate.getDate(), 12, 0, 0);
+                newRecords.push({
+                    user_id: currentUser.id,
+                    nome: nome,
+                    valor: parcelVal,
+                    data: d.toISOString().split('T')[0],
+                    tipo: 'Parcelada',
+                    pago: false,
+                    parcela: (i + 1) + "/" + qty,
+                    grupo_parcela: grupoId,
+                    natureza: 'pagar',
+                    sem_data: false
+                });
+            }
+
+            await safeInsertContas(newRecords);
+            if (oldId) await _supabase.from('contas').delete().eq('id', oldId);
+            await loadUserData();
+            showToast("Dívida parcelada em " + qty + "x!");
+        }
+
+        // =========================================================================
+        // AGENDAS (GOOGLE CALENDAR / ICS) - IGNORA GASTOS AVULSOS JÁ PAGOS
+        // =========================================================================
+        function openCalendarModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Sincronização com Google Agenda e Apple Calendário");
+                return;
+            }
+            openModalById('modalCalendar');
+        }
+
+        function collectAllCalendarEvents() {
+            return globalData.bills.filter(b => !b.sem_data && b.data && b.natureza !== 'gasto');
+        }
+
+        function syncAllToGoogleCalendar() {
+            var events = collectAllCalendarEvents();
+            if (events.length === 0) {
+                appAlert("Nenhum lançamento futuro encontrado para sincronizar.", "Agenda Vazia");
+                return;
+            }
+            var first = events[0];
+            var d = first.data.replace(/-/g, '');
+            var title = encodeURIComponent((first.natureza === 'receber' ? '[Receber] ' : '[Pagar] ') + first.nome + ' (' + formatCurrency(first.valor) + ')');
+            var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + d + '/' + d;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function downloadAllIcsCalendar() {
+            var events = collectAllCalendarEvents();
+            if (events.length === 0) {
+                appAlert("Nenhum lançamento encontrado para exportar.", "Agenda Vazia");
+                return;
+            }
+            var lines = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Gestao Completa App//PT-BR'
+            ];
+            events.forEach(ev => {
+                var d = ev.data.replace(/-/g, '');
+                var prefix = ev.natureza === 'receber' ? '[Receber] ' : '[Pagar] ';
+                lines.push('BEGIN:VEVENT');
+                lines.push('UID:gc-' + ev.id + '@gestaocompleta.app');
+                lines.push('DTSTART;VALUE=DATE:' + d);
+                lines.push('SUMMARY:' + prefix + ev.nome + ' - ' + formatCurrency(ev.valor));
+                if (ev.tipo === 'Mensal') lines.push('RRULE:FREQ=MONTHLY');
+                lines.push('END:VEVENT');
+            });
+            lines.push('END:VCALENDAR');
+
+            var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Gestao_Completa_Agenda.ics';
+            link.click();
+            showToast("Arquivo .ics gerado!");
+        }
+
+        // =========================================================================
+        // ASSISTENTE IA (GEMINI / CHATGPT) & EXPORTAÇÃO PDF
+        // =========================================================================
+        function openAiModal() {
+            if (!hasProAccess) {
+                promptUpgrade("Análise Financeira com Inteligência Artificial");
+                return;
+            }
+            document.getElementById('geminiCopyHint').style.display = 'none';
+            var bills = getBillsForViewMonth();
+
+            var totalRec = 0, totalPag = 0, totalGas = 0;
+            var linhas = bills.map(b => {
+                var val = parseFloat(b.valor || 0);
+                var nat = b.natureza || 'pagar';
+                if (nat === 'receber') totalRec += val;
+                else if (nat === 'gasto') totalGas += val;
+                else totalPag += val;
+
+                var tag = nat === 'receber' ? 'A RECEBER' : (nat === 'gasto' ? 'GASTO / DESPESA' : 'CONTA A PAGAR');
+                var status = nat === 'gasto' ? 'Pago no ato' : (b.isPaidView ? 'Concluído' : 'Pendente');
+                return '- [' + tag + '] ' + b.nome + ': ' + formatCurrency(val) + ' (Dia ' + b.displayData.split('-')[2] + ') - ' + status;
+            });
+
+            var semData = globalData.bills
+                .filter(b => b.sem_data && !b.pago && b.natureza !== 'gasto')
+                .map(b => '- [ATRASADA SEM DATA] ' + b.nome + ': ' + formatCurrency(b.valor));
+
+            var resumoCabecalho = "Resumo de " + monthNames[viewMonth] + "/" + viewYear + ":\n" +
+                "- Total a Receber: " + formatCurrency(totalRec) + "\n" +
+                "- Contas a Pagar (compromissos): " + formatCurrency(totalPag) + "\n" +
+                "- Gastos do Dia a Dia / Notas Fiscais: " + formatCurrency(totalGas) + "\n" +
+                "- Saldo Previsto Final: " + formatCurrency(totalRec - (totalPag + totalGas));
+
+            var prompt = "Analise meu planejamento financeiro de " + monthNames[viewMonth] + "/" + viewYear +
+                " e sugira prioridades de pagamento e economia:\n\n" +
+                resumoCabecalho +
+                "\n\nDetalhamento dos lançamentos do mês:\n" +
+                (linhas.join("\n") || "Nenhum") +
+                "\n\nContas atrasadas sem data:\n" +
+                (semData.join("\n") || "Nenhuma");
+
+            document.getElementById('aiPromptBox').value = prompt;
+            openModalById('modalAi');
+        }
+
+        function copyAiPrompt() {
+            var box = document.getElementById('aiPromptBox');
+            box.select();
+            navigator.clipboard.writeText(box.value);
+            showToast("Resumo financeiro copiado!");
+        }
+
+        function openInGemini() {
+            var box = document.getElementById('aiPromptBox');
+            box.select();
+            navigator.clipboard.writeText(box.value);
+            document.getElementById('geminiCopyHint').style.display = 'block';
+            showToast("Texto copiado! Cole no Gemini.");
+            window.open("https://gemini.google.com/app", "_blank", "noopener,noreferrer");
+        }
+
+        function openInChatGpt() {
+            var q = encodeURIComponent(document.getElementById('aiPromptBox').value);
+            window.open("https://chatgpt.com/?q=" + q, "_blank", "noopener,noreferrer");
+        }
+
+        function openInClaude() {
+            var box = document.getElementById('aiPromptBox');
+            box.select();
+            navigator.clipboard.writeText(box.value).then(function() {
+                showToast("Texto copiado! Cole no Claude.");
+            }).catch(function() {
+                appAlert("Não foi possível copiar automaticamente. Selecione e copie o prompt para colar no Claude.", "Copiar prompt");
+            });
+            window.open("https://claude.ai/new", "_blank", "noopener,noreferrer");
+        }
+
+        function exportPDF() {
+            if (!hasProAccess) {
+                promptUpgrade("Exportação de Relatórios em PDF");
+                return;
+            }
+            var currentBills = getBillsForViewMonth();
+            if (currentBills.length === 0) {
+                appAlert("Nenhum lançamento encontrado neste mês para gerar PDF.", "Relatório Vazio");
+                return;
+            }
+
+            var doc = new window.jspdf.jsPDF();
+
+            var totalReceber = 0, totalPagar = 0, totalGastos = 0;
+            var recebidoReal = 0, pagoReal = 0;
+            var compromissos = [];
+            var gastosList = [];
+
+            currentBills.forEach(b => {
+                var val = parseFloat(b.valor) || 0;
+                var nat = b.natureza || 'pagar';
+                if (nat === 'receber') {
+                    totalReceber += val;
+                    if (b.isPaidView) recebidoReal += val;
+                    compromissos.push(b);
+                } else if (nat === 'gasto') {
+                    totalGastos += val;
+                    gastosList.push(b);
+                } else {
+                    totalPagar += val;
+                    if (b.isPaidView) pagoReal += val;
+                    compromissos.push(b);
+                }
+            });
+
+            var saldoPrevisto = totalReceber - (totalPagar + totalGastos);
+            var saldoRealizado = recebidoReal - (pagoReal + totalGastos);
+
+            doc.setFontSize(15);
+            doc.setTextColor(10, 17, 40);
+            doc.text("Relatório Financeiro — " + monthNames[viewMonth] + " " + viewYear, 14, 18);
+
+            doc.setFontSize(9);
+            doc.setTextColor(100, 116, 139);
+            doc.text("Gerado pelo Gestão Completa App em " + formatDateBR(new Date().toISOString().split('T')[0]), 14, 24);
+
+            // BLOCO 1: Quadro Resumo Executivo
+            doc.autoTable({
+                startY: 29,
+                head: [['A Receber (Entradas)', 'Contas a Pagar', 'Gastos do Dia a Dia', 'Saldo Previsto (Realizado)']],
+                body: [[
+                    formatCurrency(totalReceber),
+                    formatCurrency(totalPagar),
+                    formatCurrency(totalGastos),
+                    formatCurrency(saldoPrevisto) + ' (' + formatCurrency(saldoRealizado) + ')'
+                ]],
+                theme: 'grid',
+                headStyles: { fillColor: [10, 17, 40], textColor: [212, 175, 55], fontSize: 8.5, halign: 'center' },
+                bodyStyles: { fontStyle: 'bold', fontSize: 9.5, halign: 'center', textColor: [15, 23, 42] }
+            });
+
+            var nextY = doc.lastAutoTable.finalY + 10;
+
+            // BLOCO 2: Entradas e Contas a Pagar (Compromissos)
+            doc.setFontSize(11);
+            doc.setTextColor(10, 17, 40);
+            doc.text("1. Entradas e Contas a Pagar (Compromissos)", 14, nextY);
+
+            if (compromissos.length > 0) {
+                compromissos.sort((a, b) => (a.displayData || '').localeCompare(b.displayData || ''));
+                var compBody = compromissos.map(b => [
+                    b.natureza === 'receber' ? 'A RECEBER' : 'CONTA A PAGAR',
+                    b.nome + (b.pagador ? ' (' + b.pagador + ')' : '') + (b.parcela ? ' [' + b.parcela + ']' : ''),
+                    formatDateBR(b.displayData),
+                    formatCurrency(b.valor),
+                    b.isPaidView ? 'CONCLUÍDO' : 'PENDENTE'
+                ]);
+
+                doc.autoTable({
+                    startY: nextY + 4,
+                    head: [['Tipo', 'Descrição', 'Vencimento', 'Valor', 'Status']],
+                    body: compBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [30, 41, 59], fontSize: 8.5 },
+                    bodyStyles: { fontSize: 8.5 }
+                });
+                nextY = doc.lastAutoTable.finalY + 10;
+            } else {
+                doc.setFontSize(9);
+                doc.setTextColor(100, 116, 139);
+                doc.text("Nenhuma entrada ou conta agendada neste mês.", 14, nextY + 6);
+                nextY += 14;
+            }
+
+            // BLOCO 3: Extrato de Gastos & Notas Fiscais
+            if (nextY > 255) {
+                doc.addPage();
+                nextY = 20;
+            }
+
+            doc.setFontSize(11);
+            doc.setTextColor(10, 17, 40);
+            doc.text("2. Extrato de Gastos & Notas Fiscais", 14, nextY);
+
+            if (gastosList.length > 0) {
+                gastosList.sort((a, b) => (a.displayData || '').localeCompare(b.displayData || ''));
+                var gastosBody = gastosList.map(g => [
+                    formatDateBR(g.displayData),
+                    g.nome,
+                    formatCurrency(g.valor)
+                ]);
+                gastosBody.push([
+                    { content: 'SUBTOTAL DE GASTOS DO MÊS', colSpan: 2, styles: { fontStyle: 'bold', halign: 'right', fillColor: [254, 243, 199] } },
+                    { content: formatCurrency(totalGastos), styles: { fontStyle: 'bold', fillColor: [254, 243, 199] } }
+                ]);
+
+                doc.autoTable({
+                    startY: nextY + 4,
+                    head: [['Data', 'Descrição do Gasto / Compra', 'Valor']],
+                    body: gastosBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [180, 83, 9], fontSize: 8.5 },
+                    bodyStyles: { fontSize: 8.5 }
+                });
+            } else {
+                doc.setFontSize(9);
+                doc.setTextColor(100, 116, 139);
+                doc.text("Nenhum gasto variável registrado neste mês.", 14, nextY + 6);
+            }
+
+            doc.save("Financeiro_" + monthNames[viewMonth] + "_" + viewYear + ".pdf");
+        }
+
+        // =========================================================================
+        // ASSINATURAS ASAAS, PAINEL ADMIN, ATALHOS E AUTH
+        // =========================================================================
+        async function startAsaasSubscription() {
+            if (!document.getElementById('chkAcceptTerms').checked) {
+                appAlert("Marque a caixa aceitando os Termos de Uso e Política de Reembolso para continuar.", "Aceite Necessário");
+                return;
+            }
+            var name = document.getElementById('subName').value.trim();
+            var cpfCnpj = document.getElementById('subCpf').value.replace(/\D/g, '');
+            if (!name || cpfCnpj.length < 11) {
+                appAlert("Preencha nome completo e CPF/CNPJ válidos.", "Dados Inválidos");
+                return;
+            }
+            var planAmount = selectedPlanMonths === 12 ? 69.90 : 9.90;
+            var planName = selectedPlanMonths === 12 ? "Gestão Completa Anual" : "Gestão Completa Mensal";
+            showLoader();
+            const { data, error } = await _supabase.functions.invoke('asaas-checkout', {
+                body: {
+                    action: 'subscribe',
+                    name: name,
+                    cpfCnpj: cpfCnpj,
+                    planMonths: selectedPlanMonths,
+                    planAmount: planAmount,
+                    planName: planName
+                }
+            });
+            hideLoader();
+            if (error || data?.error) {
+                appAlert("Erro: " + (data?.error || error.message), "Erro no Checkout");
+            } else if (data?.invoiceUrl) {
+                window.open(data.invoiceUrl, '_blank');
+                appAlert("Conclua o pagamento na aba aberta e depois clique em 'Já paguei, liberar meu acesso'.", "Fatura Gerada");
+            }
+        }
+
+        function openMySubModal() {
+            var txt = document.getElementById('mySubStatusText');
+            var cancelArea = document.getElementById('cancelSubArea');
+            var upgradeArea = document.getElementById('upgradeSubArea');
+
+            if (isMasterAdmin() || currentSub?.status === 'courtesy' || currentSub?.is_admin) {
+                txt.innerHTML = "Plano Atual: <strong>Gestão Completa (Cortesia / Admin)</strong>";
+                cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'none';
+            } else if (!hasProAccess) {
+                txt.innerHTML = "Plano Atual: <strong>Essencial (Grátis)</strong><br>• Até " + FREE_LIMIT_BILLS + " lançamentos financeiros/mês<br>• Até " + FREE_LIMIT_VEHICLES + " registros de veículo/mês<br><br>Faça upgrade para liberar recursos ilimitados e Cobrança Pix.";
+                cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'block';
+            } else if (currentSub?.status === 'canceled') {
+                txt.innerHTML = "Plano Atual: <strong>Gestão Completa (Cancelamento Agendado)</strong><br>Acesso completo ativo até <strong>" + formatDateBR(currentSub.current_period_end) + "</strong> (+3 dias de tolerância).";
+                cancelArea.style.display = 'none';
+                upgradeArea.style.display = 'none';
+            } else {
+                var ciclo = currentSub?.plan_months === 12 ? 'Anual (R$ 69,90)' : 'Mensal (R$ 9,90)';
+                txt.innerHTML = "Plano Atual: <strong>Gestão Completa — " + ciclo + "</strong><br>Próxima renovação: <strong>" + formatDateBR(currentSub?.current_period_end) + "</strong>";
+                cancelArea.style.display = 'block';
+                upgradeArea.style.display = 'none';
+            }
+            openModalById('modalMySub');
+        }
+
+        async function cancelMySubscription() {
+            var ok = await appConfirm("Cancelar renovação automática? Seu acesso Gestão Completa continua ativo até o fim do período já pago.", "Cancelar Assinatura", "Cancelar Renovação", true);
+            if (!ok) return;
+            showLoader();
+            await _supabase.functions.invoke('asaas-checkout', { body: { action: 'cancel' } });
+            hideLoader();
+            closeModalById('modalMySub');
+            await checkSubscriptionStatus();
+        }
+
+        function getHiddenAdminEmails() {
+            try {
+                var emails = JSON.parse(localStorage.getItem('admin_hidden_emails_' + currentUser.id) || '[]');
+                return Array.isArray(emails) ? emails : [];
+            } catch (e) { return []; }
+        }
+
+        async function hideAdminEmail(email) {
+            if (!isMasterAdmin() && !currentSub?.is_admin) return;
+            var ok = await appConfirm("Ocultar " + email + " apenas deste painel neste navegador? A conta, a assinatura e a cortesia não serão alteradas.", "Excluir do painel", "Excluir do painel", true);
+            if (!ok) return;
+            var hidden = getHiddenAdminEmails();
+            if (!hidden.includes(email)) hidden.push(email);
+            localStorage.setItem('admin_hidden_emails_' + currentUser.id, JSON.stringify(hidden));
+            await openAdminModal();
+            showToast("E-mail ocultado apenas neste painel.");
+        }
+
+        async function openAdminModal() {
+            if (!isMasterAdmin() && !currentSub?.is_admin) return;
+            openModalById('modalAdmin');
+            const { data, error } = await _supabase.from('assinaturas').select('*').order('created_at', { ascending: false });
+            var list = document.getElementById('adminUsersList');
+            list.innerHTML = '';
+            if (error) { list.textContent = 'Não foi possível carregar os usuários.'; return; }
+            var hidden = getHiddenAdminEmails();
+            (data || []).filter(u => !hidden.includes(u.email)).forEach(u => {
+                var row = document.createElement('div');
+                row.className = 'admin-list-item';
+                var details = document.createElement('div');
+                var emailLabel = document.createElement('strong');
+                emailLabel.textContent = u.email;
+                details.append(emailLabel, document.createTextNode(' (' + u.status + ')'));
+                var actions = document.createElement('div');
+                actions.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; align-items:center;';
+                if (u.is_admin || u.email === ADMIN_EMAIL) {
+                    actions.textContent = 'ADMIN';
+                } else {
+                    var courtesy = document.createElement('button');
+                    courtesy.type = 'button'; courtesy.className = 'btn-link';
+                    courtesy.textContent = u.status === 'courtesy' ? 'Remover' : 'Dar Cortesia';
+                    if (u.status === 'courtesy') courtesy.style.color = '#EF4444';
+                    courtesy.onclick = function() { u.status === 'courtesy' ? revokeCourtesy(u.email) : grantCourtesy(u.email); };
+                    actions.appendChild(courtesy);
+                }
+                var hide = document.createElement('button');
+                hide.type = 'button'; hide.className = 'btn-link'; hide.style.color = '#EF4444';
+                hide.textContent = 'Excluir do painel';
+                hide.onclick = function() { hideAdminEmail(u.email); };
+                actions.appendChild(hide);
+                row.append(details, actions);
+                list.appendChild(row);
+            });
+        }
+
+        async function grantCourtesy(emailParam) {
+            var email = (emailParam || document.getElementById('adminTargetEmail').value).trim().toLowerCase();
+            if (!email) return;
+            await _supabase.from('assinaturas').upsert({ email: email, status: 'courtesy', suspended_at: null, purge_at: null }, { onConflict: 'email' });
+            document.getElementById('adminTargetEmail').value = '';
+            openAdminModal();
+            showToast("Cortesia liberada!");
+        }
+
+        async function revokeCourtesy(email) {
+            await _supabase.from('assinaturas').update({ status: 'inactive' }).eq('email', email);
+            openAdminModal();
+            showToast("Cortesia removida.");
+        }
+
+        function triggerShortcutPrompt(manual) {
+            if (!manual) return;
+            var btnInstall = document.getElementById('btnInstallPwaAction');
+            var body = document.getElementById('shortcutModalBody');
+            if (deferredInstallPrompt) {
+                btnInstall.style.display = 'inline-block';
+                body.innerText = 'Instale o Gestão Completa direto na tela inicial do seu aparelho para acesso instantâneo.';
+            } else {
+                btnInstall.style.display = 'none';
+                body.innerHTML = 'No <strong>iPhone (Safari)</strong>: toque no ícone <strong>Compartilhar (□↑)</strong> e escolha <em>"Adicionar à Tela de Início"</em>.<br><br>No <strong>Android (Chrome)</strong>: toque nos <strong>3 pontinhos (⋮)</strong> e escolha <em>"Adicionar à tela inicial"</em>.';
+            }
+            openModalById('modalShortcut');
+        }
+
+        async function installPwaNow() {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+            closeModalById('modalShortcut');
+        }
+
+        function openLegalModal() { openModalById('modalLegal'); }
+
+        async function loginProvider(provider) {
+            showLoader();
+            await _supabase.auth.signInWithOAuth({ provider: provider, options: { redirectTo: window.location.origin } });
+        }
+
+        async function loginEmail() {
+            var email = document.getElementById('authEmail').value.trim();
+            var password = document.getElementById('authPassword').value;
+            if (!email || !password) { appAlert("Preencha e-mail e senha.", "Campos Obrigatórios"); return; }
+            if (document.getElementById('rememberEmail').checked) localStorage.setItem('saved_login_email', email);
+            showLoader();
+            const { error } = await _supabase.auth.signInWithPassword({ email: email, password: password });
+            if (error && error.message.includes("Invalid login credentials")) {
+                const { error: signUpErr } = await _supabase.auth.signUp({ email: email, password: password });
+                if (signUpErr) appAlert(signUpErr.message, "Erro ao Criar Conta");
+                else showToast("Conta criada com sucesso!");
+            } else if (error) {
+                appAlert(error.message, "Erro de Acesso");
+            }
+            hideLoader();
+        }
+
+        async function recoverPassword() {
+            var email = document.getElementById('authEmail').value.trim();
+            if (!email) { appAlert("Digite seu e-mail no campo acima primeiro.", "Recuperar Senha"); return; }
+            await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+            appAlert("Link de recuperação enviado para " + email, "E-mail Enviado");
+        }
+
+        async function updateRecoveredPassword() {
+            var pwd = document.getElementById('newPasswordInput').value;
+            if (pwd.length < 6) { appAlert("A senha deve ter pelo menos 6 caracteres.", "Senha Curta"); return; }
+            await _supabase.auth.updateUser({ password: pwd });
+            closeModalById('modalNewPassword');
+            await checkSubscriptionStatus();
+        }
+
+        async function logout() {
+            showLoader();
+            await _supabase.auth.signOut();
+            hideLoader();
+        }
+    </script>
+</body>
+</html>
