@@ -2003,35 +2003,70 @@
             deferredInstallPrompt = e;
         });
 
-        window.onload = async function() {
+        var a19SessionRevision = 0;
+        var a19PasswordRecovery = false;
+        function a19EscapeHTML(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(c) {
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+            });
+        }
+        function a19IsCurrent(uid, revision) {
+            return !!currentUser && currentUser.id === uid && a19SessionRevision === revision;
+        }
+        function a19HasValidPro(sub, now) {
+            if (!sub) return false;
+            if (sub.is_admin === true || sub.status === 'courtesy') return true;
+            if (!['active','canceled'].includes(sub.status)) return false;
+            var value = sub.current_period_end;
+            if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            var parts = value.split('-').map(Number);
+            var end = new Date(Date.UTC(parts[0], parts[1]-1, parts[2], 12));
+            if (end.toISOString().slice(0,10) !== value) return false;
+            end.setUTCDate(end.getUTCDate()+3);
+            var today = new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(now || new Date());
+            return end.toISOString().slice(0,10) >= today;
+        }
+        function a19ClearSensitiveState() {
+            currentSub = null; hasProAccess = false; activePixChargeContext = null;
+            globalData = {bills:[],veiculos:[],pagamentosMensais:[]};
+            document.querySelectorAll('.modal').forEach(function(el) {el.style.display='none';});
+            ['listContainer','adminUsersList','overdueItemsContainer','pixQrCanvas'].forEach(function(id) {
+                var el=document.getElementById(id); if(el) el.replaceChildren();
+            });
+            document.querySelectorAll('#modalFinanceiro input, #modalVeiculo input, #pixPayloadBox, #newPasswordInput, #authPassword, #adminTargetEmail').forEach(function(el) {
+                if(el.type!=='checkbox' && el.type!=='radio') el.value='';
+            });
+            ['pixChargeSubtitle','pixChargeAmount','drawerUserName'].forEach(function(id) {
+                var el=document.getElementById(id); if(el) el.textContent='';
+            });
+            closeDrawer();
+        }
+
+        window.onload = function() {
             initAutoTheme();
             var savedEmail = localStorage.getItem('saved_login_email');
-            if (savedEmail) document.getElementById('authEmail').value = savedEmail;
-
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                await checkSubscriptionStatus();
-            } else {
-                showAuth();
-            }
-
-            _supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'PASSWORD_RECOVERY') {
-                    openModalById('modalNewPassword');
-                    return;
+            if(savedEmail) document.getElementById('authEmail').value=savedEmail;
+            _supabase.auth.onAuthStateChange(function(event,session) {
+                var nextUser=session && session.user;
+                var changed=(currentUser && currentUser.id)!==(nextUser && nextUser.id);
+                if(changed || event==='SIGNED_OUT') {
+                    a19ClearSensitiveState(); a19PasswordRecovery=false;
                 }
-                if (session) {
-                    currentUser = session.user;
-                    await checkSubscriptionStatus();
-                } else {
-                    currentUser = null;
-                    showAuth();
-                }
+                a19SessionRevision++;
+                var revision=a19SessionRevision;
+                currentUser=nextUser || null;
+                if(!currentUser) {showAuth(); return;}
+                if(event==='PASSWORD_RECOVERY') a19PasswordRecovery=true;
+                if(a19PasswordRecovery) {openModalById('modalNewPassword'); return;}
+                var uid=currentUser.id;
+                setTimeout(function() {
+                    if(a19IsCurrent(uid,revision)) checkSubscriptionStatus();
+                },0);
             });
         };
 
         function showAuth() {
+            a19ClearSensitiveState();
             document.body.classList.remove('app-active');
             document.getElementById('authContainer').style.display = 'flex';
             document.getElementById('paywallContainer').style.display = 'none';
@@ -2070,38 +2105,22 @@
         }
 
         async function checkSubscriptionStatus() {
-            if (!currentUser) { showAuth(); return; }
+            if(!currentUser) {showAuth(); return;}
+            if(a19PasswordRecovery) {openModalById('modalNewPassword'); return;}
+            var uid=currentUser.id, revision=a19SessionRevision;
             showLoader();
             try {
-                const { data } = await _supabase
-                    .from('assinaturas')
-                    .select('*')
-                    .eq('email', currentUser.email.toLowerCase())
-                    .maybeSingle();
-
-                currentSub = data || null;
-                var now = new Date();
-                var isActive = false;
-
-                if (isMasterAdmin() || (currentSub && (currentSub.is_admin || currentSub.status === 'courtesy'))) {
-                    isActive = true;
-                } else if (currentSub && (currentSub.status === 'active' || currentSub.status === 'canceled')) {
-                    if (currentSub.current_period_end) {
-                        var endPlusGrace = new Date(currentSub.current_period_end);
-                        endPlusGrace.setDate(endPlusGrace.getDate() + 3);
-                        if (endPlusGrace >= now) isActive = true;
-                    } else {
-                        isActive = true;
-                    }
-                }
-
-                hasProAccess = isActive;
-                hideLoader();
-                showApp();
-            } catch (err) {
-                hideLoader();
-                hasProAccess = isMasterAdmin();
-                showApp();
+                var result=await _supabase.from('assinaturas').select('*').eq('user_id',uid).maybeSingle();
+                if(!a19IsCurrent(uid,revision)) return;
+                if(result.error) throw result.error;
+                currentSub=result.data && result.data.user_id===uid ? result.data : null;
+                hasProAccess=a19HasValidPro(currentSub,new Date());
+            } catch(err) {
+                if(!a19IsCurrent(uid,revision)) return;
+                currentSub=null; hasProAccess=false;
+                showToast('Não foi possível verificar o PRO. Tente novamente; seus dados foram preservados.');
+            } finally {
+                if(a19IsCurrent(uid,revision) && !a19PasswordRecovery) {hideLoader(); showApp();}
             }
         }
 
@@ -2274,24 +2293,25 @@
         // CARREGAMENTO DE DADOS DO SUPABASE
         // =========================================================================
         async function loadUserData() {
-            if (!currentUser) return;
+            if(!currentUser) return;
+            var uid=currentUser.id, revision=a19SessionRevision;
             showLoader();
             try {
-                const [resContas, resPagMensais, resVeiculos] = await Promise.all([
-                    _supabase.from('contas').select('*').eq('user_id', currentUser.id).order('data', { ascending: true }),
-                    _supabase.from('pagamentos_mensais').select('*').eq('user_id', currentUser.id),
-                    _supabase.from('veiculos').select('*').eq('user_id', currentUser.id).order('data', { ascending: false })
+                var results=await Promise.all([
+                    _supabase.from('contas').select('*').eq('user_id',uid).order('data',{ascending:true}),
+                    _supabase.from('pagamentos_mensais').select('*').eq('user_id',uid),
+                    _supabase.from('veiculos').select('*').eq('user_id',uid).order('data',{ascending:false})
                 ]);
-
-                globalData.bills = resContas.data || [];
-                globalData.pagamentosMensais = resPagMensais.data || [];
-                globalData.veiculos = resVeiculos.data || [];
-
-                updateOverdueCounters();
-                updateFreeTierBanner();
-                renderCurrentView();
+                if(!a19IsCurrent(uid,revision)) return;
+                if(results.some(function(r) {return !!r.error;})) throw new Error('Data load failed');
+                globalData.bills=results[0].data || [];
+                globalData.pagamentosMensais=results[1].data || [];
+                globalData.veiculos=results[2].data || [];
+                updateOverdueCounters(); updateFreeTierBanner(); renderCurrentView();
+            } catch(err) {
+                if(a19IsCurrent(uid,revision)) showToast('Falha ao carregar registros. Tente novamente; isso não significa que foram apagados.');
             } finally {
-                hideLoader();
+                if(a19IsCurrent(uid,revision)) hideLoader();
             }
         }
 
@@ -2497,7 +2517,7 @@
 
             container.innerHTML = '';
             filtered.forEach((bill, idx) => {
-                var nat = bill.natureza || 'pagar';
+                var nat = ['pagar','receber','gasto'].includes(bill.natureza) ? bill.natureza : 'pagar';
                 var isReceber = nat === 'receber';
                 var isGasto = nat === 'gasto';
                 var dateFormatted = formatDateBR(bill.displayData);
@@ -2527,7 +2547,7 @@
                 var tipoLabel = isGasto
                     ? 'Pago na hora'
                     : (bill.tipo === 'Parcelada' && bill.parcela ? 'Parcela ' + bill.parcela : bill.tipo);
-                var tipoTag = '<span class="tag-pill tag-tipo">' + tipoLabel + '</span>';
+                var tipoTag = '<span class="tag-pill tag-tipo">' + a19EscapeHTML(tipoLabel) + '</span>';
 
                 var pixBtnHtml = (isReceber && !bill.isPaidView)
                     ? '<div><button type="button" class="btn-pix-mini" onclick="event.stopPropagation(); openPixChargeForBill(\'' + bill.id + '\')">📲 Cobrar Pix</button></div>'
@@ -2538,7 +2558,7 @@
                     : '<input type="checkbox" class="card-checkbox" ' + (bill.isPaidView ? 'checked' : '') + ' onclick="event.stopPropagation()" onchange="togglePaid(\'' + bill.id + '\')">';
 
                 var datePrefix = isGasto ? 'Data do gasto' : (isReceber ? 'Recebimento' : 'Vencimento');
-                var pagadorExtra = (isReceber && bill.pagador) ? ' • ' + bill.pagador : '';
+                var pagadorExtra = (isReceber && bill.pagador) ? ' • ' + a19EscapeHTML(bill.pagador) : '';
                 var valClass = isGasto ? 'expense-val' : (isReceber ? 'income' : '');
                 var valPrefix = isReceber ? '+ ' : '';
 
@@ -2552,8 +2572,8 @@
                             </button>
                             ${leftControlHtml}
                             <div class="info">
-                                <strong>${bill.nome}</strong>
-                                <span>${datePrefix}: ${dateFormatted}${pagadorExtra}</span>
+                                <strong>${a19EscapeHTML(bill.nome)}</strong>
+                                <span>${datePrefix}: ${a19EscapeHTML(dateFormatted)}${pagadorExtra}</span>
                                 ${natTag}${tipoTag}
                             </div>
                             <div class="value-col">
@@ -2964,7 +2984,7 @@
                 var effTag = (eff && eff.kml)
                     ? '<span class="tag-pill tag-receber">' + eff.kml.toFixed(1) + ' Km/L • ' + formatCurrency(eff.costKm) + '/Km</span>'
                     : '';
-                var tipoTag = '<span class="tag-pill tag-tipo">' + v.tipo_registro + '</span>';
+                var tipoTag = '<span class="tag-pill tag-tipo">' + a19EscapeHTML(v.tipo_registro) + '</span>';
 
                 container.innerHTML += `
                     <div class="swipe-wrapper" style="animation-delay:${delay}s;">
@@ -2975,8 +2995,8 @@
                                 ${TRASH_ICON_SVG}
                             </button>
                             <div class="info">
-                                <strong>${v.nome}</strong>
-                                <span>Data: ${formatDateBR(v.data)}${v.detalhes ? ' • ' + v.detalhes : ''}</span>
+                                <strong>${a19EscapeHTML(v.nome)}</strong>
+                                <span>Data: ${a19EscapeHTML(formatDateBR(v.data))}${v.detalhes ? ' • ' + a19EscapeHTML(v.detalhes) : ''}</span>
                                 ${tipoTag}${kmTag}${effTag}
                             </div>
                             <div class="value-col">
@@ -3373,7 +3393,7 @@
                     container.innerHTML += `
                         <div class="admin-list-item" style="flex-direction:column; align-items:stretch; gap:8px;">
                             <div style="display:flex; justify-content:space-between;">
-                                <strong>${item.nome}</strong>
+                                <strong>${a19EscapeHTML(item.nome)}</strong>
                                 <strong style="color:#EF4444;">${formatCurrency(item.valor)}</strong>
                             </div>
                             <div style="display:flex; gap:6px; justify-content:flex-end;">
@@ -3828,8 +3848,10 @@
 
         async function openAdminModal() {
             if (!isMasterAdmin() && !currentSub?.is_admin) return;
+            var uid=currentUser.id, revision=a19SessionRevision;
             openModalById('modalAdmin');
             const { data, error } = await _supabase.from('assinaturas').select('*').order('created_at', { ascending: false });
+            if(!a19IsCurrent(uid,revision)) return;
             var list = document.getElementById('adminUsersList');
             list.innerHTML = '';
             if (error) { list.textContent = 'Não foi possível carregar os usuários.'; return; }
@@ -3864,18 +3886,35 @@
         }
 
         async function grantCourtesy(emailParam) {
-            var email = (emailParam || document.getElementById('adminTargetEmail').value).trim().toLowerCase();
-            if (!email) return;
-            await _supabase.from('assinaturas').upsert({ email: email, status: 'courtesy', suspended_at: null, purge_at: null }, { onConflict: 'email' });
-            document.getElementById('adminTargetEmail').value = '';
-            openAdminModal();
-            showToast("Cortesia liberada!");
+            var email=(emailParam || document.getElementById('adminTargetEmail').value).trim().toLowerCase();
+            if(!email || !currentUser) return;
+            var uid=currentUser.id, revision=a19SessionRevision;
+            try {
+                var result=await _supabase.from('assinaturas').upsert({email:email,status:'courtesy',suspended_at:null,purge_at:null},{onConflict:'email'}).select('id');
+                if(!a19IsCurrent(uid,revision)) return;
+                if(result.error || !result.data || result.data.length!==1) throw new Error('Operation not confirmed');
+            } catch(err) {
+                if(a19IsCurrent(uid,revision)) appAlert('A alteração de cortesias pelo navegador está bloqueada. Nenhuma alteração foi confirmada.','Operação não concluída');
+                return;
+            }
+            document.getElementById('adminTargetEmail').value='';
+            await openAdminModal(); showToast('Cortesia liberada.');
         }
 
         async function revokeCourtesy(email) {
-            await _supabase.from('assinaturas').update({ status: 'inactive' }).eq('email', email);
-            openAdminModal();
-            showToast("Cortesia removida.");
+            email=String(email || '').trim().toLowerCase();
+            if(!email || !currentUser) return;
+            var uid=currentUser.id, revision=a19SessionRevision;
+            try {
+                var result=await _supabase.from('assinaturas').update({status:'inactive'}).eq('email',email).select('id');
+                if(!a19IsCurrent(uid,revision)) return;
+                if(result.error || !result.data || result.data.length!==1) throw new Error('Operation not confirmed');
+            } catch(err) {
+                if(a19IsCurrent(uid,revision)) appAlert('A alteração de cortesias pelo navegador está bloqueada. Nenhuma alteração foi confirmada.','Operação não concluída');
+                return;
+            }
+            document.getElementById('adminTargetEmail').value='';
+            await openAdminModal(); showToast('Cortesia removida.');
         }
 
         function triggerShortcutPrompt(manual) {
@@ -3925,25 +3964,47 @@
         }
 
         async function recoverPassword() {
-            var email = document.getElementById('authEmail').value.trim();
-            if (!email) { appAlert("Digite seu e-mail no campo acima primeiro.", "Recuperar Senha"); return; }
-            await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
-            appAlert("Link de recuperação enviado para " + email, "E-mail Enviado");
+            var email=document.getElementById('authEmail').value.trim();
+            if(!email) {appAlert('Digite seu e-mail no campo acima primeiro.','Recuperar Senha'); return;}
+            try {
+                var result=await _supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin});
+                if(result.error) throw result.error;
+            } catch(err) {
+                appAlert('Não foi possível solicitar a recuperação agora. Aguarde e tente novamente.','Solicitação não concluída'); return;
+            }
+            appAlert('Se houver uma conta elegível para este e-mail, você receberá as instruções. Confira também o spam.','Recuperação de senha');
         }
 
         async function updateRecoveredPassword() {
-            var pwd = document.getElementById('newPasswordInput').value;
-            if (pwd.length < 6) { appAlert("A senha deve ter pelo menos 6 caracteres.", "Senha Curta"); return; }
-            await _supabase.auth.updateUser({ password: pwd });
-            closeModalById('modalNewPassword');
+            var input=document.getElementById('newPasswordInput'), pwd=input.value;
+            if(pwd.length<6) {appAlert('A senha deve ter pelo menos 6 caracteres.','Senha Curta'); return;}
+            var uid=currentUser && currentUser.id;
+            if(!uid) {appAlert('Solicite outro link de recuperação e abra-o novamente.','Sessão de recuperação ausente'); return;}
+            try {
+                var result=await _supabase.auth.updateUser({password:pwd});
+                if(!currentUser || currentUser.id!==uid) return;
+                if(result.error) throw result.error;
+            } catch(err) {
+                if(currentUser && currentUser.id===uid) appAlert('Não foi possível atualizar a senha. Confira os requisitos e, se o link expirou, solicite outro.','Senha não atualizada');
+                return;
+            }
+            a19PasswordRecovery=false; input.value='';
+            closeModalById('modalNewPassword'); showToast('Senha atualizada.');
             await checkSubscriptionStatus();
         }
 
         async function logout() {
             showLoader();
-            await _supabase.auth.signOut();
-            hideLoader();
+            try {
+                var result=await _supabase.auth.signOut();
+                if(result.error) throw result.error;
+                a19SessionRevision++; a19PasswordRecovery=false; currentUser=null;
+                showAuth();
+            } catch(err) {
+                appAlert('Não foi possível confirmar a saída. Tente novamente antes de deixar este aparelho com outra pessoa.','Saída não confirmada');
+            } finally {hideLoader();}
         }
+
     </script>
 </body>
 </html>
