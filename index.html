@@ -1253,9 +1253,8 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
 @media(prefers-reduced-motion:reduce){.side-drawer{transition:none}.module-flip-in,.module-flip-out,.page-turn-next,.page-turn-prev{animation:none}}
     .a19-search-toggle.a19-has-query{background:var(--a19-gold);border-color:#8D7A3F}
     .side-drawer .btn-streak{position:static;right:auto;top:auto;margin-top:8px;background:#164B3A;color:var(--a19-gold);border-color:var(--a19-gold);font-size:10px;padding:5px 7px}
-
-        .a19-current-date {flex-shrink:0; margin:14px 24px 0; color:var(--text-sub); font-size:12px; line-height:1.5; letter-spacing:.1px;}
-        @media(max-width:540px){.a19-current-date{margin:12px 14px 0;font-size:11px;}}
+        .a19-current-date{flex-shrink:0;margin:14px 24px 0;color:var(--text-sub);font-size:12px;line-height:1.5;letter-spacing:.1px}
+        @media(max-width:540px){.a19-current-date{margin:12px 14px 0;font-size:11px}}
     </style>
 </head>
 <body>
@@ -1658,11 +1657,21 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             <div class="qr-wrapper">
                 <div id="pixQrCanvas"></div>
             </div>
-            <label style="text-align:left; margin-top:6px;">Código Pix Copia e Cola</label>
+            <div id="a19PixLinkBox" hidden style="margin-top:12px;text-align:left;">
+<label for="a19PixLinkInput">Link público desta cobrança</label><input id="a19PixLinkInput" readonly type="text" style="width:100%;font-size:11px;" onclick="this.select()">
+<button type="button" class="btn-cancel" onclick="a19CopyPublicPixLink()">Copiar link</button>
+</div>
+<p id="a19PixLinkStatus" role="status" aria-live="polite" style="font-size:11px;line-height:1.5;color:var(--text-sub);"></p>
+<a id="a19PixWhatsAppFallback" hidden target="_blank" rel="noopener noreferrer" style="color:var(--a19-gold);">Abrir WhatsApp</a>
+<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:12px 0;">
+<button type="button" class="btn-cancel" onclick="a19GeneratePublicPixLink()">Gerar link público</button>
+<button type="button" class="btn-cancel" onclick="a19RevokePublicPixLinks()">Desativar links desta cobrança</button>
+</div>
+<label style="text-align:left; margin-top:6px;">Código Pix Copia e Cola</label>
             <textarea id="pixPayloadBox" rows="3" readonly style="font-size:0.75rem; font-family:monospace;"></textarea>
             <div class="modal-buttons" style="justify-content:center; gap:8px;">
                 <button type="button" class="btn-cancel" onclick="copyPixPayload()">📋 Copiar Código</button>
-                <button type="button" class="btn-save" style="background:#25D366; color:#FFF;" onclick="sharePixWhatsApp()">Enviar no WhatsApp</button>
+                <button type="button" class="btn-save" style="background:#25D366; color:#FFF;" onclick="sharePixWhatsApp()">Cobrar via Pix</button>
                 <button type="button" class="btn-cancel" onclick="closeModalById('modalPixCharge')">Fechar</button>
             </div>
         </div>
@@ -3463,7 +3472,7 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             }
             var bill = globalData.bills.find(b => b.id === id);
             if (!bill) return;
-            renderPixChargeModal(cfg, bill.nome, parseFloat(bill.valor || 0), bill.pagador);
+            renderPixChargeModal(cfg, bill.nome, parseFloat(bill.valor || 0), bill.pagador, bill.id, bill.tipo === 'Mensal' ? getViewMonthKey() : null);
         }
 
         function openPixChargeFromModal() {
@@ -3479,12 +3488,15 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             var nome = document.getElementById('billName').value.trim() || 'Cobrança';
             var valor = parseFloat(document.getElementById('billValue').value || '0');
             var pagador = document.getElementById('billPagador').value.trim();
-            renderPixChargeModal(cfg, nome, valor, pagador);
+            var savedId=document.getElementById('editBillId').value || null;
+            var saved=globalData.bills.find(function(b){return b.id===savedId;});
+            var eligible=saved && saved.nome===nome && Number(saved.valor)===valor;
+            renderPixChargeModal(cfg, nome, valor, pagador, eligible ? savedId : null, saved && saved.tipo==='Mensal' ? getViewMonthKey() : null);
         }
 
-        function renderPixChargeModal(cfg, desc, amount, pagador) {
+        function renderPixChargeModal(cfg, desc, amount, pagador, contaId, mesAno) {
             var payload = buildPixBrCode(cfg, amount, 'GC' + Date.now().toString().slice(-8));
-            activePixChargeContext = { desc: desc, amount: amount, pagador: pagador, payload: payload };
+            activePixChargeContext = {desc:desc,amount:amount,pagador:pagador,payload:payload,contaId:contaId||null,mesAno:mesAno||null,uid:currentUser && currentUser.id,publicLink:null,linkExpires:null,busy:false};
 
             document.getElementById('pixChargeSubtitle').innerText = desc + (pagador ? ' • ' + pagador : '');
             document.getElementById('pixChargeAmount').innerText = formatCurrency(amount);
@@ -3500,6 +3512,10 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
                 colorLight: "#FFFFFF"
             });
 
+            document.getElementById('a19PixWhatsAppFallback').hidden=true;
+            document.getElementById('a19PixLinkBox').hidden=true;
+            document.getElementById('a19PixLinkInput').value='';
+            document.getElementById('a19PixLinkStatus').textContent=contaId ? 'O link expira em 30 dias. Gerar outro invalida o anterior para esta cobrança e mês.' : 'Salve um valor a receber antes de gerar o link público.';
             openModalById('modalPixCharge');
         }
 
@@ -3510,17 +3526,27 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             showToast("Código Pix Copia e Cola copiado!");
         }
 
-        function sharePixWhatsApp() {
-            if (!activePixChargeContext) return;
-            var msg = "Olá" + (activePixChargeContext.pagador ? " " + activePixChargeContext.pagador : "") +
-                "! Segue o Pix referente a *" + activePixChargeContext.desc + "* no valor de *" +
-                formatCurrency(activePixChargeContext.amount) + "*:\n\n" + activePixChargeContext.payload;
-            window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank", "noopener,noreferrer");
+        async function sharePixWhatsApp() {
+            var ctx=activePixChargeContext;
+            if(!a19PixContextValid(ctx) || ctx.busy) return;
+            var tab=window.open('about:blank','_blank');
+            if(tab) tab.opener=null;
+            try {
+                var link=await a19EnsurePixLink(ctx);
+                if(!a19PixContextValid(ctx)) {if(tab) tab.close();return;}
+                var msg='Olá'+(ctx.pagador ? ' '+ctx.pagador : '')+'! Segue a cobrança referente a '+ctx.desc+', no valor de '+formatCurrency(ctx.amount)+'.\n\nAcesse para copiar o código Pix ou visualizar o QR Code:\n'+link;
+                var whatsapp='https://wa.me/?text='+encodeURIComponent(msg);
+                if(tab) tab.location.replace(whatsapp);
+                else {
+                    var manual=document.getElementById('a19PixWhatsAppFallback');manual.href=whatsapp;manual.hidden=false;
+                    document.getElementById('a19PixLinkStatus').textContent='O navegador bloqueou a nova janela. Toque em Abrir WhatsApp abaixo.';
+                }
+            } catch(err) {
+                if(tab) tab.close();
+                if(a19PixContextValid(ctx)) document.getElementById('a19PixLinkStatus').textContent=err.message || 'Não foi possível gerar o link. Tente novamente.';
+            }
         }
 
-        // =========================================================================
-        // CONTAS ATRASADAS SEM DATA & RENEGOCIAÇÃO
-        // =========================================================================
         function openOverdueModal() {
             var list = globalData.bills.filter(b => b.sem_data && !b.pago && b.natureza !== 'gasto');
             var container = document.getElementById('overdueItemsContainer');
@@ -4145,19 +4171,82 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
         }
 
 
-        // Data civil atual, independente do mês selecionado no painel.
         function a19RefreshCurrentDate() {
-            var now = new Date();
-            var weekday = new Intl.DateTimeFormat('pt-BR', {weekday:'long', timeZone:'America/Sao_Paulo'}).format(now);
-            var date = new Intl.DateTimeFormat('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Sao_Paulo'}).format(now);
-            var iso = new Intl.DateTimeFormat('sv-SE', {year:'numeric',month:'2-digit',day:'2-digit',timeZone:'America/Sao_Paulo'}).format(now);
-            var target = document.getElementById('a19CurrentDate');
-            if (target) {target.textContent='Hoje · '+weekday+', '+date;target.setAttribute('datetime',iso);}
+            var now=new Date(),target=document.getElementById('a19CurrentDate');
+            if(!target) return;
+            var weekday=new Intl.DateTimeFormat('pt-BR',{weekday:'long',timeZone:'America/Sao_Paulo'}).format(now);
+            var date=new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Sao_Paulo'}).format(now);
+            var iso=new Intl.DateTimeFormat('sv-SE',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'America/Sao_Paulo'}).format(now);
+            target.textContent='Hoje · '+weekday+', '+date;target.setAttribute('datetime',iso);
         }
-        a19RefreshCurrentDate();
-        setInterval(a19RefreshCurrentDate, 30000);
-        document.addEventListener('visibilitychange', function(){if(!document.hidden) a19RefreshCurrentDate();});
-        window.addEventListener('focus', a19RefreshCurrentDate);
+        a19RefreshCurrentDate();setInterval(a19RefreshCurrentDate,30000);
+        document.addEventListener('visibilitychange',function(){if(!document.hidden) a19RefreshCurrentDate();});
+        window.addEventListener('focus',a19RefreshCurrentDate);
+
+        function a19PixContextValid(ctx) {
+            return !!ctx && !!currentUser && ctx.uid===currentUser.id && activePixChargeContext===ctx;
+        }
+        async function a19EnsurePixLink(ctx) {
+            if(!a19PixContextValid(ctx)) throw new Error('Sessão alterada. Abra a cobrança novamente.');
+            if(!ctx.contaId) throw new Error('Salve a cobrança como valor a receber e abra novamente para gerar o link.');
+            var bill=globalData.bills.find(function(b){return b.id===ctx.contaId;});
+            if(!bill || bill.natureza!=='receber') throw new Error('O link público é somente para valores a receber.');
+            if(Number(bill.valor)!==ctx.amount || bill.nome!==ctx.desc) throw new Error('A cobrança mudou. Abra novamente antes de compartilhar.');
+            if(!Number.isFinite(ctx.amount) || ctx.amount<=0) throw new Error('Informe um valor maior que zero.');
+            if(ctx.publicLink && Date.parse(ctx.linkExpires)>Date.now()) return ctx.publicLink;
+            if(ctx.busy) throw new Error('Aguarde a geração do link.');
+            ctx.busy=true;
+            document.getElementById('a19PixLinkStatus').textContent='Gerando link…';
+            try {
+                var result=await _supabase.rpc('a19_pix_create_link',{p_conta_id:ctx.contaId,p_mes_ano:ctx.mesAno,p_payload:ctx.payload});
+                if(!a19PixContextValid(ctx)) throw new Error('Sessão alterada.');
+                if(result.error) throw new Error(result.error.code==='P0001' ? result.error.message : 'Não foi possível gerar o link. Confira a conexão e tente novamente.');
+                var data=result.data;
+                if(!data || !/^[a-f0-9]{64}$/.test(data.token) || !Number.isFinite(Date.parse(data.expires_at))) throw new Error('Resposta inválida ao gerar o link.');
+                var url=new URL('cobrar.html',window.location.href);url.search='';url.hash='c='+data.token;
+                ctx.publicLink=url.href;ctx.linkExpires=data.expires_at;
+                document.getElementById('a19PixLinkInput').value=ctx.publicLink;
+                document.getElementById('a19PixLinkBox').hidden=false;
+                document.getElementById('a19PixLinkStatus').textContent='Link pronto, válido até '+new Date(data.expires_at).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})+'. Qualquer pessoa com o link poderá visualizar esta cobrança.';
+                return ctx.publicLink;
+            } finally {ctx.busy=false;}
+        }
+        async function a19GeneratePublicPixLink() {
+            var ctx=activePixChargeContext;if(!a19PixContextValid(ctx) || ctx.busy) return;
+            try {await a19EnsurePixLink(ctx);} catch(err) {
+                if(a19PixContextValid(ctx)) document.getElementById('a19PixLinkStatus').textContent=err.message;
+            }
+        }
+        async function a19CopyPublicPixLink() {
+            var ctx=activePixChargeContext;if(!a19PixContextValid(ctx) || ctx.busy) return;
+            try {
+                var link=await a19EnsurePixLink(ctx);
+                if(!a19PixContextValid(ctx)) return;
+                if(navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(link);
+                else {
+                    var input=document.getElementById('a19PixLinkInput');input.focus();input.select();
+                    if(!document.execCommand('copy')) throw new Error('Selecione o link e copie manualmente.');
+                }
+                if(a19PixContextValid(ctx)) document.getElementById('a19PixLinkStatus').textContent='Link copiado.';
+            } catch(err) {if(a19PixContextValid(ctx)) document.getElementById('a19PixLinkStatus').textContent=err.message;}
+        }
+        async function a19RevokePublicPixLinks() {
+            var ctx=activePixChargeContext;if(!a19PixContextValid(ctx) || ctx.busy) return;
+            if(!ctx.contaId) {document.getElementById('a19PixLinkStatus').textContent='Esta cobrança ainda não foi salva.';return;}
+            var ok=await appConfirm('Desativar todos os links públicos desta cobrança, incluindo outros meses? Códigos Pix já copiados não podem ser desativados por aqui.','Desativar links','Desativar',true);
+            if(!ok || !a19PixContextValid(ctx) || ctx.busy) return;
+            ctx.busy=true;
+            try {
+                var result=await _supabase.rpc('a19_pix_revoke_links',{p_conta_id:ctx.contaId});
+                if(!a19PixContextValid(ctx)) return;
+                if(result.error) throw new Error('Não foi possível confirmar a desativação. Tente novamente.');
+                ctx.publicLink=null;ctx.linkExpires=null;
+                document.getElementById('a19PixLinkInput').value='';document.getElementById('a19PixLinkBox').hidden=true;
+                document.getElementById('a19PixWhatsAppFallback').hidden=true;
+                document.getElementById('a19PixLinkStatus').textContent='Links desativados. O lançamento e seus pagamentos foram preservados.';
+            } catch(err) {if(a19PixContextValid(ctx)) document.getElementById('a19PixLinkStatus').textContent=err.message;}
+            finally {ctx.busy=false;}
+        }
     </script>
 </body>
 </html>
