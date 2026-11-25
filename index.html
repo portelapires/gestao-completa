@@ -1253,6 +1253,9 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
 @media(prefers-reduced-motion:reduce){.side-drawer{transition:none}.module-flip-in,.module-flip-out,.page-turn-next,.page-turn-prev{animation:none}}
     .a19-search-toggle.a19-has-query{background:var(--a19-gold);border-color:#8D7A3F}
     .side-drawer .btn-streak{position:static;right:auto;top:auto;margin-top:8px;background:#164B3A;color:var(--a19-gold);border-color:var(--a19-gold);font-size:10px;padding:5px 7px}
+
+        .a19-current-date {flex-shrink:0; margin:14px 24px 0; color:var(--text-sub); font-size:12px; line-height:1.5; letter-spacing:.1px;}
+        @media(max-width:540px){.a19-current-date{margin:12px 14px 0;font-size:11px;}}
     </style>
 </head>
 <body>
@@ -1431,6 +1434,7 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
         </div>
 
         <div id="boardViewport">
+            <div class="a19-current-date"><time id="a19CurrentDate"></time></div>
             <div id="a19SearchPanel" class="a19-search-panel" hidden><div class="search-input-wrap">
                         <span class="search-icon">🔍</span>
                         <input type="text" id="searchFilterInput" placeholder="Buscar lançamento ou pagador..." oninput="onSearchInput(this.value)">
@@ -4140,6 +4144,20 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             } finally {hideLoader();}
         }
 
+
+        // Data civil atual, independente do mês selecionado no painel.
+        function a19RefreshCurrentDate() {
+            var now = new Date();
+            var weekday = new Intl.DateTimeFormat('pt-BR', {weekday:'long', timeZone:'America/Sao_Paulo'}).format(now);
+            var date = new Intl.DateTimeFormat('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Sao_Paulo'}).format(now);
+            var iso = new Intl.DateTimeFormat('sv-SE', {year:'numeric',month:'2-digit',day:'2-digit',timeZone:'America/Sao_Paulo'}).format(now);
+            var target = document.getElementById('a19CurrentDate');
+            if (target) {target.textContent='Hoje · '+weekday+', '+date;target.setAttribute('datetime',iso);}
+        }
+        a19RefreshCurrentDate();
+        setInterval(a19RefreshCurrentDate, 30000);
+        document.addEventListener('visibilitychange', function(){if(!document.hidden) a19RefreshCurrentDate();});
+        window.addEventListener('focus', a19RefreshCurrentDate);
     </script>
 </body>
 </html>
