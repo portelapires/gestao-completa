@@ -1253,8 +1253,12 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
 @media(prefers-reduced-motion:reduce){.side-drawer{transition:none}.module-flip-in,.module-flip-out,.page-turn-next,.page-turn-prev{animation:none}}
     .a19-search-toggle.a19-has-query{background:var(--a19-gold);border-color:#8D7A3F}
     .side-drawer .btn-streak{position:static;right:auto;top:auto;margin-top:8px;background:#164B3A;color:var(--a19-gold);border-color:var(--a19-gold);font-size:10px;padding:5px 7px}
-        .a19-current-date{flex-shrink:0;margin:14px 24px 0;color:var(--text-sub);font-size:12px;line-height:1.5;letter-spacing:.1px}
-        @media(max-width:540px){.a19-current-date{margin:12px 14px 0;font-size:11px}}
+
+        .a19-date-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;margin:14px 24px 0;min-height:30px;}
+        .a19-date-row .a19-current-date{margin:0;color:var(--text-sub);font-size:12px;line-height:1.5;letter-spacing:.1px;}
+        .a19-date-row #btnToday{margin:0;flex-shrink:0;white-space:nowrap;}
+        @media(max-width:540px){.a19-date-row{margin:12px 14px 0;gap:8px;}.a19-date-row .a19-current-date{font-size:11px;}.a19-date-row #btnToday{font-size:10px;padding:5px 8px;}}
+        @media(max-width:359px){.a19-date-row .a19-current-date{font-size:10px;}.a19-date-row #btnToday{font-size:9px;padding:5px 6px;}}
     </style>
 </head>
 <body>
@@ -1433,7 +1437,7 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
         </div>
 
         <div id="boardViewport">
-            <div class="a19-current-date"><time id="a19CurrentDate"></time></div>
+            <div class="a19-date-row"><time class="a19-current-date" id="a19CurrentDate"></time><button id="btnToday" class="btn-today" style="display: none;" onclick="goToCurrentPeriod()">📅 Mês Atual</button></div>
             <div id="a19SearchPanel" class="a19-search-panel" hidden><div class="search-input-wrap">
                         <span class="search-icon">🔍</span>
                         <input type="text" id="searchFilterInput" placeholder="Buscar lançamento ou pagador..." oninput="onSearchInput(this.value)">
@@ -1441,7 +1445,7 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
                     </div></div>
 <div class="month-roulette-wrapper">
                 <div class="month-roulette"><button type="button" class="month-side left" id="prevPeriodDisplay" onclick="changePeriod(-1)" aria-label="Mês anterior"><svg class="a19-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 2v6m10-6v6M3 10h18m-13 5h1m6 0h1"/></svg><span>Anterior</span></button><div class="month-center" id="periodDisplay"><svg class="a19-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 2v6m10-6v6M3 10h18m-13 5h1m6 0h1"/></svg><span>Mês atual</span></div><button type="button" class="month-side right" id="nextPeriodDisplay" onclick="changePeriod(1)" aria-label="Próximo mês"><svg class="a19-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 2v6m10-6v6M3 10h18m-13 5h1m6 0h1"/></svg><span>Próximo</span></button></div>
-                <button id="btnToday" class="btn-today" style="display: none;" onclick="goToCurrentPeriod()">📅 Mês Atual</button>
+                
             </div>
 
             <div id="pageSheetArea">
