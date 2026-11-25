@@ -1259,9 +1259,28 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
         .a19-date-row #btnToday{margin:0;flex-shrink:0;white-space:nowrap;}
         @media(max-width:540px){.a19-date-row{margin:12px 14px 0;gap:8px;}.a19-date-row .a19-current-date{font-size:11px;}.a19-date-row #btnToday{font-size:10px;padding:5px 8px;}}
         @media(max-width:359px){.a19-date-row .a19-current-date{font-size:10px;}.a19-date-row #btnToday{font-size:9px;padding:5px 6px;}}
+
+        #a19MenuGestureEdge{position:fixed;right:0;top:0;bottom:0;width:20px;z-index:140;touch-action:pan-y;pointer-events:none;}
+        body.app-active #a19MenuGestureEdge{pointer-events:auto;}
+        .swipe-card{touch-action:pan-y;}
+        .swipe-wrapper .swipe-bg{visibility:hidden;}
+        .swipe-wrapper .swipe-bg.right-action{background:#28714C;color:#F2F5EC;gap:8px;align-items:center;padding:0 12px;}
+        .swipe-bg.right-action>span{font-size:11px;line-height:1.25;max-width:69px;}
+        .a19-swipe-icon{width:20px;height:20px;flex-shrink:0;}
+        #boardViewport.module-flip-out{animation:axisFlipOut .24s cubic-bezier(.4,0,1,1) forwards;}
+        #boardViewport.module-flip-in{animation:axisFlipIn .36s cubic-bezier(.22,1,.36,1);}
+        #pageSheetArea.page-turn-next{animation:bookPageNext .42s cubic-bezier(.22,1,.36,1);}
+        #pageSheetArea.page-turn-prev{animation:bookPagePrev .42s cubic-bezier(.22,1,.36,1);}
+        @keyframes a19ModalEnter{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .modal-content.a19-modal-enter{animation:a19ModalEnter .30s cubic-bezier(.22,1,.36,1);}
+        @keyframes a19ReducedFade{from{opacity:.6}to{opacity:1}}
+        @media(prefers-reduced-motion:reduce){
+            #boardViewport.module-flip-out,#boardViewport.module-flip-in,#pageSheetArea.page-turn-next,#pageSheetArea.page-turn-prev,.modal-content.a19-modal-enter{animation:a19ReducedFade .12s linear;}
+        }
     </style>
 </head>
 <body>
+    <div id="a19MenuGestureEdge" aria-hidden="true"></div>
 
     <div id="loader">Carregando...</div>
     <div id="appToast" class="app-toast"></div>
@@ -2006,7 +2025,13 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             }
         }
 
-        function openModalById(id) { document.getElementById(id).style.display = 'flex'; }
+        function openModalById(id) {
+            var modal=document.getElementById(id);
+            modal.style.display='flex';
+            var content=modal.querySelector('.modal-content');
+            if(content) {content.classList.remove('a19-modal-enter');void content.offsetWidth;content.classList.add('a19-modal-enter');}
+        }
+
         function closeModalById(id) { document.getElementById(id).style.display = 'none'; }
 
         function openDrawer() {
@@ -2357,9 +2382,11 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
         // NAVEGAÇÃO ENTRE MÓDULOS E PERÍODOS
         // =========================================================================
         function setMode(mode) {
-            if (currentMode === mode) return;
+            if (currentMode === mode || a19ModuleSwitchBusy) return;
+            a19ModuleSwitchBusy=true;
             var vp = document.getElementById('boardViewport');
-            vp.classList.remove('module-flip-in');
+            vp.classList.remove('module-flip-in','module-flip-out');
+            void vp.offsetWidth;
             vp.classList.add('module-flip-out');
 
             setTimeout(() => {
@@ -2390,8 +2417,10 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
                 renderCurrentView();
 
                 vp.classList.remove('module-flip-out');
+                void vp.offsetWidth;
                 vp.classList.add('module-flip-in');
-            }, 170);
+                a19ModuleSwitchBusy=false;
+            }, 240);
         }
 
         function animateBookPage(dir) {
@@ -2689,7 +2718,7 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
 
                 var swipeRightBg = isGasto
                     ? ''
-                    : '<div class="swipe-bg right-action">' + (bill.isPaidView ? '↩ Reabrir' : (isReceber ? '✓ Recebido' : '✓ Pagar')) + '</div>';
+                    : '<div class="swipe-bg right-action">' + (bill.isPaidView ? "<svg class=\"a19-swipe-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10h10a6 6 0 0 1 0 12M4 10l5-5M4 10l5 5\"/></svg>" + '<span>Reabrir</span>' : "<svg class=\"a19-swipe-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg>" + '<span>' + (isReceber ? 'Marcar como recebido' : 'Marcar como pago') + '</span>') + '</div>';
 
                 var natTag = isGasto
                     ? '<span class="tag-pill expense-tag">GASTO / DESPESA</span>'
@@ -3256,51 +3285,67 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
         // GESTOS DE SWIPE NOS CARDS
         // =========================================================================
         function attachCardSwipeHandlers() {
-            document.querySelectorAll('.swipe-card').forEach(card => {
-                var startX = 0, currentX = 0, isDragging = false;
-
-                card.addEventListener('touchstart', e => {
-                    startX = e.touches[0].clientX;
-                    isDragging = true;
-                    card.style.transition = 'none';
-                }, { passive: true });
-
-                card.addEventListener('touchmove', e => {
-                    if (!isDragging) return;
-                    currentX = e.touches[0].clientX - startX;
-                    if (Math.abs(currentX) > 10) {
-                        var clamped = Math.max(-110, Math.min(110, currentX));
-                        card.style.transform = 'translateX(' + clamped + 'px)';
-                    }
-                }, { passive: true });
-
-                card.addEventListener('touchend', () => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    card.style.transition = 'transform 0.2s ease';
-                    var id = card.getAttribute('data-id');
-                    var mod = card.getAttribute('data-module');
-                    var nat = card.getAttribute('data-natureza');
-
-                    if (currentX > 75) {
-                        card.style.transform = 'translateX(0)';
-                        if (mod === 'financeiro' && nat !== 'gasto') togglePaid(id);
-                        else if (mod === 'veiculo') openEditVehicle(id);
-                    } else if (currentX < -75) {
-                        card.style.transform = 'translateX(0)';
-                        if (mod === 'financeiro') requestDeleteBill(id);
-                        else deleteVehicleItem(id);
-                    } else {
-                        card.style.transform = 'translateX(0)';
-                    }
-                    currentX = 0;
+            document.querySelectorAll('.swipe-card').forEach(function(card) {
+                if(card.dataset.a19SwipeBound) return;
+                card.dataset.a19SwipeBound='1';
+                var startX=0,startY=0,currentX=0,pointerId=null,horizontal=false,blocked=false;
+                var wrapper=card.closest('.swipe-wrapper');
+                var right=wrapper.querySelector('.right-action'),left=wrapper.querySelector('.left-action');
+                var swallowClickUntil=0;
+                function reset() {
+                    card.style.transition='transform .2s ease';card.style.transform='translateX(0)';
+                    if(right) right.style.visibility='hidden';if(left) left.style.visibility='hidden';
+                    var releaseId=pointerId;pointerId=null;
+                    if(releaseId!==null && card.hasPointerCapture(releaseId)) card.releasePointerCapture(releaseId);
+                    currentX=0;horizontal=false;blocked=false;
+                }
+                reset();
+                card.addEventListener('click',function(event) {
+                    if(Date.now()<swallowClickUntil) {event.preventDefault();event.stopImmediatePropagation();}
+                },true);
+                card.addEventListener('pointerdown',function(event) {
+                    if(!event.isPrimary || (event.pointerType==='mouse' && event.button!==0)
+                        || event.clientX>=window.innerWidth-24 || event.target.closest('button,input,select,textarea,a')) return;
+                    pointerId=event.pointerId;startX=event.clientX;startY=event.clientY;currentX=0;horizontal=false;blocked=false;
                 });
+                card.addEventListener('pointermove',function(event) {
+                    if(event.pointerId!==pointerId || blocked) return;
+                    var dx=event.clientX-startX,dy=event.clientY-startY;
+                    if(!horizontal) {
+                        if(Math.abs(dy)>10 && Math.abs(dy)>Math.abs(dx)) {blocked=true;return;}
+                        if(Math.abs(dx)<10 || Math.abs(dx)<=Math.abs(dy)*1.3) return;
+                        horizontal=true;card.setPointerCapture(event.pointerId);card.style.transition='none';
+                    }
+                    if(event.cancelable) event.preventDefault();
+                    currentX=Math.max(-110,Math.min(110,dx));
+                    if(currentX>0 && !right) currentX=0;
+                    if(right) right.style.visibility=currentX>0 ? 'visible' : 'hidden';
+                    if(left) left.style.visibility=currentX<0 ? 'visible' : 'hidden';
+                    card.style.transform='translateX('+currentX+'px)';
+                });
+                card.addEventListener('pointerup',function(event) {
+                    if(event.pointerId!==pointerId) return;
+                    var delta=currentX,didDrag=horizontal;
+                    var id=card.getAttribute('data-id'),mod=card.getAttribute('data-module'),nat=card.getAttribute('data-natureza');
+                    if(didDrag || blocked) swallowClickUntil=Date.now()+400;
+                    reset();
+                    if(delta>75) {
+                        if(mod==='financeiro' && nat!=='gasto') togglePaid(id);
+                        else if(mod==='veiculo') openEditVehicle(id);
+                    } else if(delta<-75) {
+                        if(mod==='financeiro') requestDeleteBill(id);
+                        else deleteVehicleItem(id);
+                    }
+                });
+                card.addEventListener('pointercancel',reset);
+                card.addEventListener('lostpointercapture',function(){if(pointerId!==null) reset();});
             });
         }
 
         // =========================================================================
         // ABERTURA DOS MODAIS PRINCIPAIS
         // =========================================================================
+
         function openModal() {
             if (currentMode === 'financeiro') {
                 if (!hasProAccess && getBillsForViewMonth().length >= FREE_LIMIT_BILLS) {
@@ -4251,6 +4296,30 @@ body.dark-mode,body.dark-mode.vehicle-mode {--bg:#04251F;--card-bg:#0B352C;--tex
             } catch(err) {if(a19PixContextValid(ctx)) document.getElementById('a19PixLinkStatus').textContent=err.message;}
             finally {ctx.busy=false;}
         }
+
+        var a19ModuleSwitchBusy=false;
+        (function() {
+            var gesture=null;
+            document.addEventListener('pointerdown',function(event) {
+                gesture=null;
+                if(!event.isPrimary || (event.pointerType==='mouse' && event.button!==0)
+                   || !document.body.classList.contains('app-active') || event.clientX<innerWidth-24
+                   || document.getElementById('sideDrawer').classList.contains('open')) return;
+                var modalOpen=Array.from(document.querySelectorAll('.modal')).some(function(m){return getComputedStyle(m).display!=='none';});
+                if(modalOpen) return;
+                gesture={id:event.pointerId,x:event.clientX,y:event.clientY,opened:false};
+            },true);
+            document.addEventListener('pointermove',function(event) {
+                if(!gesture || gesture.id!==event.pointerId) return;
+                var dx=event.clientX-gesture.x,dy=event.clientY-gesture.y;
+                if(Math.abs(dy)>30 || dx>15) {gesture=null;return;}
+                if(dx<-55 && Math.abs(dx)>Math.abs(dy)*1.5) {
+                    if(event.cancelable) event.preventDefault();openDrawer();gesture=null;
+                }
+            },{capture:true,passive:false});
+            document.addEventListener('pointerup',function(){gesture=null;},true);
+            document.addEventListener('pointercancel',function(){gesture=null;},true);
+        })();
     </script>
 </body>
 </html>
